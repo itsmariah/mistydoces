@@ -2,18 +2,41 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/components/cart/cart-provider";
 import { cn, formatCurrency } from "@/lib/utils";
 
 type Variant = { id: string; label: string; price: number };
 
 type VariantSelectorProps = {
+  productSlug: string;
+  productName: string;
+  imageUrl: string | null;
   variants: Variant[];
   disabled?: boolean;
 };
 
-export function VariantSelector({ variants, disabled }: VariantSelectorProps) {
+export function VariantSelector({
+  productSlug,
+  productName,
+  imageUrl,
+  variants,
+  disabled,
+}: VariantSelectorProps) {
   const [selectedId, setSelectedId] = useState(variants[0]?.id);
+  const { addItem } = useCart();
   const selected = variants.find((variant) => variant.id === selectedId) ?? variants[0];
+
+  function handleAdd() {
+    if (!selected) return;
+    addItem({
+      variantId: selected.id,
+      productSlug,
+      productName,
+      variantLabel: selected.label,
+      price: selected.price,
+      imageUrl,
+    });
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -41,7 +64,7 @@ export function VariantSelector({ variants, disabled }: VariantSelectorProps) {
         {selected ? formatCurrency(selected.price) : ""}
       </span>
 
-      <Button size="lg" disabled={disabled} className="w-full sm:w-fit">
+      <Button size="lg" disabled={disabled} className="w-full sm:w-fit" onClick={handleAdd}>
         Adicionar ao carrinho
       </Button>
     </div>

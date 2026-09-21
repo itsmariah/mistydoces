@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Quicksand } from "next/font/google";
 import Script from "next/script";
 import { THEME_STORAGE_KEY, ThemeProvider } from "@/components/theme-provider";
+import { CartProvider } from "@/components/cart/cart-provider";
 import "./globals.css";
 
 // Roda antes da hidratação para aplicar o tema salvo/preferido sem "flash" de tela clara.
@@ -43,7 +44,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Script id="theme-init" strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <CartProvider>{children}</CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

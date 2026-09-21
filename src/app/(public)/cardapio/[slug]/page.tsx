@@ -64,6 +64,9 @@ export default async function ProdutoPage({
           <p className="text-muted-foreground">{product.description}</p>
 
           <VariantSelector
+            productSlug={product.slug}
+            productName={product.name}
+            imageUrl={product.imageUrl}
             variants={product.variants.map((variant) => ({
               id: variant.id,
               label: variant.label,

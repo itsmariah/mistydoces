@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ShoppingBag, User } from "lucide-react";
+import { User } from "lucide-react";
 import { auth } from "@/lib/auth";
+import { CartSheet } from "@/components/cart/cart-sheet";
 import { Logo } from "@/components/shared/logo";
 import { MobileNav } from "@/components/shared/mobile-nav";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -40,9 +41,7 @@ export async function Header() {
 
         <div className="flex items-center gap-1">
           <ThemeToggle />
-          <Button variant="ghost" size="icon" aria-label="Carrinho">
-            <ShoppingBag className="h-5 w-5" />
-          </Button>
+          <CartSheet />
           <Button
             variant="ghost"
             size="icon"
