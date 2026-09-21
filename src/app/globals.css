@@ -48,25 +48,25 @@
 }
 
 :root {
-  /* MistyDoces — tema claro (lilas + azul bebe, ver ETAPA 9 do planejamento) */
-  --background: #fffbfe;
-  --foreground: #2e2a38;
+  /* MistyDoces — tema claro (azul bebê como cor principal, lilás como secundária) */
+  --background: #f8fbfe;
+  --foreground: #262b35;
   --card: #ffffff;
-  --card-foreground: #2e2a38;
+  --card-foreground: #262b35;
   --popover: #ffffff;
-  --popover-foreground: #2e2a38;
-  --primary: #8b6fcb;
+  --popover-foreground: #262b35;
+  --primary: #4fa8da;
   --primary-foreground: #ffffff;
-  --secondary: #d6eef7;
-  --secondary-foreground: #1e3a4c;
-  --muted: #f3effb;
-  --muted-foreground: #6b647f;
-  --accent: #e4d9f7;
-  --accent-foreground: #2e2a38;
+  --secondary: #ece4fa;
+  --secondary-foreground: #4a3b73;
+  --muted: #eef5fb;
+  --muted-foreground: #64707d;
+  --accent: #d6eef7;
+  --accent-foreground: #1e3a4c;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #e8e3f5;
-  --input: #e8e3f5;
-  --ring: #8b6fcb;
+  --border: #dfeaf5;
+  --input: #dfeaf5;
+  --ring: #4fa8da;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -74,48 +74,48 @@
   --chart-5: oklch(0.269 0 0);
   --radius: 0.875rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #2e2a38;
-  --sidebar-primary: #8b6fcb;
+  --sidebar-foreground: #262b35;
+  --sidebar-primary: #4fa8da;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e4d9f7;
-  --sidebar-accent-foreground: #2e2a38;
-  --sidebar-border: #e8e3f5;
-  --sidebar-ring: #8b6fcb;
+  --sidebar-accent: #d6eef7;
+  --sidebar-accent-foreground: #1e3a4c;
+  --sidebar-border: #dfeaf5;
+  --sidebar-ring: #4fa8da;
 }
 
 .dark {
-  /* MistyDoces — tema escuro */
-  --background: #1e1b29;
-  --foreground: #f1eefb;
-  --card: #29253a;
-  --card-foreground: #f1eefb;
-  --popover: #29253a;
-  --popover-foreground: #f1eefb;
-  --primary: #c9b6f2;
-  --primary-foreground: #1e1b29;
-  --secondary: #233a48;
-  --secondary-foreground: #9fd8f0;
-  --muted: #3a3550;
-  --muted-foreground: #b8b0d0;
-  --accent: #3a2f52;
-  --accent-foreground: #f1eefb;
+  /* MistyDoces — tema escuro (azul bebê como cor principal, lilás como secundária) */
+  --background: #1b1f29;
+  --foreground: #eef3fb;
+  --card: #242b38;
+  --card-foreground: #eef3fb;
+  --popover: #242b38;
+  --popover-foreground: #eef3fb;
+  --primary: #8ecae6;
+  --primary-foreground: #12283a;
+  --secondary: #3a2f52;
+  --secondary-foreground: #dcd0f5;
+  --muted: #313b4a;
+  --muted-foreground: #a9b6c5;
+  --accent: #233a48;
+  --accent-foreground: #9fd8f0;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: #3a3550;
-  --input: #3a3550;
-  --ring: #c9b6f2;
+  --border: #313b4a;
+  --input: #313b4a;
+  --ring: #8ecae6;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: #29253a;
-  --sidebar-foreground: #f1eefb;
-  --sidebar-primary: #c9b6f2;
-  --sidebar-primary-foreground: #1e1b29;
-  --sidebar-accent: #3a2f52;
-  --sidebar-accent-foreground: #f1eefb;
-  --sidebar-border: #3a3550;
-  --sidebar-ring: #c9b6f2;
+  --sidebar: #242b38;
+  --sidebar-foreground: #eef3fb;
+  --sidebar-primary: #8ecae6;
+  --sidebar-primary-foreground: #12283a;
+  --sidebar-accent: #233a48;
+  --sidebar-accent-foreground: #9fd8f0;
+  --sidebar-border: #313b4a;
+  --sidebar-ring: #8ecae6;
 }
 
 @layer base {
