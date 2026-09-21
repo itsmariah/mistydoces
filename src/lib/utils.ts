@@ -8,6 +8,12 @@ export function formatCurrency(value: number | string): string {
   }).format(amount);
 }
 
+export function getStartingPrice(
+  variants: Array<{ price: number | string | { toString(): string } }>,
+): number {
+  return Math.min(...variants.map((variant) => Number(variant.price.toString())));
+}
+
 export function slugify(text: string): string {
   return text
     .normalize("NFD")
