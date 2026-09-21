@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MistyDoces 🐾
 
-## Getting Started
+Sistema web completo (cardápio + pedidos online + painel administrativo) desenvolvido para uma confeitaria artesanal real, do zero até o deploy.
 
-First, run the development server:
+O nome é uma homenagem a uma gatinha de estimação — por isso alguns detalhes sutis de marca (paleta lilás/azul bebê, ícone de pata) remetem a gatos, mesmo a aplicação sendo um e-commerce sério.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+> Este repositório documenta o processo de construção do projeto para fins de portfólio. Nenhum dado real da loja (nome comercial completo, endereço, telefone, credenciais) é exposto aqui — variáveis sensíveis ficam em `.env`, que nunca é versionado.
+
+## Sobre o projeto
+
+Diferente de um projeto de estudo isolado, o objetivo aqui foi construir uma aplicação com potencial real de uso: um visitante navega pelo cardápio, cria conta, monta um pedido e acompanha seu status; a proprietária gerencia produtos, categorias e pedidos em um painel administrativo dedicado.
+
+O sistema é **single-tenant por decisão de escopo** — feito para uma única loja, sem abstrações de multi-tenant/SaaS, priorizando simplicidade e capacidade real de entrar em produção antes de qualquer generalização futura.
+
+Todo o planejamento (requisitos, casos de uso, fluxos, arquitetura, modelagem de dados, roadmap) foi conduzido antes da primeira linha de código, e está documentado nas seções abaixo.
+
+## Stack técnica
+
+| Camada | Tecnologia |
+|---|---|
+| Frontend | Next.js (App Router) + TypeScript + Tailwind CSS + shadcn/ui |
+| Backend | Server Actions e Route Handlers do próprio Next.js |
+| Banco de dados | PostgreSQL + Prisma ORM |
+| Autenticação | Auth.js (Credentials + sessão em banco) |
+| Upload de imagens | Cloudinary (upload assinado, direto do navegador) |
+| Deploy | Vercel + Postgres gerenciado |
+
+## Decisões arquiteturais principais
+
+- **Sem multi-tenancy, sem sistema de assinatura** — o escopo atual é uma única loja; a arquitetura evita abstrações que só fariam sentido num produto SaaS.
+- **Duas camadas de autorização** (middleware + verificação de role/`userId` dentro de cada Server Action) — nunca confiar apenas no roteamento.
+- **Snapshot de preço, nome do produto e endereço em cada pedido** — o histórico de um pedido nunca muda, mesmo que o produto seja repreçado/renomeado ou o endereço editado depois.
+- **Toda regra de negócio (preço, quantidade, disponibilidade, transição de status) é revalidada no backend**, nunca confiando em valores vindos do frontend.
+- **Carrinho 100% client-side** (sem tabela no banco) — simplicidade deliberada para o estágio atual do produto.
+- **Sem pagamento online no MVP** — o pedido registra a forma de pagamento (dinheiro, Pix manual, cartão na entrega); a integração com gateway fica reservada para uma fase futura, sem redesenho de arquitetura.
+
+## Estrutura do projeto
+
+```
+src/
+├── app/            # rotas (App Router): público, auth, cliente, admin, api
+├── actions/        # Server Actions — camada de transporte
+├── services/       # regras de negócio (domain layer), testável isoladamente
+├── lib/            # Prisma client, Auth.js, erros de domínio, máquina de status
+├── validations/    # schemas Zod compartilhados entre client e server
+├── components/     # organizados por domínio (catalog, cart, checkout, admin...)
+├── hooks/ context/ # estado do carrinho (client-side)
+prisma/
+└── schema.prisma   # modelo de dados
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Modelo de dados (resumo)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`User` → `Address` (1:N) · `User` → `Order` (1:N) · `Category` → `Product` (1:N) · `Order` → `OrderItem` (1:N) · `Order` → `Payment` (1:1) · `StoreSettings` como registro único (singleton).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Rodando localmente
 
-## Learn More
+```bash
+npm install
+cp .env.example .env   # preencha com suas próprias credenciais locais
+npm run db:migrate     # aplica o schema no seu PostgreSQL local
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Roadmap de desenvolvimento
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [x] Fase 1 — Fundação do projeto
+- [x] Fase 2 — Autenticação
+- [ ] Fase 3 — Catálogo / cardápio
+- [ ] Fase 4 — Carrinho
+- [ ] Fase 5 — Checkout e pedidos
+- [ ] Fase 6 — Painel administrativo
+- [ ] Fase 7 — Polimento, segurança e testes
+- [ ] Fase 8 — Deploy
+- [ ] Fase 9 — Funcionalidades futuras (pagamento online, cupons, notificações, avaliações)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Projeto pessoal, desenvolvido para uso real e como peça de portfólio de desenvolvimento frontend.
