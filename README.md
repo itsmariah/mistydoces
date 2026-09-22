@@ -53,7 +53,7 @@ prisma/
 
 ## Modelo de dados (resumo)
 
-`User` → `Address` (1:N) · `User` → `Order` (1:N) · `User` → `PasswordResetToken` (1:N) · `Category` → `Product` (1:N) · `Order` → `OrderItem` (1:N) · `Order` → `Payment` (1:1) · `Coupon` → `Order` (1:N, opcional) · `StoreSettings` como registro único (singleton).
+`User` → `Address` (1:N) · `User` → `Order` (1:N) · `User` → `PasswordResetToken` (1:N) · `User` → `Review` (1:N) · `Category` → `Product` (1:N) · `Product` → `Review` (1:N) · `Order` → `OrderItem` (1:N) · `Order` → `Payment` (1:1) · `Coupon` → `Order` (1:N, opcional) · `StoreSettings` como registro único (singleton).
 
 ## Rodando localmente
 
@@ -79,7 +79,7 @@ npm test
 - [x] Fase 5 — Checkout e pedidos
 - [x] Fase 6 — Painel administrativo
 - [x] Fase 7 — Polimento, segurança e testes
-- [ ] Fase 8 — Funcionalidades futuras (cupons de desconto ✅ · pagamento online, notificações, avaliações pendentes)
+- [ ] Fase 8 — Funcionalidades futuras (cupons de desconto ✅ · avaliações de produto ✅ · pagamento online e notificações pendentes)
 - [ ] Fase 9 — Deploy (com domínio próprio)
 
 ---

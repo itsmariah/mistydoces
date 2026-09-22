@@ -4,7 +4,15 @@ import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VariantSelector } from "@/components/catalog/variant-selector";
+import { StarRating } from "@/components/catalog/star-rating";
+import { ReviewForm } from "@/components/catalog/review-form";
 import { getProductBySlug } from "@/lib/catalog";
+import { auth } from "@/lib/auth";
+import {
+  getProductRatingSummary,
+  getProductReviews,
+  getReviewEligibility,
+} from "@/services/review-service";
 
 export default async function ProdutoPage({
   params,
@@ -17,6 +25,15 @@ export default async function ProdutoPage({
   if (!product) {
     notFound();
   }
+
+  const session = await auth();
+  const [ratingSummary, reviews, eligibility] = await Promise.all([
+    getProductRatingSummary(product.id),
+    getProductReviews(product.id),
+    session?.user
+      ? getReviewEligibility(session.user.id, product.id)
+      : Promise.resolve(null),
+  ]);
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-12">
@@ -53,6 +70,15 @@ export default async function ProdutoPage({
             <h1 className="font-heading text-2xl font-semibold sm:text-3xl">
               {product.name}
             </h1>
+            {ratingSummary.count > 0 && (
+              <div className="flex items-center gap-2">
+                <StarRating value={ratingSummary.average} />
+                <span className="text-sm text-muted-foreground">
+                  {ratingSummary.average.toFixed(1)} ({ratingSummary.count}{" "}
+                  {ratingSummary.count === 1 ? "avaliação" : "avaliações"})
+                </span>
+              </div>
+            )}
           </div>
 
           {!product.isAvailable && (
@@ -76,6 +102,37 @@ export default async function ProdutoPage({
           />
         </div>
       </div>
+
+      <section className="space-y-4 border-t border-border pt-8">
+        <h2 className="font-heading text-lg font-medium">Avaliações</h2>
+
+        {eligibility?.canReview && (
+          <ReviewForm productId={product.id} productSlug={product.slug} />
+        )}
+        {eligibility?.alreadyReviewed && (
+          <p className="text-sm text-muted-foreground">Você já avaliou este produto. Obrigado!</p>
+        )}
+
+        {reviews.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Este produto ainda não tem avaliações.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {reviews.map((review) => (
+              <div key={review.id} className="space-y-1 border-b border-border pb-4 last:border-0">
+                <div className="flex items-center gap-2">
+                  <StarRating value={review.rating} />
+                  <span className="text-sm font-medium">{review.user.name}</span>
+                </div>
+                {review.comment && (
+                  <p className="text-sm text-muted-foreground">{review.comment}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

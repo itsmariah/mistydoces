@@ -48,6 +48,7 @@ model User {
   addresses           Address[]
   orders              Order[]
   passwordResetTokens PasswordResetToken[]
+  reviews             Review[]
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 }
@@ -109,10 +110,29 @@ model Product {
   isAvailable Boolean          @default(true)
   isActive    Boolean          @default(true)
   variants    ProductVariant[]
+  reviews     Review[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
   @@index([categoryId])
+}
+
+/// Só quem tem um pedido DELIVERED com esse produto pode avaliar (checado no
+/// backend, nunca confiando no client) — uma avaliação por cliente/produto.
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
+  @@index([productId])
 }
 
 /// Um produto sempre tem >=1 variante (ex.: "Único", "Caixa com 6") — o
