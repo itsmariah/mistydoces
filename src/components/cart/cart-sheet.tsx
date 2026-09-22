@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -108,8 +109,13 @@ export function CartSheet() {
                 {formatCurrency(subtotal)}
               </span>
             </div>
-            <Button size="lg" disabled className="w-full">
-              Finalizar pedido (em breve)
+            <Button
+              size="lg"
+              className="w-full"
+              nativeButton={false}
+              render={<Link href="/checkout" onClick={() => setOpen(false)} />}
+            >
+              Finalizar pedido
             </Button>
           </SheetFooter>
         )}

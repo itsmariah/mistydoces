@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { logoutUser } from "@/actions/auth";
@@ -26,6 +27,13 @@ export default async function AccountPage() {
           </Button>
         </form>
       </div>
+
+      <section className="space-y-4">
+        <h2 className="font-heading text-lg font-medium">Pedidos</h2>
+        <Button variant="outline" nativeButton={false} render={<Link href="/conta/pedidos" />}>
+          Ver meus pedidos
+        </Button>
+      </section>
 
       <section className="space-y-4">
         <h2 className="font-heading text-lg font-medium">Dados pessoais</h2>
