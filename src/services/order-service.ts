@@ -1,3 +1,4 @@
+import type { OrderStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   ForbiddenError,
@@ -5,7 +6,7 @@ import {
   NotFoundError,
   ProductUnavailableError,
 } from "@/lib/errors";
-import { canCustomerCancel } from "@/lib/order-status";
+import { canCustomerCancel, canTransition } from "@/lib/order-status";
 import { getDeliveryFee } from "@/services/store-settings-service";
 import type { CheckoutInput } from "@/validations/order";
 
@@ -140,5 +141,46 @@ export async function cancelOrder(userId: string, orderId: string) {
   return prisma.order.update({
     where: { id: orderId },
     data: { status: "CANCELLED" },
+  });
+}
+
+export function adminListOrders(status?: OrderStatus) {
+  return prisma.order.findMany({
+    where: status ? { status } : undefined,
+    orderBy: { createdAt: "desc" },
+    include: { items: true, payment: true, user: { select: { name: true, email: true } } },
+  });
+}
+
+export async function adminGetOrderById(orderId: string) {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      items: true,
+      payment: true,
+      user: { select: { name: true, email: true, phone: true } },
+    },
+  });
+  if (!order) throw new NotFoundError("Pedido não encontrado.");
+  return order;
+}
+
+export async function adminUpdateOrderStatus(orderId: string, status: OrderStatus) {
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!order) throw new NotFoundError("Pedido não encontrado.");
+  if (!canTransition(order.status, status)) {
+    throw new InvalidStatusTransitionError(order.status, status);
+  }
+
+  return prisma.order.update({ where: { id: orderId }, data: { status } });
+}
+
+export async function adminMarkPaymentPaid(orderId: string) {
+  const payment = await prisma.payment.findUnique({ where: { orderId } });
+  if (!payment) throw new NotFoundError("Pagamento não encontrado.");
+
+  return prisma.payment.update({
+    where: { orderId },
+    data: { status: "PAID", paidAt: new Date() },
   });
 }

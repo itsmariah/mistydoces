@@ -69,7 +69,7 @@ npm run dev
 - [x] Fase 3 — Catálogo / cardápio
 - [x] Fase 4 — Carrinho
 - [x] Fase 5 — Checkout e pedidos
-- [ ] Fase 6 — Painel administrativo
+- [x] Fase 6 — Painel administrativo
 - [ ] Fase 7 — Polimento, segurança e testes
 - [ ] Fase 8 — Deploy
 - [ ] Fase 9 — Funcionalidades futuras (pagamento online, cupons, notificações, avaliações)

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-// Painel ainda não tem dashboard (Fase 6) — a única tela hoje é configurações.
+// Painel ainda não tem um dashboard dedicado — pedidos é a tela mais usada no dia a dia.
 export default function AdminHomePage() {
-  redirect("/admin/configuracoes");
+  redirect("/admin/pedidos");
 }

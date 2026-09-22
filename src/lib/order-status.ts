@@ -27,6 +27,11 @@ export function canTransition(from: OrderStatus, to: OrderStatus): boolean {
   return VALID_TRANSITIONS[from]?.includes(to) ?? false;
 }
 
+/** Próximos status válidos a partir do atual — usado pelos controles do admin. */
+export function getNextStatuses(from: OrderStatus): OrderStatus[] {
+  return VALID_TRANSITIONS[from] ?? [];
+}
+
 export function canCustomerCancel(status: OrderStatus): boolean {
   return status === "PENDING";
 }

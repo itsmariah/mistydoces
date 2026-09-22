@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
-import { ForbiddenError, UnauthorizedError, toActionError } from "@/lib/errors";
+import { toActionError } from "@/lib/errors";
+import { requireAdmin } from "@/lib/require-admin";
 import { upsertStoreSettings } from "@/services/store-settings-service";
 import { storeSettingsSchema } from "@/validations/store-settings";
 
@@ -21,9 +21,7 @@ export async function updateStoreSettings(input: unknown): Promise<ActionResult>
   }
 
   try {
-    const session = await auth();
-    if (!session?.user) throw new UnauthorizedError();
-    if (session.user.role !== "ADMIN") throw new ForbiddenError();
+    await requireAdmin();
 
     await upsertStoreSettings(parsed.data);
 
