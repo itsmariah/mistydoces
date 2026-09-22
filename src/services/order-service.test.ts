@@ -19,11 +19,18 @@ const prismaMock = {
   order: {
     create: vi.fn(),
   },
+  user: {
+    findUnique: vi.fn(),
+  },
   $executeRaw: vi.fn(),
   $transaction: vi.fn((callback: (tx: typeof prismaMock) => unknown) => callback(prismaMock)),
 };
 
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
+vi.mock("@/services/notification-service", () => ({
+  sendOrderConfirmationEmail: vi.fn(),
+  sendOrderStatusUpdateEmail: vi.fn(),
+}));
 
 const { createOrder } = await import("@/services/order-service");
 const { ProductUnavailableError, NotFoundError } = await import("@/lib/errors");

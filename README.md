@@ -79,7 +79,7 @@ npm test
 - [x] Fase 5 — Checkout e pedidos
 - [x] Fase 6 — Painel administrativo
 - [x] Fase 7 — Polimento, segurança e testes
-- [ ] Fase 8 — Funcionalidades futuras (cupons de desconto ✅ · avaliações de produto ✅ · pagamento online e notificações pendentes)
+- [ ] Fase 8 — Funcionalidades futuras (cupons de desconto ✅ · avaliações de produto ✅ · notificações por e-mail ✅ · pagamento online pendente)
 - [ ] Fase 9 — Deploy (com domínio próprio)
 
 ---

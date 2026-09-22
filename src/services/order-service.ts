@@ -11,6 +11,7 @@ import { canCustomerCancel, canTransition } from "@/lib/order-status";
 import { toCents, fromCents } from "@/lib/money";
 import { getDeliveryFee } from "@/services/store-settings-service";
 import * as couponService from "@/services/coupon-service";
+import * as notificationService from "@/services/notification-service";
 import type { CheckoutInput } from "@/validations/order";
 
 export async function createOrder(userId: string, input: CheckoutInput) {
@@ -133,6 +134,14 @@ export async function createOrder(userId: string, input: CheckoutInput) {
     });
   });
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true, email: true },
+  });
+  if (user) {
+    await notificationService.sendOrderConfirmationEmail(order, user);
+  }
+
   return order;
 }
 
@@ -162,10 +171,20 @@ export async function cancelOrder(userId: string, orderId: string) {
     throw new InvalidStatusTransitionError(order.status, "CANCELLED");
   }
 
-  return prisma.order.update({
+  const updated = await prisma.order.update({
     where: { id: orderId },
     data: { status: "CANCELLED" },
   });
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true, email: true },
+  });
+  if (user) {
+    await notificationService.sendOrderStatusUpdateEmail(updated, user, "CANCELLED");
+  }
+
+  return updated;
 }
 
 export function adminListOrders(status?: OrderStatus) {
@@ -196,7 +215,17 @@ export async function adminUpdateOrderStatus(orderId: string, status: OrderStatu
     throw new InvalidStatusTransitionError(order.status, status);
   }
 
-  return prisma.order.update({ where: { id: orderId }, data: { status } });
+  const updated = await prisma.order.update({ where: { id: orderId }, data: { status } });
+
+  const user = await prisma.user.findUnique({
+    where: { id: order.userId },
+    select: { name: true, email: true },
+  });
+  if (user) {
+    await notificationService.sendOrderStatusUpdateEmail(updated, user, status);
+  }
+
+  return updated;
 }
 
 export async function adminMarkPaymentPaid(orderId: string) {
