@@ -5,11 +5,11 @@ export const addressSchema = z.object({
   zipCode: z.string().trim().min(8, "Informe um CEP válido."),
   street: z.string().trim().min(2, "Informe a rua."),
   number: z.string().trim().min(1, "Informe o número."),
-  complement: z.string().trim().optional(),
+  complement: z.string().trim().min(1, "Informe o complemento."),
   neighborhood: z.string().trim().min(2, "Informe o bairro."),
   city: z.string().trim().min(2, "Informe a cidade."),
   state: z.string().trim().length(2, "Use a sigla do estado (ex.: SP)."),
-  reference: z.string().trim().optional(),
+  reference: z.string().trim().min(1, "Informe um ponto de referência."),
 });
 
 export type AddressInput = z.infer<typeof addressSchema>;

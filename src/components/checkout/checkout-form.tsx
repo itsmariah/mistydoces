@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type FocusEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -13,6 +13,7 @@ import {
   checkoutFormSchema,
   type CheckoutFormInput,
 } from "@/validations/order";
+import { lookupCep } from "@/lib/cep";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,6 +40,7 @@ export function CheckoutForm({
   const { items, subtotal, clear } = useCart();
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
+  const [cepStatus, setCepStatus] = useState<"idle" | "loading" | "not-found">("idle");
 
   const defaultAddressId = addresses.find((a) => a.isDefault)?.id ?? addresses[0]?.id;
 
@@ -46,6 +48,10 @@ export function CheckoutForm({
     control,
     register,
     handleSubmit,
+    setValue,
+    setFocus,
+    setError,
+    formState: { errors },
   } = useForm<CheckoutFormInput>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
@@ -63,6 +69,27 @@ export function CheckoutForm({
   const effectiveDeliveryFee = deliveryType === "DELIVERY" ? deliveryFee : 0;
   const total = subtotal + effectiveDeliveryFee;
 
+  const newAddressZipCodeField = register("newAddress.zipCode");
+
+  async function handleCepBlur(event: FocusEvent<HTMLInputElement>) {
+    const digits = event.target.value.replace(/\D/g, "");
+    if (digits.length !== 8) return;
+
+    setCepStatus("loading");
+    const result = await lookupCep(digits);
+    if (!result) {
+      setCepStatus("not-found");
+      return;
+    }
+
+    setCepStatus("idle");
+    setValue("newAddress.street", result.street, { shouldValidate: true });
+    setValue("newAddress.neighborhood", result.neighborhood, { shouldValidate: true });
+    setValue("newAddress.city", result.city, { shouldValidate: true });
+    setValue("newAddress.state", result.state, { shouldValidate: true });
+    setFocus("newAddress.number");
+  }
+
   function onSubmit(data: CheckoutFormInput) {
     setFormError(null);
 
@@ -78,7 +105,16 @@ export function CheckoutForm({
       if (showNewAddressFields) {
         const parsedAddress = addressSchema.safeParse(data.newAddress);
         if (!parsedAddress.success) {
-          setFormError(parsedAddress.error.issues[0]?.message ?? "Endereço inválido.");
+          for (const issue of parsedAddress.error.issues) {
+            const field = issue.path[0];
+            if (typeof field === "string") {
+              setError(`newAddress.${field as keyof typeof addressSchema.shape}`, {
+                type: "manual",
+                message: issue.message,
+              });
+            }
+          }
+          setFormError("Verifique os campos do endereço.");
           return;
         }
         newAddress = parsedAddress.data;
@@ -200,38 +236,98 @@ export function CheckoutForm({
                   placeholder="Casa, trabalho..."
                   {...register("newAddress.label")}
                 />
+                {errors.newAddress?.label && (
+                  <p className="text-sm text-destructive">{errors.newAddress.label.message}</p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="newAddress.zipCode">CEP</Label>
-                <Input id="newAddress.zipCode" {...register("newAddress.zipCode")} />
+                <Input
+                  id="newAddress.zipCode"
+                  placeholder="00000-000"
+                  inputMode="numeric"
+                  {...newAddressZipCodeField}
+                  onBlur={(event) => {
+                    newAddressZipCodeField.onBlur(event);
+                    handleCepBlur(event);
+                  }}
+                />
+                {cepStatus === "loading" && (
+                  <p className="text-sm text-muted-foreground">Buscando endereço...</p>
+                )}
+                {cepStatus === "not-found" && (
+                  <p className="text-sm text-muted-foreground">
+                    CEP não encontrado — preencha o endereço manualmente.
+                  </p>
+                )}
+                {errors.newAddress?.zipCode && (
+                  <p className="text-sm text-destructive">
+                    {errors.newAddress.zipCode.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="newAddress.number">Número</Label>
                 <Input id="newAddress.number" {...register("newAddress.number")} />
+                {errors.newAddress?.number && (
+                  <p className="text-sm text-destructive">{errors.newAddress.number.message}</p>
+                )}
               </div>
               <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="newAddress.street">Rua</Label>
                 <Input id="newAddress.street" {...register("newAddress.street")} />
+                {errors.newAddress?.street && (
+                  <p className="text-sm text-destructive">{errors.newAddress.street.message}</p>
+                )}
               </div>
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="newAddress.complement">Complemento (opcional)</Label>
-                <Input id="newAddress.complement" {...register("newAddress.complement")} />
+                <Label htmlFor="newAddress.complement">Complemento</Label>
+                <Input
+                  id="newAddress.complement"
+                  placeholder="Apto, bloco, quadra..."
+                  {...register("newAddress.complement")}
+                />
+                {errors.newAddress?.complement && (
+                  <p className="text-sm text-destructive">
+                    {errors.newAddress.complement.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="newAddress.neighborhood">Bairro</Label>
                 <Input id="newAddress.neighborhood" {...register("newAddress.neighborhood")} />
+                {errors.newAddress?.neighborhood && (
+                  <p className="text-sm text-destructive">
+                    {errors.newAddress.neighborhood.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="newAddress.city">Cidade</Label>
                 <Input id="newAddress.city" {...register("newAddress.city")} />
+                {errors.newAddress?.city && (
+                  <p className="text-sm text-destructive">{errors.newAddress.city.message}</p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="newAddress.state">UF</Label>
                 <Input id="newAddress.state" maxLength={2} {...register("newAddress.state")} />
+                {errors.newAddress?.state && (
+                  <p className="text-sm text-destructive">{errors.newAddress.state.message}</p>
+                )}
               </div>
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="newAddress.reference">Ponto de referência (opcional)</Label>
-                <Input id="newAddress.reference" {...register("newAddress.reference")} />
+                <Label htmlFor="newAddress.reference">Ponto de referência</Label>
+                <Input
+                  id="newAddress.reference"
+                  placeholder="Nome do prédio, condomínio, estabelecimento próximo..."
+                  {...register("newAddress.reference")}
+                />
+                {errors.newAddress?.reference && (
+                  <p className="text-sm text-destructive">
+                    {errors.newAddress.reference.message}
+                  </p>
+                )}
               </div>
             </div>
           )}
