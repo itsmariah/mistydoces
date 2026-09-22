@@ -66,9 +66,9 @@ npm run dev
 
 - [x] Fase 1 — Fundação do projeto
 - [x] Fase 2 — Autenticação
-- [ ] Fase 3 — Catálogo / cardápio
-- [ ] Fase 4 — Carrinho
-- [ ] Fase 5 — Checkout e pedidos
+- [x] Fase 3 — Catálogo / cardápio
+- [x] Fase 4 — Carrinho
+- [x] Fase 5 — Checkout e pedidos
 - [ ] Fase 6 — Painel administrativo
 - [ ] Fase 7 — Polimento, segurança e testes
 - [ ] Fase 8 — Deploy
