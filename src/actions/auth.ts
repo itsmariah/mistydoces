@@ -4,7 +4,12 @@ import bcrypt from "bcryptjs";
 import { signIn, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AppError, toActionError } from "@/lib/errors";
-import { registerSchema } from "@/validations/auth";
+import * as passwordResetService from "@/services/password-reset-service";
+import {
+  forgotPasswordSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from "@/validations/auth";
 
 type ActionResult = { success: true } | { success: false; error: { code: string; message: string } };
 
@@ -41,4 +46,45 @@ export async function registerUser(input: unknown): Promise<ActionResult> {
 
 export async function logoutUser() {
   await signOut({ redirectTo: "/" });
+}
+
+export async function requestPasswordReset(input: unknown): Promise<ActionResult> {
+  const parsed = forgotPasswordSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: {
+        code: "VALIDATION_ERROR",
+        message: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+      },
+    };
+  }
+
+  try {
+    // Sempre responde com sucesso, exista ou não o e-mail (evita enumeração de contas).
+    await passwordResetService.requestPasswordReset(parsed.data.email);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: toActionError(error) };
+  }
+}
+
+export async function resetPassword(input: unknown): Promise<ActionResult> {
+  const parsed = resetPasswordSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: {
+        code: "VALIDATION_ERROR",
+        message: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+      },
+    };
+  }
+
+  try {
+    await passwordResetService.resetPassword(parsed.data.token, parsed.data.newPassword);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: toActionError(error) };
+  }
 }

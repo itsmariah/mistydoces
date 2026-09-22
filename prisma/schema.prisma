@@ -39,16 +39,32 @@ enum PaymentStatus {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  name         String
-  email        String    @unique
-  phone        String
-  passwordHash String
-  role         Role      @default(CUSTOMER)
-  addresses    Address[]
-  orders       Order[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                  String              @id @default(cuid())
+  name                String
+  email               String              @unique
+  phone               String
+  passwordHash        String
+  role                Role                @default(CUSTOMER)
+  addresses           Address[]
+  orders              Order[]
+  passwordResetTokens PasswordResetToken[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+/// Token de redefinição de senha ("esqueci minha senha"). Armazenamos o hash
+/// do token, nunca o valor enviado por e-mail — se o banco vazar, os links
+/// de reset já emitidos continuam inúteis para um atacante.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 model Address {

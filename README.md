@@ -21,8 +21,10 @@ Todo o planejamento (requisitos, casos de uso, fluxos, arquitetura, modelagem de
 | Frontend | Next.js (App Router) + TypeScript + Tailwind CSS + shadcn/ui |
 | Backend | Server Actions e Route Handlers do próprio Next.js |
 | Banco de dados | PostgreSQL + Prisma ORM |
-| Autenticação | Auth.js (Credentials + sessão em banco) |
+| Autenticação | Auth.js (Credentials + sessão JWT) |
 | Upload de imagens | Cloudinary (upload assinado, direto do navegador) |
+| E-mail transacional | Resend (redefinição de senha) |
+| Testes | Vitest (regras de negócio, camada de serviço) |
 | Deploy | Vercel + Postgres gerenciado |
 
 ## Decisões arquiteturais principais
@@ -51,7 +53,7 @@ prisma/
 
 ## Modelo de dados (resumo)
 
-`User` → `Address` (1:N) · `User` → `Order` (1:N) · `Category` → `Product` (1:N) · `Order` → `OrderItem` (1:N) · `Order` → `Payment` (1:1) · `StoreSettings` como registro único (singleton).
+`User` → `Address` (1:N) · `User` → `Order` (1:N) · `User` → `PasswordResetToken` (1:N) · `Category` → `Product` (1:N) · `Order` → `OrderItem` (1:N) · `Order` → `Payment` (1:1) · `StoreSettings` como registro único (singleton).
 
 ## Rodando localmente
 
@@ -62,6 +64,12 @@ npm run db:migrate     # aplica o schema no seu PostgreSQL local
 npm run dev
 ```
 
+Testes automatizados (regras de negócio, sem depender de banco):
+
+```bash
+npm test
+```
+
 ## Roadmap de desenvolvimento
 
 - [x] Fase 1 — Fundação do projeto
@@ -70,9 +78,9 @@ npm run dev
 - [x] Fase 4 — Carrinho
 - [x] Fase 5 — Checkout e pedidos
 - [x] Fase 6 — Painel administrativo
-- [ ] Fase 7 — Polimento, segurança e testes
-- [ ] Fase 8 — Deploy
-- [ ] Fase 9 — Funcionalidades futuras (pagamento online, cupons, notificações, avaliações)
+- [x] Fase 7 — Polimento, segurança e testes
+- [ ] Fase 8 — Funcionalidades futuras (pagamento online, cupons, notificações, avaliações)
+- [ ] Fase 9 — Deploy (com domínio próprio)
 
 ---
 

@@ -11,9 +11,10 @@ export function getProducts(params?: { categorySlug?: string }) {
   return prisma.product.findMany({
     where: {
       isActive: true,
-      ...(params?.categorySlug
-        ? { category: { slug: params.categorySlug } }
-        : {}),
+      category: {
+        isActive: true,
+        ...(params?.categorySlug ? { slug: params.categorySlug } : {}),
+      },
     },
     include: {
       category: true,
@@ -25,7 +26,7 @@ export function getProducts(params?: { categorySlug?: string }) {
 
 export function getProductBySlug(slug: string) {
   return prisma.product.findFirst({
-    where: { slug, isActive: true },
+    where: { slug, isActive: true, category: { isActive: true } },
     include: {
       category: true,
       variants: { orderBy: { sortOrder: "asc" } },

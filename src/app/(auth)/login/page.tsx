@@ -14,6 +14,12 @@ export default function LoginPage() {
       <LoginForm />
 
       <p className="text-center text-sm text-muted-foreground">
+        <Link href="/esqueci-senha" className="font-medium text-primary hover:underline">
+          Esqueci minha senha
+        </Link>
+      </p>
+
+      <p className="text-center text-sm text-muted-foreground">
         Ainda não tem conta?{" "}
         <Link href="/cadastro" className="font-medium text-primary hover:underline">
           Criar conta

@@ -53,7 +53,7 @@ export async function createOrder(userId: string, input: CheckoutInput) {
   const variantIds = input.items.map((item) => item.variantId);
   const variants = await prisma.productVariant.findMany({
     where: { id: { in: variantIds } },
-    include: { product: true },
+    include: { product: { include: { category: true } } },
   });
 
   let subtotalCents = 0;
@@ -62,7 +62,11 @@ export async function createOrder(userId: string, input: CheckoutInput) {
     if (!variant) {
       throw new NotFoundError("Um dos itens do carrinho não existe mais.");
     }
-    if (!variant.product.isActive || !variant.product.isAvailable) {
+    if (
+      !variant.product.isActive ||
+      !variant.product.isAvailable ||
+      !variant.product.category.isActive
+    ) {
       throw new ProductUnavailableError(variant.product.name);
     }
 
