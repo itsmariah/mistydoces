@@ -13,9 +13,14 @@ const prismaMock = {
   storeSettings: {
     findUnique: vi.fn(),
   },
+  coupon: {
+    findUnique: vi.fn(),
+  },
   order: {
     create: vi.fn(),
   },
+  $executeRaw: vi.fn(),
+  $transaction: vi.fn((callback: (tx: typeof prismaMock) => unknown) => callback(prismaMock)),
 };
 
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
@@ -157,5 +162,65 @@ describe("createOrder", () => {
         paymentMethod: "CASH",
       }),
     ).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("aplica desconto percentual do cupom sobre o subtotal, não sobre a entrega", async () => {
+    prismaMock.productVariant.findMany.mockResolvedValue([buildVariant()]);
+    prismaMock.coupon.findUnique.mockResolvedValue({
+      id: "coupon-1",
+      code: "PROMO10",
+      type: "PERCENTAGE",
+      value: "10",
+      minOrderValue: null,
+      maxUses: null,
+      usedCount: 0,
+      isActive: true,
+      expiresAt: null,
+    });
+    prismaMock.$executeRaw.mockResolvedValue(1);
+
+    await createOrder("user-1", {
+      items: [{ variantId: "variant-1", quantity: 1 }],
+      deliveryType: "PICKUP",
+      paymentMethod: "CASH",
+      couponCode: "promo10",
+    });
+
+    // subtotal 4.10, 10% de desconto = 0.41 → total 3.69 (sem taxa de entrega no PICKUP)
+    expect(prismaMock.order.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          discountAmount: 0.41,
+          total: 3.69,
+          couponCodeSnapshot: "PROMO10",
+        }),
+      }),
+    );
+  });
+
+  it("rejeita cupom que já atingiu o limite de usos no momento de confirmar o pedido", async () => {
+    prismaMock.productVariant.findMany.mockResolvedValue([buildVariant()]);
+    prismaMock.coupon.findUnique.mockResolvedValue({
+      id: "coupon-1",
+      code: "ESGOTADO",
+      type: "FIXED",
+      value: "5",
+      minOrderValue: null,
+      maxUses: 1,
+      usedCount: 0,
+      isActive: true,
+      expiresAt: null,
+    });
+    // Simula outro pedido consumindo o último uso entre a validação e a confirmação.
+    prismaMock.$executeRaw.mockResolvedValue(0);
+
+    await expect(
+      createOrder("user-1", {
+        items: [{ variantId: "variant-1", quantity: 1 }],
+        deliveryType: "PICKUP",
+        paymentMethod: "CASH",
+        couponCode: "ESGOTADO",
+      }),
+    ).rejects.toThrow(/limite de usos/);
   });
 });

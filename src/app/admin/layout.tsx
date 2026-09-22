@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 const NAV_ITEMS = [
   { href: "/admin/produtos", label: "Produtos" },
   { href: "/admin/categorias", label: "Categorias" },
+  { href: "/admin/cupons", label: "Cupons" },
   { href: "/admin/pedidos", label: "Pedidos" },
   { href: "/admin/clientes", label: "Clientes" },
   { href: "/admin/configuracoes", label: "Configurações" },

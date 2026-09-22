@@ -1,24 +1,17 @@
 import type { OrderStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
+  AppError,
   ForbiddenError,
   InvalidStatusTransitionError,
   NotFoundError,
   ProductUnavailableError,
 } from "@/lib/errors";
 import { canCustomerCancel, canTransition } from "@/lib/order-status";
+import { toCents, fromCents } from "@/lib/money";
 import { getDeliveryFee } from "@/services/store-settings-service";
+import * as couponService from "@/services/coupon-service";
 import type { CheckoutInput } from "@/validations/order";
-
-// Preços são manipulados em centavos (inteiros) durante o cálculo para evitar
-// erros de ponto flutuante; convertidos de volta para reais só ao persistir.
-function toCents(value: unknown): number {
-  return Math.round(Number(value) * 100);
-}
-
-function fromCents(cents: number): number {
-  return cents / 100;
-}
 
 export async function createOrder(userId: string, input: CheckoutInput) {
   // Endereço: usa um já salvo (validando posse) ou cadastra um novo antes do pedido.
@@ -86,31 +79,58 @@ export async function createOrder(userId: string, input: CheckoutInput) {
 
   const deliveryFeeCents =
     input.deliveryType === "DELIVERY" ? toCents(await getDeliveryFee()) : 0;
-  const totalCents = subtotalCents + deliveryFeeCents;
 
-  const order = await prisma.order.create({
-    data: {
-      userId,
-      status: "PENDING",
-      deliveryType: input.deliveryType,
-      addressId: address?.id,
-      deliveryLabel: address?.label,
-      deliveryZipCode: address?.zipCode,
-      deliveryStreet: address?.street,
-      deliveryNumber: address?.number,
-      deliveryComplement: address?.complement,
-      deliveryNeighborhood: address?.neighborhood,
-      deliveryCity: address?.city,
-      deliveryState: address?.state,
-      deliveryReference: address?.reference,
-      notes: input.notes || null,
-      subtotal: fromCents(subtotalCents),
-      deliveryFee: fromCents(deliveryFeeCents),
-      total: fromCents(totalCents),
-      items: { create: orderItemsData },
-      payment: { create: { method: input.paymentMethod } },
-    },
-    include: { items: true, payment: true },
+  // Revalida o cupom no backend, igual a preço/disponibilidade — nunca confia
+  // no desconto calculado no client.
+  const coupon = input.couponCode
+    ? await couponService.findCouponByCode(input.couponCode)
+    : null;
+  const discountCents = coupon ? couponService.evaluateCoupon(coupon, subtotalCents) : 0;
+
+  const totalCents = subtotalCents - discountCents + deliveryFeeCents;
+
+  const order = await prisma.$transaction(async (tx) => {
+    if (coupon) {
+      // Debita o uso só agora (não na validação/prévia), de forma atômica —
+      // evita estourar `maxUses` se dois pedidos usarem o último uso disponível
+      // ao mesmo tempo.
+      const consumed = await couponService.consumeCouponUse(tx, coupon.id);
+      if (!consumed) {
+        throw new AppError(
+          "COUPON_EXHAUSTED",
+          "Este cupom atingiu o limite de usos enquanto você finalizava o pedido.",
+          409,
+        );
+      }
+    }
+
+    return tx.order.create({
+      data: {
+        userId,
+        status: "PENDING",
+        deliveryType: input.deliveryType,
+        addressId: address?.id,
+        deliveryLabel: address?.label,
+        deliveryZipCode: address?.zipCode,
+        deliveryStreet: address?.street,
+        deliveryNumber: address?.number,
+        deliveryComplement: address?.complement,
+        deliveryNeighborhood: address?.neighborhood,
+        deliveryCity: address?.city,
+        deliveryState: address?.state,
+        deliveryReference: address?.reference,
+        couponId: coupon?.id,
+        couponCodeSnapshot: coupon?.code,
+        discountAmount: fromCents(discountCents),
+        notes: input.notes || null,
+        subtotal: fromCents(subtotalCents),
+        deliveryFee: fromCents(deliveryFeeCents),
+        total: fromCents(totalCents),
+        items: { create: orderItemsData },
+        payment: { create: { method: input.paymentMethod } },
+      },
+      include: { items: true, payment: true },
+    });
   });
 
   return order;

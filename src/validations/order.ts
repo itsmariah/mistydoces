@@ -26,6 +26,7 @@ const checkoutBaseSchema = z.object({
   newAddress: addressSchema.optional(),
   paymentMethod: z.enum(["CASH", "PIX_MANUAL", "CARD_ON_DELIVERY"]),
   notes: z.string().trim().max(500).optional(),
+  couponCode: z.string().trim().min(1).optional(),
 });
 
 function requiresAddress(data: {

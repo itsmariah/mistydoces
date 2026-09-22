@@ -7,7 +7,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Address } from "@/generated/prisma/client";
 import { useCart } from "@/components/cart/cart-provider";
-import { createOrder } from "@/actions/orders";
+import { createOrder, validateCoupon } from "@/actions/orders";
 import {
   addressSchema,
   checkoutFormSchema,
@@ -41,6 +41,12 @@ export function CheckoutForm({
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
   const [cepStatus, setCepStatus] = useState<"idle" | "loading" | "not-found">("idle");
+  const [couponCodeInput, setCouponCodeInput] = useState("");
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [isApplyingCoupon, startApplyingCoupon] = useTransition();
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(
+    null,
+  );
 
   const defaultAddressId = addresses.find((a) => a.isDefault)?.id ?? addresses[0]?.id;
 
@@ -67,9 +73,34 @@ export function CheckoutForm({
     deliveryType === "DELIVERY" && (addressChoice === NEW_ADDRESS_VALUE || addresses.length === 0);
 
   const effectiveDeliveryFee = deliveryType === "DELIVERY" ? deliveryFee : 0;
-  const total = subtotal + effectiveDeliveryFee;
+  const discount = appliedCoupon ? Math.min(appliedCoupon.discount, subtotal) : 0;
+  const total = subtotal - discount + effectiveDeliveryFee;
 
   const newAddressZipCodeField = register("newAddress.zipCode");
+
+  function handleApplyCoupon() {
+    setCouponError(null);
+    const code = couponCodeInput.trim();
+    if (!code) {
+      setCouponError("Informe um código de cupom.");
+      return;
+    }
+
+    startApplyingCoupon(async () => {
+      const result = await validateCoupon({ code, subtotal });
+      if (!result.success) {
+        setCouponError(result.error.message);
+        return;
+      }
+      setAppliedCoupon({ code: code.toUpperCase(), discount: result.data.discount });
+    });
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null);
+    setCouponCodeInput("");
+    setCouponError(null);
+  }
 
   async function handleCepBlur(event: FocusEvent<HTMLInputElement>) {
     const digits = event.target.value.replace(/\D/g, "");
@@ -134,6 +165,7 @@ export function CheckoutForm({
         newAddress,
         paymentMethod: data.paymentMethod,
         notes: data.notes,
+        couponCode: appliedCoupon?.code,
       });
 
       if (!result.success) {
@@ -361,11 +393,49 @@ export function CheckoutForm({
         />
       </section>
 
+      <section className="space-y-3">
+        <h2 className="font-heading text-lg font-medium">Cupom de desconto</h2>
+        {appliedCoupon ? (
+          <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
+            <span>
+              Cupom <span className="font-mono font-medium">{appliedCoupon.code}</span> aplicado
+              — {formatCurrency(appliedCoupon.discount)} de desconto
+            </span>
+            <Button type="button" variant="ghost" size="sm" onClick={handleRemoveCoupon}>
+              Remover
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Input
+              placeholder="Código do cupom"
+              value={couponCodeInput}
+              onChange={(event) => setCouponCodeInput(event.target.value)}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isApplyingCoupon}
+              onClick={handleApplyCoupon}
+            >
+              {isApplyingCoupon ? "Aplicando..." : "Aplicar"}
+            </Button>
+          </div>
+        )}
+        {couponError && <p className="text-sm text-destructive">{couponError}</p>}
+      </section>
+
       <section className="space-y-2 rounded-lg border border-border p-4">
         <div className="flex justify-between text-sm">
           <span>Subtotal</span>
           <span>{formatCurrency(subtotal)}</span>
         </div>
+        {discount > 0 && (
+          <div className="flex justify-between text-sm text-primary">
+            <span>Desconto</span>
+            <span>-{formatCurrency(discount)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-sm">
           <span>Taxa de entrega</span>
           <span>{effectiveDeliveryFee > 0 ? formatCurrency(effectiveDeliveryFee) : "Grátis"}</span>

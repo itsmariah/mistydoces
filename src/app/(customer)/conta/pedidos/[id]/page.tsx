@@ -103,6 +103,14 @@ export default async function OrderDetailPage({
           <span>Subtotal</span>
           <span>{formatCurrency(order.subtotal.toString())}</span>
         </div>
+        {Number(order.discountAmount) > 0 && (
+          <div className="flex justify-between text-sm text-primary">
+            <span>
+              Desconto{order.couponCodeSnapshot ? ` (${order.couponCodeSnapshot})` : ""}
+            </span>
+            <span>-{formatCurrency(order.discountAmount.toString())}</span>
+          </div>
+        )}
         <div className="flex justify-between text-sm">
           <span>Taxa de entrega</span>
           <span>{formatCurrency(order.deliveryFee.toString())}</span>
