@@ -29,10 +29,15 @@ export default async function AccountPage() {
       </div>
 
       <section className="space-y-4">
-        <h2 className="font-heading text-lg font-medium">Pedidos</h2>
-        <Button variant="outline" nativeButton={false} render={<Link href="/conta/pedidos" />}>
-          Ver meus pedidos
-        </Button>
+        <h2 className="font-heading text-lg font-medium">Pedidos e endereços</h2>
+        <div className="flex gap-2">
+          <Button variant="outline" nativeButton={false} render={<Link href="/conta/pedidos" />}>
+            Ver meus pedidos
+          </Button>
+          <Button variant="outline" nativeButton={false} render={<Link href="/conta/enderecos" />}>
+            Meus endereços
+          </Button>
+        </div>
       </section>
 
       <section className="space-y-4">

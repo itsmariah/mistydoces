@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
-import { getStoreDeliveryFee, getUserAddresses } from "@/services/order-service";
+import { getUserAddresses } from "@/services/address-service";
+import { getDeliveryFee } from "@/services/store-settings-service";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 
 export default async function CheckoutPage() {
@@ -7,7 +8,7 @@ export default async function CheckoutPage() {
   const session = await auth();
   const [addresses, deliveryFee] = await Promise.all([
     getUserAddresses(session!.user.id),
-    getStoreDeliveryFee(),
+    getDeliveryFee(),
   ]);
 
   return (

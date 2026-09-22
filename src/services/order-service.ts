@@ -6,6 +6,7 @@ import {
   ProductUnavailableError,
 } from "@/lib/errors";
 import { canCustomerCancel } from "@/lib/order-status";
+import { getDeliveryFee } from "@/services/store-settings-service";
 import type { CheckoutInput } from "@/validations/order";
 
 // Preços são manipulados em centavos (inteiros) durante o cálculo para evitar
@@ -16,14 +17,6 @@ function toCents(value: unknown): number {
 
 function fromCents(cents: number): number {
   return cents / 100;
-}
-
-export async function getStoreDeliveryFee(): Promise<number> {
-  const settings = await prisma.storeSettings.findUnique({
-    where: { id: "singleton" },
-    select: { deliveryFee: true },
-  });
-  return settings ? Number(settings.deliveryFee) : 0;
 }
 
 export async function createOrder(userId: string, input: CheckoutInput) {
@@ -87,7 +80,7 @@ export async function createOrder(userId: string, input: CheckoutInput) {
   });
 
   const deliveryFeeCents =
-    input.deliveryType === "DELIVERY" ? toCents(await getStoreDeliveryFee()) : 0;
+    input.deliveryType === "DELIVERY" ? toCents(await getDeliveryFee()) : 0;
   const totalCents = subtotalCents + deliveryFeeCents;
 
   const order = await prisma.order.create({
@@ -147,12 +140,5 @@ export async function cancelOrder(userId: string, orderId: string) {
   return prisma.order.update({
     where: { id: orderId },
     data: { status: "CANCELLED" },
-  });
-}
-
-export async function getUserAddresses(userId: string) {
-  return prisma.address.findMany({
-    where: { userId },
-    orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
   });
 }
