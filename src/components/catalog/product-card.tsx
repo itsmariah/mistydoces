@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Category, Product, ProductVariant } from "@/generated/prisma/client";
 import { Badge } from "@/components/ui/badge";
+import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
 
 type ProductCardProps = {
@@ -33,9 +34,7 @@ export function ProductCard({ product }: ProductCardProps) {
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-4xl">
-            🍰
-          </div>
+          <ProductPlaceholderImage />
         )}
         {!product.isAvailable && (
           <Badge

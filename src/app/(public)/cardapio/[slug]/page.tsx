@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { VariantSelector } from "@/components/catalog/variant-selector";
 import { StarRating } from "@/components/catalog/star-rating";
 import { ReviewForm } from "@/components/catalog/review-form";
+import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { getProductBySlug } from "@/lib/catalog";
 import { auth } from "@/lib/auth";
 import {
@@ -56,9 +57,7 @@ export default async function ProdutoPage({
               sizes="(min-width: 640px) 50vw, 100vw"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-7xl">
-              🍰
-            </div>
+            <ProductPlaceholderImage className="object-contain p-10" />
           )}
         </div>
 

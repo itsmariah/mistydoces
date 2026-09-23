@@ -1,34 +1,39 @@
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-/** Ícone de pata estilizado — único ponto de referência ao gato que dá nome à marca (ver ETAPA 9). */
-function PawIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={className}
-      aria-hidden="true"
-    >
-      <ellipse cx="12" cy="16" rx="6" ry="5" />
-      <ellipse cx="5" cy="9" rx="2.1" ry="2.6" />
-      <ellipse cx="10" cy="5.5" rx="2.1" ry="2.6" />
-      <ellipse cx="14" cy="5.5" rx="2.1" ry="2.6" />
-      <ellipse cx="19" cy="9" rx="2.1" ry="2.6" />
-    </svg>
-  );
-}
+// Proporção real do arquivo (365x299).
+const ICON_ASPECT_RATIO = 365 / 299;
+const SIZES = {
+  sm: { icon: 32, text: "text-xl" },
+  lg: { icon: 64, text: "text-3xl" },
+} as const;
 
-export function Logo({ className }: { className?: string }) {
+export function Logo({
+  className,
+  size = "sm",
+}: {
+  className?: string;
+  size?: keyof typeof SIZES;
+}) {
+  const { icon: iconHeight, text: textSize } = SIZES[size];
+  const iconWidth = Math.round(iconHeight * ICON_ASPECT_RATIO);
+
   return (
     <Link
       href="/"
       className={cn(
-        "flex items-center gap-1.5 font-heading text-xl font-semibold text-foreground",
+        "inline-flex items-center gap-1.5 font-heading font-semibold text-foreground",
+        textSize,
         className,
       )}
     >
-      <PawIcon className="h-5 w-5 text-primary" />
+      <Image
+        src="/branding/02_gatinha_dormindo.png"
+        alt=""
+        width={iconWidth}
+        height={iconHeight}
+      />
       <span>
         Misty<span className="text-primary">Doces</span>
       </span>

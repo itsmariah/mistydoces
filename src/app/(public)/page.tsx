@@ -1,9 +1,17 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function HomePage() {
   return (
-    <section className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 py-24 text-center">
+    <section className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center sm:py-24">
+      <Image
+        src="/branding/01_logo_misty_doces.png"
+        alt="MistyDoces — doces feitos com muito amor"
+        width={210}
+        height={235}
+        priority
+      />
       <span className="rounded-full bg-accent px-4 py-1 text-sm font-medium text-accent-foreground">
         🐾 Doces artesanais feitos com carinho
       </span>
