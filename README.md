@@ -64,6 +64,12 @@ npm run db:migrate     # aplica o schema no seu PostgreSQL local
 npm run dev
 ```
 
+Não existe cadastro de admin pelo site (por decisão de escopo). Pra promover a primeira conta, cadastre-se normalmente e rode:
+
+```bash
+npm run admin:promote -- seu-email@exemplo.com
+```
+
 Testes automatizados (regras de negócio, sem depender de banco):
 
 ```bash
