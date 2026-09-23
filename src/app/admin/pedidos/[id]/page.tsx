@@ -10,6 +10,16 @@ const PAYMENT_LABELS: Record<string, string> = {
   CASH: "Dinheiro na entrega/retirada",
   PIX_MANUAL: "Pix",
   CARD_ON_DELIVERY: "Cartão na entrega/retirada",
+  PIX_ONLINE: "Pix online",
+  CARD_ONLINE: "Cartão online",
+};
+
+const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pendente",
+  PROCESSING: "Em análise",
+  PAID: "Pago",
+  FAILED: "Não aprovado",
+  EXPIRED: "Expirado",
 };
 
 export default async function AdminOrderDetailPage({
@@ -49,6 +59,7 @@ export default async function AdminOrderDetailPage({
         orderId={order.id}
         status={order.status}
         paymentStatus={order.payment?.status}
+        paymentProvider={order.payment?.provider}
       />
 
       <section className="space-y-3">
@@ -93,8 +104,13 @@ export default async function AdminOrderDetailPage({
         <p className="text-sm text-muted-foreground">
           {PAYMENT_LABELS[order.payment?.method ?? ""] ?? order.payment?.method}
           {" — "}
-          {order.payment?.status === "PAID" ? "Pago" : "Pendente"}
+          {PAYMENT_STATUS_LABELS[order.payment?.status ?? ""] ?? order.payment?.status}
         </p>
+        {order.payment?.provider && (
+          <p className="text-xs text-muted-foreground">
+            Processado via {order.payment.provider} — ID {order.payment.externalId}
+          </p>
+        )}
       </section>
 
       {order.notes && (

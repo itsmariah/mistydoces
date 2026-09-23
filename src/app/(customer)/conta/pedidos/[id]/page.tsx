@@ -12,6 +12,16 @@ const PAYMENT_LABELS: Record<string, string> = {
   CASH: "Dinheiro na entrega/retirada",
   PIX_MANUAL: "Pix",
   CARD_ON_DELIVERY: "Cartão na entrega/retirada",
+  PIX_ONLINE: "Pix online",
+  CARD_ONLINE: "Cartão online",
+};
+
+const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pendente",
+  PROCESSING: "Em análise",
+  PAID: "Pago",
+  FAILED: "Não aprovado",
+  EXPIRED: "Expirado",
 };
 
 export default async function OrderDetailPage({
@@ -87,8 +97,17 @@ export default async function OrderDetailPage({
         <p className="text-sm text-muted-foreground">
           {PAYMENT_LABELS[order.payment?.method ?? ""] ?? order.payment?.method}
           {" — "}
-          {order.payment?.status === "PAID" ? "Pago" : "Pendente"}
+          {PAYMENT_STATUS_LABELS[order.payment?.status ?? ""] ?? order.payment?.status}
         </p>
+        {order.payment?.method === "PIX_ONLINE" &&
+          order.payment.status !== "PAID" && (
+            <Link
+              href={`/conta/pedidos/${order.id}/pagamento`}
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              Ir para o pagamento →
+            </Link>
+          )}
       </section>
 
       {order.notes && (

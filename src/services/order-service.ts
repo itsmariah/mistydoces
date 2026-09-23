@@ -1,4 +1,4 @@
-import type { OrderStatus } from "@/generated/prisma/client";
+import type { OrderStatus, PaymentStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   AppError,
@@ -231,9 +231,68 @@ export async function adminUpdateOrderStatus(orderId: string, status: OrderStatu
 export async function adminMarkPaymentPaid(orderId: string) {
   const payment = await prisma.payment.findUnique({ where: { orderId } });
   if (!payment) throw new NotFoundError("Pagamento não encontrado.");
+  if (payment.provider) {
+    throw new AppError(
+      "PAYMENT_MANAGED_BY_GATEWAY",
+      "Este pagamento é processado pelo Mercado Pago — só o gateway pode confirmá-lo.",
+      409,
+    );
+  }
 
   return prisma.payment.update({
     where: { orderId },
     data: { status: "PAID", paidAt: new Date() },
   });
+}
+
+/**
+ * Aplica o resultado de um pagamento de gateway (chamado pelo webhook, nunca pelo
+ * client). Confirma o pedido automaticamente quando o pagamento é aprovado — a
+ * única forma de um pedido online sair de PENDING sem ação manual da admin.
+ * Idempotente: notificações repetidas do mesmo status não disparam efeito duplo.
+ */
+export async function applyGatewayPaymentUpdate(
+  orderId: string,
+  data: { status: PaymentStatus; externalId: string; externalStatus: string },
+) {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { payment: true },
+  });
+  if (!order || !order.payment) throw new NotFoundError("Pedido ou pagamento não encontrado.");
+
+  if (order.payment.status === data.status && order.payment.externalStatus === data.externalStatus) {
+    return order;
+  }
+
+  const shouldConfirmOrder = data.status === "PAID" && order.status === "PENDING";
+
+  const updated = await prisma.$transaction(async (tx) => {
+    await tx.payment.update({
+      where: { orderId },
+      data: {
+        status: data.status,
+        externalId: data.externalId,
+        externalStatus: data.externalStatus,
+        paidAt: data.status === "PAID" ? new Date() : order.payment!.paidAt,
+      },
+    });
+
+    if (shouldConfirmOrder) {
+      return tx.order.update({ where: { id: orderId }, data: { status: "CONFIRMED" } });
+    }
+    return order;
+  });
+
+  if (shouldConfirmOrder) {
+    const user = await prisma.user.findUnique({
+      where: { id: order.userId },
+      select: { name: true, email: true },
+    });
+    if (user) {
+      await notificationService.sendOrderStatusUpdateEmail(updated, user, "CONFIRMED");
+    }
+  }
+
+  return updated;
 }

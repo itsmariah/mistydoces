@@ -12,10 +12,12 @@ export function OrderStatusActions({
   orderId,
   status,
   paymentStatus,
+  paymentProvider,
 }: {
   orderId: string;
   status: OrderStatus;
   paymentStatus?: PaymentStatus;
+  paymentProvider?: string | null;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -47,7 +49,9 @@ export function OrderStatusActions({
     });
   }
 
-  if (nextStatuses.length === 0 && paymentStatus !== "PENDING") return null;
+  const canMarkPaidManually = paymentStatus === "PENDING" && !paymentProvider;
+
+  if (nextStatuses.length === 0 && !canMarkPaidManually) return null;
 
   return (
     <div className="space-y-2 rounded-lg border border-border p-4">
@@ -75,7 +79,7 @@ export function OrderStatusActions({
             Cancelar pedido
           </Button>
         )}
-        {paymentStatus === "PENDING" && (
+        {canMarkPaidManually && (
           <Button
             variant="outline"
             size="sm"

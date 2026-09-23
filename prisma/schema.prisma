@@ -31,11 +31,16 @@ enum PaymentMethod {
   CASH
   PIX_MANUAL
   CARD_ON_DELIVERY
+  PIX_ONLINE
+  CARD_ONLINE
 }
 
 enum PaymentStatus {
   PENDING
+  PROCESSING
   PAID
+  FAILED
+  EXPIRED
 }
 
 model User {
@@ -231,15 +236,25 @@ model OrderItem {
   @@index([variantId])
 }
 
+/// Pagamentos online (Mercado Pago) preenchem `provider`/`externalId`/`externalStatus`;
+/// pagamentos offline (dinheiro, Pix manual, cartão na entrega) deixam esses campos nulos.
+/// `externalId` é único e é a chave de idempotência do webhook — a mesma notificação
+/// pode chegar mais de uma vez, e nunca deve aplicar o efeito (avançar o pedido) duas vezes.
 model Payment {
-  id        String        @id @default(cuid())
-  orderId   String        @unique
-  order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  method    PaymentMethod
-  status    PaymentStatus @default(PENDING)
-  paidAt    DateTime?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  orderId         String        @unique
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  provider        String?
+  externalId      String?       @unique
+  externalStatus  String?
+  pixQrCode       String?
+  pixQrCodeBase64 String?
+  pixExpiresAt    DateTime?
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 model StoreSettings {

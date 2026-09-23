@@ -24,7 +24,7 @@ const checkoutBaseSchema = z.object({
   deliveryType: z.enum(["DELIVERY", "PICKUP"]),
   addressId: z.string().min(1).optional(),
   newAddress: addressSchema.optional(),
-  paymentMethod: z.enum(["CASH", "PIX_MANUAL", "CARD_ON_DELIVERY"]),
+  paymentMethod: z.enum(["CASH", "PIX_MANUAL", "CARD_ON_DELIVERY", "PIX_ONLINE"]),
   notes: z.string().trim().max(500).optional(),
   couponCode: z.string().trim().min(1).optional(),
 });

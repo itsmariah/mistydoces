@@ -27,7 +27,10 @@ const PAYMENT_LABELS: Record<CheckoutFormInput["paymentMethod"], string> = {
   CASH: "Dinheiro na entrega/retirada",
   PIX_MANUAL: "Pix (chave enviada após o pedido)",
   CARD_ON_DELIVERY: "Cartão na entrega/retirada",
+  PIX_ONLINE: "Pix online (aprovação automática)",
 };
+
+const ONLINE_PAYMENT_METHODS: CheckoutFormInput["paymentMethod"][] = ["PIX_ONLINE"];
 
 export function CheckoutForm({
   addresses,
@@ -174,7 +177,10 @@ export function CheckoutForm({
       }
 
       clear();
-      router.push(`/conta/pedidos/${result.data.orderId}`);
+      const destination = ONLINE_PAYMENT_METHODS.includes(data.paymentMethod)
+        ? `/conta/pedidos/${result.data.orderId}/pagamento`
+        : `/conta/pedidos/${result.data.orderId}`;
+      router.push(destination);
     });
   }
 
