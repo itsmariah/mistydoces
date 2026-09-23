@@ -12,7 +12,7 @@ import * as orderService from "@/services/order-service";
 const PROVIDER = "MERCADO_PAGO";
 
 /** Mapeia o status bruto retornado pela API do Mercado Pago para o nosso enum interno. */
-function mapExternalStatus(mpStatus: string | undefined): PaymentStatus {
+export function mapExternalStatus(mpStatus: string | undefined): PaymentStatus {
   switch (mpStatus) {
     case "approved":
       return "PAID";

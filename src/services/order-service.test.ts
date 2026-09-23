@@ -18,6 +18,12 @@ const prismaMock = {
   },
   order: {
     create: vi.fn(),
+    findUnique: vi.fn(),
+    update: vi.fn(),
+  },
+  payment: {
+    findUnique: vi.fn(),
+    update: vi.fn(),
   },
   user: {
     findUnique: vi.fn(),
@@ -32,8 +38,11 @@ vi.mock("@/services/notification-service", () => ({
   sendOrderStatusUpdateEmail: vi.fn(),
 }));
 
-const { createOrder } = await import("@/services/order-service");
+const { createOrder, applyGatewayPaymentUpdate, adminMarkPaymentPaid } = await import(
+  "@/services/order-service"
+);
 const { ProductUnavailableError, NotFoundError } = await import("@/lib/errors");
+const notificationService = await import("@/services/notification-service");
 
 function buildVariant(overrides: {
   isActive?: boolean;
@@ -229,5 +238,125 @@ describe("createOrder", () => {
         couponCode: "ESGOTADO",
       }),
     ).rejects.toThrow(/limite de usos/);
+  });
+});
+
+describe("applyGatewayPaymentUpdate", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function buildOrder(overrides: {
+    status?: string;
+    payment?: Partial<{ id: string; status: string; externalStatus: string | null; paidAt: Date | null }>;
+  } = {}) {
+    return {
+      id: "order-1",
+      userId: "user-1",
+      status: overrides.status ?? "PENDING",
+      payment: {
+        id: "payment-1",
+        status: "PENDING",
+        externalStatus: null,
+        paidAt: null,
+        ...overrides.payment,
+      },
+    };
+  }
+
+  it("confirma o pedido e envia e-mail quando o pagamento é aprovado pela primeira vez", async () => {
+    prismaMock.order.findUnique.mockResolvedValue(buildOrder());
+    prismaMock.order.update.mockResolvedValue({ id: "order-1", status: "CONFIRMED" });
+    prismaMock.user.findUnique.mockResolvedValue({ name: "Maria", email: "maria@example.com" });
+
+    await applyGatewayPaymentUpdate("order-1", {
+      status: "PAID",
+      externalId: "mp-123",
+      externalStatus: "approved",
+    });
+
+    expect(prismaMock.payment.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: "PAID" }) }),
+    );
+    expect(prismaMock.order.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { status: "CONFIRMED" } }),
+    );
+    expect(notificationService.sendOrderStatusUpdateEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "order-1" }),
+      expect.objectContaining({ email: "maria@example.com" }),
+      "CONFIRMED",
+    );
+  });
+
+  it("é idempotente: notificação repetida com o mesmo status não reaplica o efeito", async () => {
+    prismaMock.order.findUnique.mockResolvedValue(
+      buildOrder({
+        payment: { status: "PAID", externalStatus: "approved", paidAt: new Date() },
+      }),
+    );
+
+    await applyGatewayPaymentUpdate("order-1", {
+      status: "PAID",
+      externalId: "mp-123",
+      externalStatus: "approved",
+    });
+
+    expect(prismaMock.payment.update).not.toHaveBeenCalled();
+    expect(prismaMock.order.update).not.toHaveBeenCalled();
+  });
+
+  it("não confirma o pedido se ele não estiver mais PENDING (ex.: já cancelado)", async () => {
+    prismaMock.order.findUnique.mockResolvedValue(buildOrder({ status: "CANCELLED" }));
+
+    await applyGatewayPaymentUpdate("order-1", {
+      status: "PAID",
+      externalId: "mp-123",
+      externalStatus: "approved",
+    });
+
+    expect(prismaMock.payment.update).toHaveBeenCalled();
+    expect(prismaMock.order.update).not.toHaveBeenCalled();
+  });
+
+  it("registra pagamento recusado sem alterar o status do pedido", async () => {
+    prismaMock.order.findUnique.mockResolvedValue(buildOrder());
+
+    await applyGatewayPaymentUpdate("order-1", {
+      status: "FAILED",
+      externalId: "mp-123",
+      externalStatus: "rejected",
+    });
+
+    expect(prismaMock.payment.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: "FAILED" }) }),
+    );
+    expect(prismaMock.order.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("adminMarkPaymentPaid", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("marca como pago um pagamento sem gateway (dinheiro, Pix manual, cartão na entrega)", async () => {
+    prismaMock.payment.findUnique.mockResolvedValue({ orderId: "order-1", provider: null });
+    prismaMock.payment.update.mockResolvedValue({ orderId: "order-1", status: "PAID" });
+
+    await adminMarkPaymentPaid("order-1");
+
+    expect(prismaMock.payment.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: "PAID" }) }),
+    );
+  });
+
+  it("recusa marcar manualmente um pagamento processado por gateway (Mercado Pago)", async () => {
+    prismaMock.payment.findUnique.mockResolvedValue({
+      orderId: "order-1",
+      provider: "MERCADO_PAGO",
+    });
+
+    await expect(adminMarkPaymentPaid("order-1")).rejects.toThrow(/Mercado Pago/);
+    expect(prismaMock.payment.update).not.toHaveBeenCalled();
   });
 });
