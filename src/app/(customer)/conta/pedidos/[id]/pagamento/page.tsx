@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { getUserOrderById } from "@/services/order-service";
 import { AppError } from "@/lib/errors";
 import { PixPayment } from "@/components/checkout/pix-payment";
+import { CardPayment } from "@/components/checkout/card-payment";
 
 export default async function OrderPaymentPage({
   params,
@@ -18,7 +19,9 @@ export default async function OrderPaymentPage({
     throw error;
   });
 
-  if (!order.payment || order.payment.method !== "PIX_ONLINE") {
+  const isOnlinePayment =
+    order.payment?.method === "PIX_ONLINE" || order.payment?.method === "CARD_ONLINE";
+  if (!order.payment || !isOnlinePayment) {
     redirect(`/conta/pedidos/${order.id}`);
   }
 
@@ -33,22 +36,33 @@ export default async function OrderPaymentPage({
         </Link>
       </div>
 
-      <h1 className="font-heading text-2xl font-semibold">Pagamento via Pix</h1>
+      <h1 className="font-heading text-2xl font-semibold">
+        Pagamento via {order.payment.method === "PIX_ONLINE" ? "Pix" : "cartão"}
+      </h1>
 
-      <PixPayment
-        orderId={order.id}
-        total={Number(order.total)}
-        initial={
-          order.payment.pixQrCode
-            ? {
-                qrCode: order.payment.pixQrCode,
-                qrCodeBase64: order.payment.pixQrCodeBase64,
-                expiresAt: order.payment.pixExpiresAt,
-                status: order.payment.status,
-              }
-            : null
-        }
-      />
+      {order.payment.method === "PIX_ONLINE" ? (
+        <PixPayment
+          orderId={order.id}
+          total={Number(order.total)}
+          initial={
+            order.payment.pixQrCode
+              ? {
+                  qrCode: order.payment.pixQrCode,
+                  qrCodeBase64: order.payment.pixQrCodeBase64,
+                  expiresAt: order.payment.pixExpiresAt,
+                  status: order.payment.status,
+                }
+              : null
+          }
+        />
+      ) : (
+        <CardPayment
+          orderId={order.id}
+          total={Number(order.total)}
+          payerEmail={session!.user.email ?? ""}
+          initialStatus={order.payment.status}
+        />
+      )}
     </div>
   );
 }

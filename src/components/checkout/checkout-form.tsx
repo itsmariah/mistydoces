@@ -28,9 +28,13 @@ const PAYMENT_LABELS: Record<CheckoutFormInput["paymentMethod"], string> = {
   PIX_MANUAL: "Pix (chave enviada após o pedido)",
   CARD_ON_DELIVERY: "Cartão na entrega/retirada",
   PIX_ONLINE: "Pix online (aprovação automática)",
+  CARD_ONLINE: "Cartão de crédito online",
 };
 
-const ONLINE_PAYMENT_METHODS: CheckoutFormInput["paymentMethod"][] = ["PIX_ONLINE"];
+const ONLINE_PAYMENT_METHODS: CheckoutFormInput["paymentMethod"][] = [
+  "PIX_ONLINE",
+  "CARD_ONLINE",
+];
 
 export function CheckoutForm({
   addresses,

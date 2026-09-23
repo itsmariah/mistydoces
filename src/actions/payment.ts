@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { UnauthorizedError, toActionError } from "@/lib/errors";
 import * as paymentService from "@/services/payment-service";
 import * as orderService from "@/services/order-service";
-import { createPixPaymentSchema } from "@/validations/payment";
+import { createCardPaymentSchema, createPixPaymentSchema } from "@/validations/payment";
 
 type ActionResult<T = undefined> =
   | { success: true; data: T }
@@ -37,6 +37,35 @@ export async function createPixPayment(input: unknown): Promise<
       session.user.id,
       parsed.data.orderId,
       parsed.data.document,
+    );
+    return { success: true, data: result };
+  } catch (error) {
+    return { success: false, error: toActionError(error) };
+  }
+}
+
+export async function createCardPayment(
+  input: unknown,
+): Promise<ActionResult<{ status: string; statusDetail: string | null }>> {
+  const parsed = createCardPaymentSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: {
+        code: "VALIDATION_ERROR",
+        message: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+      },
+    };
+  }
+
+  try {
+    const session = await auth();
+    if (!session?.user) throw new UnauthorizedError();
+
+    const result = await paymentService.createCardPayment(
+      session.user.id,
+      parsed.data.orderId,
+      parsed.data.formData,
     );
     return { success: true, data: result };
   } catch (error) {

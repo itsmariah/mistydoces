@@ -113,6 +113,70 @@ export async function createPixPayment(
   };
 }
 
+type CardFormData = {
+  token: string;
+  issuer_id: string;
+  payment_method_id: string;
+  installments: number;
+  payer: { email: string; identification: { type: string; number: string } };
+};
+
+/**
+ * Cria a cobrança de cartão no Mercado Pago a partir do token gerado no
+ * navegador pelo Payment Brick (o número do cartão nunca passa pelo nosso
+ * servidor). Cada chamada gera uma nova tentativa — inclusive após uma
+ * recusa, o cliente pode tentar de novo com outro cartão.
+ */
+export async function createCardPayment(userId: string, orderId: string, formData: CardFormData) {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { payment: true },
+  });
+  if (!order || !order.payment) throw new NotFoundError("Pedido não encontrado.");
+  if (order.userId !== userId) throw new ForbiddenError();
+  if (order.payment.method !== "CARD_ONLINE") {
+    throw new AppError("INVALID_PAYMENT_METHOD", "Este pedido não usa cartão online.", 409);
+  }
+  if (order.payment.status === "PAID") {
+    throw new AppError("ALREADY_PAID", "Este pedido já foi pago.", 409);
+  }
+
+  const mpPayment = new MercadoPagoPayment(mercadoPagoClient);
+  const response = await mpPayment.create({
+    body: {
+      transaction_amount: Number(order.total),
+      description: `Pedido #${order.orderNumber} — MistyDoces`,
+      token: formData.token,
+      installments: formData.installments,
+      payment_method_id: formData.payment_method_id,
+      issuer_id: Number(formData.issuer_id),
+      external_reference: order.id,
+      notification_url: `${process.env.NEXTAUTH_URL}/api/webhooks/mercado-pago`,
+      payer: {
+        email: formData.payer.email,
+        identification: formData.payer.identification,
+      },
+    },
+    // Chave estável por tentativa: a mesma combinação pedido+token nunca gera
+    // duas cobranças, mas um novo cartão (novo token) sempre pode tentar de novo.
+    requestOptions: { idempotencyKey: `${order.payment.id}:${formData.token}` },
+  });
+
+  const status = mapExternalStatus(response.status);
+
+  await prisma.payment.update({
+    where: { orderId: order.id },
+    data: {
+      status,
+      provider: PROVIDER,
+      externalId: String(response.id),
+      externalStatus: response.status ?? null,
+    },
+  });
+
+  return { status, statusDetail: response.status_detail ?? null };
+}
+
 /**
  * Processa uma notificação de webhook do Mercado Pago. Nunca confia no corpo
  * da requisição: valida a assinatura e, com o `id` recebido, busca o pagamento

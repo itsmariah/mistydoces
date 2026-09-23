@@ -99,7 +99,7 @@ export default async function OrderDetailPage({
           {" — "}
           {PAYMENT_STATUS_LABELS[order.payment?.status ?? ""] ?? order.payment?.status}
         </p>
-        {order.payment?.method === "PIX_ONLINE" &&
+        {(order.payment?.method === "PIX_ONLINE" || order.payment?.method === "CARD_ONLINE") &&
           order.payment.status !== "PAID" && (
             <Link
               href={`/conta/pedidos/${order.id}/pagamento`}
