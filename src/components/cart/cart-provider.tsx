@@ -27,6 +27,8 @@ type CartContextValue = {
   addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
   removeItem: (variantId: string) => void;
+  /** Recoloca um item removido na mesma posição — usado pelo "Desfazer" do toast. */
+  restoreItem: (item: CartItem, index: number) => void;
   clear: () => void;
   isOpen: boolean;
   setOpen: (open: boolean) => void;
@@ -88,6 +90,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((current) => current.filter((line) => line.variantId !== variantId));
   }
 
+  function restoreItem(item: CartItem, index: number) {
+    setItems((current) => {
+      if (current.some((line) => line.variantId === item.variantId)) return current;
+      const next = [...current];
+      next.splice(Math.min(index, next.length), 0, item);
+      return next;
+    });
+  }
+
   function clear() {
     setItems([]);
   }
@@ -110,6 +121,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         addItem,
         updateQuantity,
         removeItem,
+        restoreItem,
         clear,
         isOpen,
         setOpen,

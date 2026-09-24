@@ -8,13 +8,46 @@ import { StarRating } from "@/components/catalog/star-rating";
 import { ReviewForm } from "@/components/catalog/review-form";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { EmptyState } from "@/components/shared/empty-state";
+import type { Metadata } from "next";
 import { getProductBySlug } from "@/lib/catalog";
+import { BASE_OPEN_GRAPH } from "@/lib/site-metadata";
+import { formatCurrency, getStartingPrice } from "@/lib/utils";
 import { auth } from "@/lib/auth";
 import {
   getProductRatingSummary,
   getProductReviews,
   getReviewEligibility,
 } from "@/services/review-service";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
+  if (!product) return {};
+
+  // O preço vai na frente da descrição: é o que aparece na prévia do link no WhatsApp.
+  const startingPrice = formatCurrency(getStartingPrice(product.variants));
+  const priceLabel = product.variants.length > 1 ? `A partir de ${startingPrice}` : startingPrice;
+  const description = `${priceLabel} · ${product.description}`;
+  const image = product.imageUrl
+    ? { url: product.imageUrl, alt: product.name }
+    : { url: "/branding/17_gatinha_chefe_de_pe.png", alt: product.name };
+
+  return {
+    title: product.name,
+    description,
+    openGraph: {
+      ...BASE_OPEN_GRAPH,
+      title: product.name,
+      description,
+      url: `/cardapio/${product.slug}`,
+      images: [image],
+    },
+  };
+}
 
 export default async function ProdutoPage({
   params,

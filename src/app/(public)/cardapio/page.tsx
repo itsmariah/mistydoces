@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { CategoryFilter } from "@/components/catalog/category-filter";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { SortSelect } from "@/components/catalog/sort-select";
@@ -7,6 +8,11 @@ import {
   getUnitsSoldByProduct,
   rankBestSellersFromUnits,
 } from "@/services/best-seller-service";
+
+export const metadata: Metadata = {
+  title: "Cardápio",
+  description: "Bolos, brigadeiros, cookies e kits feitos na hora.",
+};
 
 export default async function CardapioPage({
   searchParams,

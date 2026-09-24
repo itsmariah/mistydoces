@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ShoppingBag, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -14,13 +15,30 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useCart } from "@/components/cart/cart-provider";
+import { useCart, type CartItem } from "@/components/cart/cart-provider";
 import { formatCurrency } from "@/lib/utils";
 import { MAX_ITEM_QUANTITY } from "@/validations/order";
 
 export function CartSheet() {
-  const { items, itemCount, subtotal, updateQuantity, removeItem, isOpen, setOpen } =
-    useCart();
+  const {
+    items,
+    itemCount,
+    subtotal,
+    updateQuantity,
+    removeItem,
+    restoreItem,
+    isOpen,
+    setOpen,
+  } = useCart();
+
+  // Remover (pela lixeira ou diminuindo até 0) sempre oferece desfazer — é fácil tocar sem querer no celular.
+  function handleRemove(item: CartItem, index: number) {
+    removeItem(item.variantId);
+    toast(`${item.productName} removido do carrinho`, {
+      description: item.variantLabel,
+      action: { label: "Desfazer", onClick: () => restoreItem(item, index) },
+    });
+  }
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
@@ -55,7 +73,7 @@ export function CartSheet() {
           />
         ) : (
           <div className="flex-1 space-y-4 overflow-y-auto px-4">
-            {items.map((item) => (
+            {items.map((item, index) => (
               <div
                 key={item.variantId}
                 className="flex gap-3 border-b border-border pb-4 last:border-0"
@@ -71,7 +89,11 @@ export function CartSheet() {
                   <div className="mt-1">
                     <QuantityStepper
                       value={item.quantity}
-                      onChange={(quantity) => updateQuantity(item.variantId, quantity)}
+                      onChange={(quantity) =>
+                        quantity === 0
+                          ? handleRemove(item, index)
+                          : updateQuantity(item.variantId, quantity)
+                      }
                       min={0}
                       max={MAX_ITEM_QUANTITY}
                     />
@@ -81,7 +103,7 @@ export function CartSheet() {
                   <button
                     type="button"
                     aria-label="Remover item"
-                    onClick={() => removeItem(item.variantId)}
+                    onClick={() => handleRemove(item, index)}
                     className="text-muted-foreground hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />

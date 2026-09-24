@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 
 export function getCategories() {
@@ -48,7 +49,9 @@ export function getLatestProducts(limit: number) {
   });
 }
 
-export function getProductBySlug(slug: string) {
+// `cache`: a página do produto e o `generateMetadata` dela buscam o mesmo produto
+// na mesma requisição — assim a consulta roda uma vez só.
+export const getProductBySlug = cache((slug: string) => {
   return prisma.product.findFirst({
     where: { slug, isActive: true, category: { isActive: true } },
     include: {
@@ -56,4 +59,4 @@ export function getProductBySlug(slug: string) {
       variants: { orderBy: { sortOrder: "asc" } },
     },
   });
-}
+});

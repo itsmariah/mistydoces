@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "Contato",
+};
 
 // Placeholder até termos WhatsApp e e-mail próprios da loja definidos.
 export default function ContatoPage() {
