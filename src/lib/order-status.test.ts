@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { canCustomerCancel, canTransition, getNextStatuses } from "@/lib/order-status";
+import {
+  canCustomerCancel,
+  canTransition,
+  getNextStatuses,
+  getTimelineSteps,
+} from "@/lib/order-status";
 
 describe("canTransition", () => {
   it("permite avançar no fluxo principal", () => {
@@ -40,5 +45,39 @@ describe("canCustomerCancel", () => {
     expect(canCustomerCancel("PENDING")).toBe(true);
     expect(canCustomerCancel("CONFIRMED")).toBe(false);
     expect(canCustomerCancel("DELIVERED")).toBe(false);
+  });
+});
+
+describe("getTimelineSteps", () => {
+  it("marca etapas anteriores como concluídas e a atual como atual", () => {
+    const steps = getTimelineSteps("PREPARING", "DELIVERY");
+
+    expect(steps.map((step) => step.state)).toEqual([
+      "done",
+      "done",
+      "current",
+      "upcoming",
+      "upcoming",
+      "upcoming",
+    ]);
+  });
+
+  it("omite 'Saiu para entrega' na retirada", () => {
+    const steps = getTimelineSteps("CONFIRMED", "PICKUP");
+
+    expect(steps.map((step) => step.status)).not.toContain("OUT_FOR_DELIVERY");
+    expect(steps).toHaveLength(5);
+  });
+
+  it("mostra retirada em OUT_FOR_DELIVERY como 'Pronto'", () => {
+    const steps = getTimelineSteps("OUT_FOR_DELIVERY", "PICKUP");
+
+    expect(steps.find((step) => step.state === "current")?.status).toBe("READY");
+  });
+
+  it("marca tudo como concluído quando o pedido foi entregue", () => {
+    const steps = getTimelineSteps("DELIVERED", "DELIVERY");
+
+    expect(steps.every((step) => step.state === "done")).toBe(true);
   });
 });

@@ -24,6 +24,30 @@ export function getProducts(params?: { categorySlug?: string }) {
   });
 }
 
+const PRODUCT_LISTING_INCLUDE = {
+  category: true,
+  variants: { orderBy: { sortOrder: "asc" } },
+} as const;
+
+/** Produtos visíveis na ordem dos ids recebidos (ex.: ranking de mais vendidos). */
+export async function getProductsByIds(ids: string[]) {
+  if (ids.length === 0) return [];
+  const products = await prisma.product.findMany({
+    where: { id: { in: ids }, isActive: true, category: { isActive: true } },
+    include: PRODUCT_LISTING_INCLUDE,
+  });
+  return products.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+}
+
+export function getLatestProducts(limit: number) {
+  return prisma.product.findMany({
+    where: { isActive: true, category: { isActive: true } },
+    include: PRODUCT_LISTING_INCLUDE,
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+}
+
 export function getProductBySlug(slug: string) {
   return prisma.product.findFirst({
     where: { slug, isActive: true, category: { isActive: true } },

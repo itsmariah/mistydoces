@@ -7,6 +7,7 @@ import { canCustomerCancel } from "@/lib/order-status";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { OrderThanks } from "@/components/orders/order-thanks";
+import { OrderTimeline } from "@/components/orders/order-timeline";
 import { formatCurrency } from "@/lib/utils";
 
 const PAYMENT_LABELS: Record<string, string> = {
@@ -74,6 +75,10 @@ export default async function OrderDetailPage({
         </div>
         <OrderStatusBadge status={order.status} />
       </div>
+
+      <section className="rounded-lg border border-border p-4 sm:p-6">
+        <OrderTimeline status={order.status} deliveryType={order.deliveryType} />
+      </section>
 
       <section className="space-y-3">
         <h2 className="font-heading text-lg font-medium">Itens</h2>
