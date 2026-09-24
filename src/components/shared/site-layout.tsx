@@ -9,6 +9,8 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
+      {/* Reserva espaço para a barra fixa de "Adicionar" do celular não cobrir o fim do rodapé. */}
+      <div aria-hidden="true" className="h-[var(--sticky-bar-height,0px)] sm:hidden" />
       <BackToTop />
     </>
   );

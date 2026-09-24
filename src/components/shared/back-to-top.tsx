@@ -48,7 +48,7 @@ export function BackToTop() {
       // `inert` tira o botão escondido da navegação por teclado e leitores de tela.
       inert={!visible}
       className={cn(
-        "group fixed right-4 bottom-4 z-40 flex size-14 items-center justify-center rounded-full bg-background/90 shadow-lg shadow-secondary-foreground/15 backdrop-blur transition-[opacity,translate,scale] duration-300 outline-none hover:-translate-y-1 focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-95 sm:right-6 sm:bottom-6",
+        "group fixed right-4 bottom-[calc(1rem+var(--sticky-bar-height,0px))] z-40 flex size-14 items-center justify-center rounded-full bg-background/90 shadow-lg shadow-secondary-foreground/15 backdrop-blur transition-[opacity,translate,scale,bottom] duration-300 outline-none hover:-translate-y-1 focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-95 sm:right-6 sm:bottom-6",
         visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0",
       )}
     >

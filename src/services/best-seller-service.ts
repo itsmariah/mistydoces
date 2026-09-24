@@ -35,7 +35,8 @@ export function rankBestSellers(
   return new Set(ranked.map(([productId]) => productId));
 }
 
-export async function getBestSellerProductIds(now = new Date()): Promise<Set<string>> {
+/** Unidades vendidas por produto na janela recente — base do selo e da ordenação "mais vendidos". */
+export async function getUnitsSoldByProduct(now = new Date()): Promise<Map<string, number>> {
   const since = new Date(now.getTime() - BEST_SELLER_WINDOW_DAYS * 24 * 60 * 60 * 1000);
 
   // groupBy não agrupa por campo de relação (variant.productId), então agrupa por
@@ -48,7 +49,7 @@ export async function getBestSellerProductIds(now = new Date()): Promise<Set<str
     },
     _sum: { quantity: true },
   });
-  if (salesByVariant.length === 0) return new Set();
+  if (salesByVariant.length === 0) return new Map();
 
   const variants = await prisma.productVariant.findMany({
     where: { id: { in: salesByVariant.map((sale) => sale.variantId) } },
@@ -56,10 +57,21 @@ export async function getBestSellerProductIds(now = new Date()): Promise<Set<str
   });
   const productIdByVariant = new Map(variants.map((v) => [v.id, v.productId]));
 
+  const unitsByProduct = new Map<string, number>();
+  for (const sale of salesByVariant) {
+    const productId = productIdByVariant.get(sale.variantId);
+    if (!productId) continue;
+    unitsByProduct.set(productId, (unitsByProduct.get(productId) ?? 0) + (sale._sum.quantity ?? 0));
+  }
+  return unitsByProduct;
+}
+
+export function rankBestSellersFromUnits(unitsByProduct: Map<string, number>): Set<string> {
   return rankBestSellers(
-    salesByVariant.flatMap((sale) => {
-      const productId = productIdByVariant.get(sale.variantId);
-      return productId ? [{ productId, units: sale._sum.quantity ?? 0 }] : [];
-    }),
+    [...unitsByProduct].map(([productId, units]) => ({ productId, units })),
   );
+}
+
+export async function getBestSellerProductIds(now = new Date()): Promise<Set<string>> {
+  return rankBestSellersFromUnits(await getUnitsSoldByProduct(now));
 }
