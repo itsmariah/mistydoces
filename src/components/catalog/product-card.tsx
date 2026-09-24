@@ -29,6 +29,7 @@ export function ProductCard({ product, isBestSeller = false, index = 0 }: Produc
   return (
     <Link
       href={`/cardapio/${product.slug}`}
+      data-enter-animation
       className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card outline-none animate-in fade-in slide-in-from-bottom-4 fill-mode-both animation-duration-500 transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary-foreground/15 focus-visible:-translate-y-1 focus-visible:ring-3 focus-visible:ring-ring/50"
       style={{ animationDelay: `${Math.min(index, MAX_STAGGERED_CARDS) * STAGGER_STEP_MS}ms` }}
     >

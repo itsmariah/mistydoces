@@ -1,12 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VariantSelector } from "@/components/catalog/variant-selector";
 import { StarRating } from "@/components/catalog/star-rating";
 import { ReviewForm } from "@/components/catalog/review-form";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
+import { BackToCardapioLink } from "@/components/catalog/back-to-cardapio-link";
 import { EmptyState } from "@/components/shared/empty-state";
 import type { Metadata } from "next";
 import { getProductBySlug } from "@/lib/catalog";
@@ -72,13 +71,7 @@ export default async function ProdutoPage({
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-12">
-      <Link
-        href="/cardapio"
-        className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Voltar ao cardápio
-      </Link>
+      <BackToCardapioLink />
 
       <div className="grid gap-8 sm:grid-cols-2">
         <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-muted">

@@ -166,6 +166,12 @@
   }
 }
 
+/* Página restaurada pelo voltar/avançar do histórico (ver NavigationTracker): o cliente já
+   viu esses cards — repetir a entrada em cascata faria a lista "piscar" ao voltar. */
+html[data-nav="pop"] [data-enter-animation] {
+  animation: none;
+}
+
 /* Quem pediu menos movimento no sistema operacional vê tudo já no lugar final:
    animações e transições viram instantâneas (em vez de removidas, para eventos
    de fim de animação continuarem disparando) e a rolagem deixa de ser suave. */

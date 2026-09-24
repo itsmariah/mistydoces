@@ -4,6 +4,7 @@ import Script from "next/script";
 import { THEME_STORAGE_KEY, ThemeProvider } from "@/components/theme-provider";
 import { CartProvider } from "@/components/cart/cart-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { NavigationTracker } from "@/components/shared/navigation-tracker";
 import { BASE_OPEN_GRAPH, SITE_NAME, SITE_URL } from "@/lib/site-metadata";
 import "./globals.css";
 
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeProvider>
           <CartProvider>{children}</CartProvider>
           <Toaster position="bottom-center" containerAriaLabel="Notificações" />
+          <NavigationTracker />
         </ThemeProvider>
       </body>
     </html>
