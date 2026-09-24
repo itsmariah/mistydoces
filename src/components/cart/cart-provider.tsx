@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useMounted } from "@/lib/use-mounted";
+import { MAX_ITEM_QUANTITY } from "@/validations/order";
 
 export type CartItem = {
   variantId: string;
@@ -23,7 +24,7 @@ type CartContextValue = {
   items: CartItem[];
   itemCount: number;
   subtotal: number;
-  addItem: (item: Omit<CartItem, "quantity">) => void;
+  addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
   removeItem: (variantId: string) => void;
   clear: () => void;
@@ -55,17 +56,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
   }, [items, mounted]);
 
-  function addItem(item: Omit<CartItem, "quantity">) {
+  function addItem(item: Omit<CartItem, "quantity">, quantity = 1) {
     setItems((current) => {
       const existing = current.find((line) => line.variantId === item.variantId);
       if (existing) {
         return current.map((line) =>
           line.variantId === item.variantId
-            ? { ...line, quantity: line.quantity + 1 }
+            ? { ...line, quantity: Math.min(line.quantity + quantity, MAX_ITEM_QUANTITY) }
             : line,
         );
       }
-      return [...current, { ...item, quantity: 1 }];
+      return [...current, { ...item, quantity: Math.min(quantity, MAX_ITEM_QUANTITY) }];
     });
     setOpen(true);
   }
@@ -76,7 +77,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return current.filter((line) => line.variantId !== variantId);
       }
       return current.map((line) =>
-        line.variantId === variantId ? { ...line, quantity } : line,
+        line.variantId === variantId
+          ? { ...line, quantity: Math.min(quantity, MAX_ITEM_QUANTITY) }
+          : line,
       );
     });
   }

@@ -14,9 +14,12 @@ export const addressSchema = z.object({
 
 export type AddressInput = z.infer<typeof addressSchema>;
 
+/** Limite por item do carrinho — o client usa o mesmo valor para não deixar passar do que o checkout aceita. */
+export const MAX_ITEM_QUANTITY = 50;
+
 const cartItemSchema = z.object({
   variantId: z.string().min(1),
-  quantity: z.number().int().min(1).max(50),
+  quantity: z.number().int().min(1).max(MAX_ITEM_QUANTITY),
 });
 
 const checkoutBaseSchema = z.object({

@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { ShoppingBag, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { EmptyState } from "@/components/shared/empty-state";
+import { QuantityStepper } from "@/components/cart/quantity-stepper";
 import {
   Sheet,
   SheetContent,
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { useCart } from "@/components/cart/cart-provider";
 import { formatCurrency } from "@/lib/utils";
+import { MAX_ITEM_QUANTITY } from "@/validations/order";
 
 export function CartSheet() {
   const { items, itemCount, subtotal, updateQuantity, removeItem, isOpen, setOpen } =
@@ -66,26 +68,13 @@ export function CartSheet() {
                   <span className="text-xs text-muted-foreground">
                     {item.variantLabel}
                   </span>
-                  <div className="mt-1 flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-xs"
-                      aria-label="Diminuir quantidade"
-                      onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
-                    >
-                      <Minus className="h-3 w-3" />
-                    </Button>
-                    <span className="w-4 text-center text-sm">{item.quantity}</span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-xs"
-                      aria-label="Aumentar quantidade"
-                      onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-                    >
-                      <Plus className="h-3 w-3" />
-                    </Button>
+                  <div className="mt-1">
+                    <QuantityStepper
+                      value={item.quantity}
+                      onChange={(quantity) => updateQuantity(item.variantId, quantity)}
+                      min={0}
+                      max={MAX_ITEM_QUANTITY}
+                    />
                   </div>
                 </div>
                 <div className="flex flex-col items-end justify-between">
