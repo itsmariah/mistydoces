@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { EmptyState } from "@/components/shared/empty-state";
+import { CheckoutSteps, type CheckoutStep } from "@/components/checkout/checkout-steps";
 import { formatCurrency } from "@/lib/utils";
 
 const NEW_ADDRESS_VALUE = "new";
@@ -35,6 +36,14 @@ const PAYMENT_LABELS: Record<CheckoutFormInput["paymentMethod"], string> = {
 const ONLINE_PAYMENT_METHODS: CheckoutFormInput["paymentMethod"][] = [
   "PIX_ONLINE",
   "CARD_ONLINE",
+];
+
+// Constante de módulo: o `CheckoutSteps` acompanha estas seções e não deve reiniciar a cada render.
+const CHECKOUT_STEPS: CheckoutStep[] = [
+  { id: "etapa-itens", label: "Itens" },
+  { id: "etapa-entrega", label: "Entrega" },
+  { id: "etapa-pagamento", label: "Pagamento" },
+  { id: "etapa-revisao", label: "Revisão" },
 ];
 
 export function CheckoutForm({
@@ -207,7 +216,10 @@ export function CheckoutForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" noValidate>
-      <section className="space-y-3">
+      <CheckoutSteps steps={CHECKOUT_STEPS} />
+
+      {/* `scroll-mt-36` nos inícios de etapa compensa o header + a barra de etapas fixos. */}
+      <section id="etapa-itens" className="scroll-mt-36 space-y-3">
         <h2 className="font-heading text-lg font-medium">Itens do pedido</h2>
         <div className="space-y-2 rounded-lg border border-border p-4">
           {items.map((item) => (
@@ -223,7 +235,7 @@ export function CheckoutForm({
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section id="etapa-entrega" className="scroll-mt-36 space-y-3">
         <h2 className="font-heading text-lg font-medium">Entrega ou retirada</h2>
         <Controller
           control={control}
@@ -380,7 +392,7 @@ export function CheckoutForm({
         </section>
       )}
 
-      <section className="space-y-3">
+      <section id="etapa-pagamento" className="scroll-mt-36 space-y-3">
         <h2 className="font-heading text-lg font-medium">Forma de pagamento</h2>
         <Controller
           control={control}
@@ -439,7 +451,7 @@ export function CheckoutForm({
         {couponError && <p className="text-sm text-destructive">{couponError}</p>}
       </section>
 
-      <section className="space-y-2 rounded-lg border border-border p-4">
+      <section id="etapa-revisao" className="scroll-mt-36 space-y-2 rounded-lg border border-border p-4">
         <div className="flex justify-between text-sm">
           <span>Subtotal</span>
           <span>{formatCurrency(subtotal)}</span>

@@ -25,6 +25,15 @@ export function getProducts(params?: { categorySlug?: string }) {
   });
 }
 
+/** Categorias ativas com a contagem só de produtos visíveis — para os atalhos da home. */
+export function getCategoriesWithProductCount() {
+  return prisma.category.findMany({
+    where: { isActive: true, products: { some: { isActive: true } } },
+    orderBy: { name: "asc" },
+    include: { _count: { select: { products: { where: { isActive: true } } } } },
+  });
+}
+
 const PRODUCT_LISTING_INCLUDE = {
   category: true,
   variants: { orderBy: { sortOrder: "asc" } },

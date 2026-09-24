@@ -2,6 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FeaturedProducts } from "@/components/home/featured-products";
+import { CategoryShortcuts } from "@/components/home/category-shortcuts";
+import { HowItWorks } from "@/components/home/how-it-works";
+import { Testimonials } from "@/components/home/testimonials";
 
 export default function HomePage() {
   return (
@@ -39,7 +42,10 @@ export default function HomePage() {
         </div>
       </section>
 
+      <CategoryShortcuts />
       <FeaturedProducts />
+      <HowItWorks />
+      <Testimonials />
     </>
   );
 }

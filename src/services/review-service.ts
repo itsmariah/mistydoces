@@ -10,6 +10,38 @@ export function getProductReviews(productId: string) {
   });
 }
 
+/**
+ * Avaliações para a vitrine de depoimentos da home: só as bem avaliadas (4+) e com
+ * comentário escrito, de produtos ainda à venda. Expõe apenas o primeiro nome de
+ * quem avaliou — a home é pública.
+ */
+export async function getFeaturedReviews(limit: number) {
+  const reviews = await prisma.review.findMany({
+    where: {
+      isVisible: true,
+      rating: { gte: 4 },
+      comment: { not: null },
+      NOT: { comment: "" },
+      product: { isActive: true },
+    },
+    orderBy: [{ rating: "desc" }, { createdAt: "desc" }],
+    take: limit,
+    select: {
+      id: true,
+      rating: true,
+      comment: true,
+      user: { select: { name: true } },
+      product: { select: { name: true, slug: true } },
+    },
+  });
+
+  return reviews.map(({ user, ...review }) => ({
+    ...review,
+    comment: review.comment ?? "",
+    authorFirstName: user.name.trim().split(/\s+/)[0],
+  }));
+}
+
 export async function getProductRatingSummary(productId: string) {
   const result = await prisma.review.aggregate({
     where: { productId, isVisible: true },
