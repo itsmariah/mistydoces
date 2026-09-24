@@ -2,6 +2,7 @@ import type { DeliveryType, OrderStatus } from "@/generated/prisma/client";
 
 /**
  * Fluxo principal: PENDING -> CONFIRMED -> PREPARING -> READY -> OUT_FOR_DELIVERY -> DELIVERED.
+ * Na retirada (PICKUP), READY vai direto para DELIVERED — não há entrega para "sair".
  * CANCELLED é alcançável a partir de qualquer status anterior a DELIVERED (RN08).
  */
 const ORDER_FLOW: OrderStatus[] = [
@@ -23,13 +24,24 @@ const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   CANCELLED: [],
 };
 
-export function canTransition(from: OrderStatus, to: OrderStatus): boolean {
-  return VALID_TRANSITIONS[from]?.includes(to) ?? false;
-}
+// OUT_FOR_DELIVERY -> DELIVERED continua valendo na retirada: pedidos antigos,
+// criados antes desta regra, podem estar parados nesse status e precisam terminar.
+const PICKUP_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
+  READY: ["DELIVERED", "CANCELLED"],
+};
 
 /** Próximos status válidos a partir do atual — usado pelos controles do admin. */
-export function getNextStatuses(from: OrderStatus): OrderStatus[] {
-  return VALID_TRANSITIONS[from] ?? [];
+export function getNextStatuses(from: OrderStatus, deliveryType: DeliveryType): OrderStatus[] {
+  const pickupOverride = deliveryType === "PICKUP" ? PICKUP_TRANSITIONS[from] : undefined;
+  return pickupOverride ?? VALID_TRANSITIONS[from] ?? [];
+}
+
+export function canTransition(
+  from: OrderStatus,
+  to: OrderStatus,
+  deliveryType: DeliveryType,
+): boolean {
+  return getNextStatuses(from, deliveryType).includes(to);
 }
 
 export function canCustomerCancel(status: OrderStatus): boolean {
@@ -46,9 +58,9 @@ export type TimelineStepState = "done" | "current" | "upcoming";
 
 /**
  * Etapas exibidas na linha do tempo do pedido do cliente, cada uma marcada como
- * concluída, atual ou futura. Na retirada, "Saiu para entrega" não faz sentido
- * para o cliente e é omitida — um pedido de retirada nesse status aparece como
- * "Pronto" (a máquina de status ainda exige essa etapa no admin).
+ * concluída, atual ou futura. Na retirada, "Saiu para entrega" não existe e é
+ * omitida — um pedido de retirada antigo, parado nesse status de antes da regra
+ * de PICKUP_TRANSITIONS, aparece como "Pronto".
  * CANCELLED não tem linha do tempo: não há histórico de em qual etapa parou.
  */
 export function getTimelineSteps(

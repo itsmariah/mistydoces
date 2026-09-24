@@ -211,7 +211,7 @@ export async function adminGetOrderById(orderId: string) {
 export async function adminUpdateOrderStatus(orderId: string, status: OrderStatus) {
   const order = await prisma.order.findUnique({ where: { id: orderId } });
   if (!order) throw new NotFoundError("Pedido não encontrado.");
-  if (!canTransition(order.status, status)) {
+  if (!canTransition(order.status, status, order.deliveryType)) {
     throw new InvalidStatusTransitionError(order.status, status);
   }
 

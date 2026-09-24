@@ -8,35 +8,54 @@ import {
 
 describe("canTransition", () => {
   it("permite avançar no fluxo principal", () => {
-    expect(canTransition("PENDING", "CONFIRMED")).toBe(true);
-    expect(canTransition("CONFIRMED", "PREPARING")).toBe(true);
-    expect(canTransition("OUT_FOR_DELIVERY", "DELIVERED")).toBe(true);
+    expect(canTransition("PENDING", "CONFIRMED", "DELIVERY")).toBe(true);
+    expect(canTransition("CONFIRMED", "PREPARING", "DELIVERY")).toBe(true);
+    expect(canTransition("OUT_FOR_DELIVERY", "DELIVERED", "DELIVERY")).toBe(true);
   });
 
   it("permite cancelar a partir de qualquer status anterior a DELIVERED", () => {
-    expect(canTransition("PENDING", "CANCELLED")).toBe(true);
-    expect(canTransition("READY", "CANCELLED")).toBe(true);
+    expect(canTransition("PENDING", "CANCELLED", "DELIVERY")).toBe(true);
+    expect(canTransition("READY", "CANCELLED", "DELIVERY")).toBe(true);
   });
 
   it("rejeita pular etapas do fluxo", () => {
-    expect(canTransition("PENDING", "PREPARING")).toBe(false);
-    expect(canTransition("PENDING", "DELIVERED")).toBe(false);
+    expect(canTransition("PENDING", "PREPARING", "DELIVERY")).toBe(false);
+    expect(canTransition("PENDING", "DELIVERED", "DELIVERY")).toBe(false);
   });
 
   it("rejeita qualquer transição a partir de um status final", () => {
-    expect(canTransition("DELIVERED", "CANCELLED")).toBe(false);
-    expect(canTransition("CANCELLED", "PENDING")).toBe(false);
+    expect(canTransition("DELIVERED", "CANCELLED", "DELIVERY")).toBe(false);
+    expect(canTransition("CANCELLED", "PENDING", "DELIVERY")).toBe(false);
   });
 });
 
 describe("getNextStatuses", () => {
   it("retorna os próximos status válidos", () => {
-    expect(getNextStatuses("PENDING")).toEqual(["CONFIRMED", "CANCELLED"]);
+    expect(getNextStatuses("PENDING", "DELIVERY")).toEqual(["CONFIRMED", "CANCELLED"]);
   });
 
   it("retorna array vazio para status finais", () => {
-    expect(getNextStatuses("DELIVERED")).toEqual([]);
-    expect(getNextStatuses("CANCELLED")).toEqual([]);
+    expect(getNextStatuses("DELIVERED", "DELIVERY")).toEqual([]);
+    expect(getNextStatuses("CANCELLED", "DELIVERY")).toEqual([]);
+  });
+});
+
+describe("fluxo de retirada (PICKUP)", () => {
+  it("vai de READY direto para DELIVERED, sem passar por OUT_FOR_DELIVERY", () => {
+    expect(getNextStatuses("READY", "PICKUP")).toEqual(["DELIVERED", "CANCELLED"]);
+    expect(canTransition("READY", "OUT_FOR_DELIVERY", "PICKUP")).toBe(false);
+  });
+
+  it("ainda deixa terminar pedidos antigos parados em OUT_FOR_DELIVERY", () => {
+    expect(canTransition("OUT_FOR_DELIVERY", "DELIVERED", "PICKUP")).toBe(true);
+  });
+
+  it("não deixa a entrega pular OUT_FOR_DELIVERY", () => {
+    expect(canTransition("READY", "DELIVERED", "DELIVERY")).toBe(false);
+  });
+
+  it("segue o fluxo normal nas etapas anteriores a READY", () => {
+    expect(getNextStatuses("PREPARING", "PICKUP")).toEqual(["READY", "CANCELLED"]);
   });
 });
 

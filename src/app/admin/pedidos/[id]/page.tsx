@@ -58,6 +58,7 @@ export default async function AdminOrderDetailPage({
       <OrderStatusActions
         orderId={order.id}
         status={order.status}
+        deliveryType={order.deliveryType}
         paymentStatus={order.payment?.status}
         paymentProvider={order.payment?.provider}
       />

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { OrderStatus, PaymentStatus } from "@/generated/prisma/client";
+import type { DeliveryType, OrderStatus, PaymentStatus } from "@/generated/prisma/client";
 import { getNextStatuses } from "@/lib/order-status";
 import { markPaymentPaid, updateOrderStatus } from "@/actions/admin-orders";
 import { STATUS_LABELS } from "@/components/orders/order-status-badge";
@@ -11,11 +11,13 @@ import { Button } from "@/components/ui/button";
 export function OrderStatusActions({
   orderId,
   status,
+  deliveryType,
   paymentStatus,
   paymentProvider,
 }: {
   orderId: string;
   status: OrderStatus;
+  deliveryType: DeliveryType;
   paymentStatus?: PaymentStatus;
   paymentProvider?: string | null;
 }) {
@@ -23,7 +25,7 @@ export function OrderStatusActions({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const nextStatuses = getNextStatuses(status);
+  const nextStatuses = getNextStatuses(status, deliveryType);
 
   function handleTransition(next: OrderStatus) {
     setError(null);
@@ -66,7 +68,9 @@ export function OrderStatusActions({
               disabled={isPending}
               onClick={() => handleTransition(next)}
             >
-              Marcar como {STATUS_LABELS[next]}
+              {next === "DELIVERED" && deliveryType === "PICKUP"
+                ? "Marcar como Retirado"
+                : `Marcar como ${STATUS_LABELS[next]}`}
             </Button>
           ))}
         {nextStatuses.includes("CANCELLED") && (
