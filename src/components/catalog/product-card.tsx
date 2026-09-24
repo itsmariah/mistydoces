@@ -11,9 +11,15 @@ type ProductCardProps = {
     variants: ProductVariant[];
   };
   isBestSeller?: boolean;
+  /** Posição na grade — define o atraso da animação de entrada em cascata. */
+  index?: number;
 };
 
-export function ProductCard({ product, isBestSeller = false }: ProductCardProps) {
+// Acima disso os cards já estão fora da tela inicial; atrasar mais só faria a página parecer lenta.
+const MAX_STAGGERED_CARDS = 12;
+const STAGGER_STEP_MS = 60;
+
+export function ProductCard({ product, isBestSeller = false, index = 0 }: ProductCardProps) {
   const startingPrice = getStartingPrice(product.variants);
   const priceLabel =
     product.variants.length > 1
@@ -23,7 +29,8 @@ export function ProductCard({ product, isBestSeller = false }: ProductCardProps)
   return (
     <Link
       href={`/cardapio/${product.slug}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card outline-none animate-in fade-in slide-in-from-bottom-4 fill-mode-both animation-duration-500 transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary-foreground/15 focus-visible:-translate-y-1 focus-visible:ring-3 focus-visible:ring-ring/50"
+      style={{ animationDelay: `${Math.min(index, MAX_STAGGERED_CARDS) * STAGGER_STEP_MS}ms` }}
     >
       <div className="relative aspect-square w-full overflow-hidden bg-muted">
         {product.imageUrl ? (
@@ -31,7 +38,7 @@ export function ProductCard({ product, isBestSeller = false }: ProductCardProps)
             src={product.imageUrl}
             alt={product.name}
             fill
-            className="object-cover transition-transform group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
           />
         ) : (
