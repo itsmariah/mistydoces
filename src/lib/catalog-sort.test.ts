@@ -73,10 +73,16 @@ describe("sortProducts", () => {
 
 describe("cardapioHref", () => {
   it("omite parâmetros padrão", () => {
-    expect(cardapioHref(undefined, "nome")).toBe("/cardapio");
+    expect(cardapioHref({ ordem: "nome", busca: "  " })).toBe("/cardapio");
   });
 
   it("mantém categoria e ordenação juntas", () => {
-    expect(cardapioHref("bolos", "menor-preco")).toBe("/cardapio?categoria=bolos&ordem=menor-preco");
+    expect(cardapioHref({ categoria: "bolos", ordem: "menor-preco" })).toBe(
+      "/cardapio?categoria=bolos&ordem=menor-preco",
+    );
+  });
+
+  it("inclui a busca sem espaços nas pontas", () => {
+    expect(cardapioHref({ ordem: "nome", busca: " pistache " })).toBe("/cardapio?busca=pistache");
   });
 });

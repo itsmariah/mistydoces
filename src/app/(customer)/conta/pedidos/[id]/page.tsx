@@ -8,6 +8,7 @@ import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { OrderThanks } from "@/components/orders/order-thanks";
 import { OrderTimeline } from "@/components/orders/order-timeline";
+import { OrderStatusWatcher } from "@/components/orders/order-status-watcher";
 import { formatCurrency } from "@/lib/utils";
 
 const PAYMENT_LABELS: Record<string, string> = {
@@ -76,9 +77,19 @@ export default async function OrderDetailPage({
         <OrderStatusBadge status={order.status} />
       </div>
 
-      <section className="rounded-lg border border-border p-4 sm:p-6">
+      <section className="space-y-3 rounded-lg border border-border p-4 sm:p-6">
         <OrderTimeline status={order.status} deliveryType={order.deliveryType} />
+        {order.status !== "DELIVERED" && order.status !== "CANCELLED" && (
+          <p className="text-xs text-muted-foreground">
+            Esta página se atualiza sozinha quando o status do pedido mudar.
+          </p>
+        )}
       </section>
+      <OrderStatusWatcher
+        orderId={order.id}
+        status={order.status}
+        paymentStatus={order.payment?.status}
+      />
 
       <section className="space-y-3">
         <h2 className="font-heading text-lg font-medium">Itens</h2>

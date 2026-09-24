@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Category, Product, ProductVariant } from "@/generated/prisma/client";
 import { ProductCard } from "@/components/catalog/product-card";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -7,10 +8,13 @@ type ProductGridProps = {
     Product & { category: Pick<Category, "name">; variants: ProductVariant[] }
   >;
   bestSellerIds?: Set<string>;
+  /** Substitui o estado vazio padrão (ex.: busca sem resultado). */
+  emptyState?: ReactNode;
 };
 
-export function ProductGrid({ products, bestSellerIds }: ProductGridProps) {
+export function ProductGrid({ products, bestSellerIds, emptyState }: ProductGridProps) {
   if (products.length === 0) {
+    if (emptyState) return emptyState;
     return (
       <EmptyState
         image={{ src: "/branding/21_gatinha_de_costas.png", width: 110, height: 169 }}

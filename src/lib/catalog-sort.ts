@@ -18,11 +18,18 @@ export function parseCatalogSort(value: string | undefined): CatalogSort {
   return value && Object.hasOwn(CATALOG_SORTS, value) ? (value as CatalogSort) : DEFAULT_CATALOG_SORT;
 }
 
-/** URL do cardápio para uma categoria + ordenação — omite o que for padrão, para a URL ficar limpa. */
-export function cardapioHref(categorySlug: string | undefined, sort: CatalogSort) {
+export type CardapioQuery = {
+  categoria?: string;
+  ordem: CatalogSort;
+  busca?: string;
+};
+
+/** URL do cardápio para categoria + ordenação + busca — omite o que for padrão, para a URL ficar limpa. */
+export function cardapioHref({ categoria, ordem, busca }: CardapioQuery) {
   const params = new URLSearchParams();
-  if (categorySlug) params.set("categoria", categorySlug);
-  if (sort !== DEFAULT_CATALOG_SORT) params.set("ordem", sort);
+  if (categoria) params.set("categoria", categoria);
+  if (ordem !== DEFAULT_CATALOG_SORT) params.set("ordem", ordem);
+  if (busca?.trim()) params.set("busca", busca.trim());
   const query = params.toString();
   return query ? `/cardapio?${query}` : "/cardapio";
 }

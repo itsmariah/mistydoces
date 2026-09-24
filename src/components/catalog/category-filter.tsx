@@ -7,9 +7,10 @@ type CategoryFilterProps = {
   categories: Category[];
   activeSlug?: string;
   sort: CatalogSort;
+  search?: string;
 };
 
-export function CategoryFilter({ categories, activeSlug, sort }: CategoryFilterProps) {
+export function CategoryFilter({ categories, activeSlug, sort, search }: CategoryFilterProps) {
   const chips = [
     { slug: undefined, name: "Todos" },
     ...categories.map((category) => ({ slug: category.slug, name: category.name })),
@@ -26,7 +27,7 @@ export function CategoryFilter({ categories, activeSlug, sort }: CategoryFilterP
         return (
           <Link
             key={chip.slug ?? "todos"}
-            href={cardapioHref(chip.slug, sort)}
+            href={cardapioHref({ categoria: chip.slug, ordem: sort, busca: search })}
             aria-current={isActive ? "page" : undefined}
             className={cn(
               "shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
