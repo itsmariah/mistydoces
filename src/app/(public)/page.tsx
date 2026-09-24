@@ -16,7 +16,7 @@ export default function HomePage() {
         🐾 Doces artesanais feitos com carinho
       </span>
       <h1 className="text-balance font-heading text-4xl font-semibold sm:text-5xl">
-        Bem-vinda à <span className="text-primary">MistyDoces</span>
+        Bem-vinda à <span className="text-link">MistyDoces</span>
       </h1>
       <p className="max-w-xl text-balance text-muted-foreground">
         Bolos, brigadeiros, cookies e muito mais — feitos sob encomenda,

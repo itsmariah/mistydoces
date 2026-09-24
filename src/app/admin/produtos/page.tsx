@@ -31,7 +31,7 @@ export default async function AdminProductsPage() {
               </div>
               <p className="text-sm text-muted-foreground">{product.category.name}</p>
             </div>
-            <span className="text-sm font-semibold text-primary">
+            <span className="text-sm font-semibold text-link">
               {formatCurrency(getStartingPrice(product.variants))}
             </span>
           </Link>

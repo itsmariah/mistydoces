@@ -103,7 +103,7 @@ export default async function OrderDetailPage({
           order.payment.status !== "PAID" && (
             <Link
               href={`/conta/pedidos/${order.id}/pagamento`}
-              className="text-sm font-medium text-primary hover:underline"
+              className="text-sm font-medium text-link hover:underline"
             >
               Ir para o pagamento →
             </Link>
@@ -123,7 +123,7 @@ export default async function OrderDetailPage({
           <span>{formatCurrency(order.subtotal.toString())}</span>
         </div>
         {Number(order.discountAmount) > 0 && (
-          <div className="flex justify-between text-sm text-primary">
+          <div className="flex justify-between text-sm text-link">
             <span>
               Desconto{order.couponCodeSnapshot ? ` (${order.couponCodeSnapshot})` : ""}
             </span>
@@ -136,7 +136,7 @@ export default async function OrderDetailPage({
         </div>
         <div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
           <span>Total</span>
-          <span className="text-primary">{formatCurrency(order.total.toString())}</span>
+          <span className="text-link">{formatCurrency(order.total.toString())}</span>
         </div>
       </section>
 

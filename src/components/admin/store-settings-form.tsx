@@ -70,7 +70,7 @@ export function StoreSettingsForm({
       {feedback && (
         <p
           className={
-            feedback.type === "success" ? "text-sm text-primary" : "text-sm text-destructive"
+            feedback.type === "success" ? "text-sm text-link" : "text-sm text-destructive"
           }
         >
           {feedback.message}

@@ -67,7 +67,7 @@ export function ReviewForm({
               <Star
                 className={cn(
                   "h-6 w-6 transition-colors",
-                  filled ? "fill-primary text-primary" : "fill-none text-muted-foreground",
+                  filled ? "fill-link text-link" : "fill-none text-muted-foreground",
                 )}
               />
             </button>

@@ -57,7 +57,7 @@ export function ProfileForm({ defaultValues }: { defaultValues: UpdateProfileInp
       {feedback && (
         <p
           className={
-            feedback.type === "success" ? "text-sm text-primary" : "text-sm text-destructive"
+            feedback.type === "success" ? "text-sm text-link" : "text-sm text-destructive"
           }
         >
           {feedback.message}

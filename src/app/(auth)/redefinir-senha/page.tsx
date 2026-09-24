@@ -15,7 +15,7 @@ export default async function ResetPasswordPage({
         <p className="text-sm text-muted-foreground">
           Este link de redefinição de senha está incompleto ou inválido.
         </p>
-        <Link href="/esqueci-senha" className="font-medium text-primary hover:underline">
+        <Link href="/esqueci-senha" className="font-medium text-link hover:underline">
           Solicitar um novo link
         </Link>
       </div>

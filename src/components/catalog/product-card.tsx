@@ -55,7 +55,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <p className="line-clamp-2 text-sm text-muted-foreground">
           {product.description}
         </p>
-        <span className="mt-auto pt-2 text-lg font-semibold text-primary">
+        <span className="mt-auto pt-2 text-lg font-semibold text-link">
           {priceLabel}
         </span>
       </div>

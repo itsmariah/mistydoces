@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Quicksand } from "next/font/google";
+import { Caveat, Inter, Quicksand } from "next/font/google";
 import Script from "next/script";
 import { THEME_STORAGE_KEY, ThemeProvider } from "@/components/theme-provider";
 import { CartProvider } from "@/components/cart/cart-provider";
@@ -28,6 +28,14 @@ const quicksand = Quicksand({
   subsets: ["latin"],
 });
 
+// Fonte de "momento de marca" — uso pontual (hero, estados vazios, e-mails),
+// nunca em texto operacional. Ver seção 3 do Design System MistyDoces.
+const caveat = Caveat({
+  variable: "--font-display",
+  weight: ["700"],
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "MistyDoces",
   description: "Cardápio e pedidos online de uma confeitaria artesanal.",
@@ -37,7 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${inter.variable} ${quicksand.variable} h-full antialiased`}
+      className={`${inter.variable} ${quicksand.variable} ${caveat.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">

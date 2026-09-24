@@ -76,7 +76,7 @@ export function PixPayment({
   if (status === "PAID") {
     return (
       <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-6 text-center">
-        <p className="font-heading text-lg font-medium text-primary">Pagamento aprovado!</p>
+        <p className="font-heading text-lg font-medium text-link">Pagamento aprovado!</p>
         <p className="text-sm text-muted-foreground">Seu pedido já foi confirmado.</p>
       </div>
     );
@@ -87,7 +87,7 @@ export function PixPayment({
       <div className="space-y-4 rounded-lg border border-border p-6">
         <div>
           <p className="text-sm text-muted-foreground">Valor a pagar</p>
-          <p className="font-heading text-2xl font-semibold text-primary">
+          <p className="font-heading text-2xl font-semibold text-link">
             {formatCurrency(total)}
           </p>
         </div>

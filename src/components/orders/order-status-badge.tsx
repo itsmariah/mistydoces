@@ -16,8 +16,8 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
   PENDING: "bg-muted text-muted-foreground",
   CONFIRMED: "bg-secondary text-secondary-foreground",
   PREPARING: "bg-secondary text-secondary-foreground",
-  READY: "bg-primary/15 text-primary",
-  OUT_FOR_DELIVERY: "bg-primary/15 text-primary",
+  READY: "bg-primary/15 text-link",
+  OUT_FOR_DELIVERY: "bg-primary/15 text-link",
   DELIVERED: "bg-primary text-primary-foreground",
   CANCELLED: "bg-destructive/10 text-destructive",
 };

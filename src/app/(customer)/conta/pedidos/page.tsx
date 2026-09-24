@@ -15,7 +15,7 @@ export default async function OrdersPage() {
       {orders.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           Você ainda não fez nenhum pedido.{" "}
-          <Link href="/cardapio" className="text-primary underline underline-offset-4">
+          <Link href="/cardapio" className="text-link underline underline-offset-4">
             Ver cardápio
           </Link>
         </p>
@@ -38,7 +38,7 @@ export default async function OrdersPage() {
               </div>
               <div className="flex flex-col items-end gap-1">
                 <OrderStatusBadge status={order.status} />
-                <span className="text-sm font-semibold text-primary">
+                <span className="text-sm font-semibold text-link">
                   {formatCurrency(order.total.toString())}
                 </span>
               </div>

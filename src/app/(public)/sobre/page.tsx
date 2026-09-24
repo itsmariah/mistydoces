@@ -69,7 +69,7 @@ export default function SobrePage() {
 
         <p>Sabe aquele momento de:</p>
 
-        <p className="text-center font-heading text-xl text-primary">
+        <p className="text-center font-heading text-xl text-link">
           &quot;Eu mereço. Hoje eu me mimei.&quot; 🍰✨
         </p>
 

@@ -441,7 +441,7 @@ export function CheckoutForm({
           <span>{formatCurrency(subtotal)}</span>
         </div>
         {discount > 0 && (
-          <div className="flex justify-between text-sm text-primary">
+          <div className="flex justify-between text-sm text-link">
             <span>Desconto</span>
             <span>-{formatCurrency(discount)}</span>
           </div>
@@ -452,7 +452,7 @@ export function CheckoutForm({
         </div>
         <div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
           <span>Total</span>
-          <span className="text-primary">{formatCurrency(total)}</span>
+          <span className="text-link">{formatCurrency(total)}</span>
         </div>
       </section>
 

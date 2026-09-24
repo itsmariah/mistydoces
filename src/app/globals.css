@@ -9,6 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);
+  --font-display: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -26,6 +27,10 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -33,6 +38,7 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-link: var(--link);
   --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
@@ -48,74 +54,89 @@
 }
 
 :root {
-  /* MistyDoces — tema claro (azul bebê como cor principal, lilás como secundária) */
-  --background: #f8fbfe;
-  --foreground: #262b35;
-  --card: #ffffff;
-  --card-foreground: #262b35;
-  --popover: #ffffff;
-  --popover-foreground: #262b35;
-  --primary: #4fa8da;
-  --primary-foreground: #ffffff;
-  --secondary: #ece4fa;
-  --secondary-foreground: #4a3b73;
-  --muted: #eef5fb;
-  --muted-foreground: #64707d;
-  --accent: #d6eef7;
-  --accent-foreground: #1e3a4c;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: #dfeaf5;
-  --input: #dfeaf5;
-  --ring: #4fa8da;
+  /* MistyDoces — tema claro (azul bebê como cor de identidade, lilás como apoio,
+     fundo creme quente — ver Design System "MistyDoces" para a análise completa) */
+  --background: #fbf3ea;
+  --foreground: #3d3242;
+  --card: #fffffb;
+  --card-foreground: #3d3242;
+  --popover: #fffffb;
+  --popover-foreground: #3d3242;
+  --primary: #a3c0e8;
+  --primary-foreground: #3d3242;
+  /* Tom mais fechado do mesmo azul, só pra texto/link direto sobre o fundo —
+     o --primary claro não passa contraste de texto (ver troca com a Mariah). */
+  --link: #3f6ba8;
+  --secondary: #efe6f5;
+  --secondary-foreground: #5f4a78;
+  --muted: #f3e9dc;
+  --muted-foreground: #756a78;
+  --accent: #e7edf7;
+  --accent-foreground: #3d3242;
+  --destructive: #b23b4a;
+  --success: #e7f0e1;
+  --success-foreground: #457035;
+  --warning: #fbedd6;
+  --warning-foreground: #8f5a16;
+  --border: #e8dcc8;
+  --input: #e8dcc8;
+  --ring: #a3c0e8;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.875rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #262b35;
-  --sidebar-primary: #4fa8da;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #d6eef7;
-  --sidebar-accent-foreground: #1e3a4c;
-  --sidebar-border: #dfeaf5;
-  --sidebar-ring: #4fa8da;
+  --radius: 1.25rem;
+  --sidebar: #fffffb;
+  --sidebar-foreground: #3d3242;
+  --sidebar-primary: #a3c0e8;
+  --sidebar-primary-foreground: #3d3242;
+  --sidebar-accent: #e7edf7;
+  --sidebar-accent-foreground: #3d3242;
+  --sidebar-border: #e8dcc8;
+  --sidebar-ring: #a3c0e8;
 }
 
 .dark {
-  /* MistyDoces — tema escuro (azul bebê como cor principal, lilás como secundária) */
-  --background: #1b1f29;
-  --foreground: #eef3fb;
-  --card: #242b38;
-  --card-foreground: #eef3fb;
-  --popover: #242b38;
-  --popover-foreground: #eef3fb;
-  --primary: #8ecae6;
-  --primary-foreground: #12283a;
-  --secondary: #3a2f52;
-  --secondary-foreground: #dcd0f5;
-  --muted: #313b4a;
-  --muted-foreground: #a9b6c5;
-  --accent: #233a48;
-  --accent-foreground: #9fd8f0;
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: #313b4a;
-  --input: #313b4a;
-  --ring: #8ecae6;
+  /* MistyDoces — tema escuro (fundo azul-marinho de verdade, não roxo-ardósia;
+     lilás segue como cor de apoio, com traço de matiz azul pra combinar com o fundo) */
+  --background: #0d1728;
+  --foreground: #eaf1fb;
+  --card: #1f304d;
+  --card-foreground: #eaf1fb;
+  --popover: #1f304d;
+  --popover-foreground: #eaf1fb;
+  --primary: #a9cdee;
+  --primary-foreground: #16223a;
+  /* No escuro o --primary claro já lê bem como texto sobre o fundo marinho. */
+  --link: #a9cdee;
+  --secondary: #2b2e4a;
+  --secondary-foreground: #dcc9ef;
+  --muted: #22304d;
+  --muted-foreground: #a9b9d2;
+  --accent: #26385a;
+  --accent-foreground: #eaf1fb;
+  --destructive: #e38292;
+  --success: #2a3624;
+  --success-foreground: #8fc17b;
+  --warning: #3a2e1a;
+  --warning-foreground: #e0a857;
+  --border: #33456b;
+  --input: #33456b;
+  --ring: #a9cdee;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: #242b38;
-  --sidebar-foreground: #eef3fb;
-  --sidebar-primary: #8ecae6;
-  --sidebar-primary-foreground: #12283a;
-  --sidebar-accent: #233a48;
-  --sidebar-accent-foreground: #9fd8f0;
-  --sidebar-border: #313b4a;
-  --sidebar-ring: #8ecae6;
+  --sidebar: #1f304d;
+  --sidebar-foreground: #eaf1fb;
+  --sidebar-primary: #a9cdee;
+  --sidebar-primary-foreground: #16223a;
+  --sidebar-accent: #26385a;
+  --sidebar-accent-foreground: #eaf1fb;
+  --sidebar-border: #33456b;
+  --sidebar-ring: #a9cdee;
 }
 
 @layer base {

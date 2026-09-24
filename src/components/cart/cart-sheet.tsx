@@ -102,7 +102,7 @@ export function CartSheet() {
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
-                  <span className="text-sm font-semibold text-primary">
+                  <span className="text-sm font-semibold text-link">
                     {formatCurrency(item.price * item.quantity)}
                   </span>
                 </div>
@@ -115,7 +115,7 @@ export function CartSheet() {
           <SheetFooter>
             <div className="flex items-center justify-between text-sm font-medium">
               <span>Subtotal</span>
-              <span className="text-lg font-semibold text-primary">
+              <span className="text-lg font-semibold text-link">
                 {formatCurrency(subtotal)}
               </span>
             </div>

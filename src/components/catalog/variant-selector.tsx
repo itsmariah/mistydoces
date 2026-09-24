@@ -60,7 +60,7 @@ export function VariantSelector({
         </div>
       )}
 
-      <span className="text-2xl font-semibold text-primary">
+      <span className="text-2xl font-semibold text-link">
         {selected ? formatCurrency(selected.price) : ""}
       </span>
 

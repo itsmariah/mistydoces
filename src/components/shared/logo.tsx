@@ -35,7 +35,7 @@ export function Logo({
         height={iconHeight}
       />
       <span>
-        Misty<span className="text-primary">Doces</span>
+        Misty<span className="text-link">Doces</span>
       </span>
     </Link>
   );

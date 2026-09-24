@@ -32,7 +32,7 @@ export default async function AdminOrdersPage({
           href="/admin/pedidos"
           className={cn(
             "rounded-full border px-3 py-1 text-sm",
-            !activeStatus ? "border-primary bg-primary/10 text-primary" : "border-border",
+            !activeStatus ? "border-link bg-primary/10 text-link" : "border-border",
           )}
         >
           Todos
@@ -43,7 +43,7 @@ export default async function AdminOrdersPage({
             href={`/admin/pedidos?status=${s}`}
             className={cn(
               "rounded-full border px-3 py-1 text-sm",
-              activeStatus === s ? "border-primary bg-primary/10 text-primary" : "border-border",
+              activeStatus === s ? "border-link bg-primary/10 text-link" : "border-border",
             )}
           >
             {STATUS_LABELS[s]}
@@ -74,7 +74,7 @@ export default async function AdminOrdersPage({
               </div>
               <div className="flex flex-col items-end gap-1">
                 <OrderStatusBadge status={order.status} />
-                <span className="text-sm font-semibold text-primary">
+                <span className="text-sm font-semibold text-link">
                   {formatCurrency(order.total.toString())}
                 </span>
               </div>
