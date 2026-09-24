@@ -7,6 +7,7 @@ import { VariantSelector } from "@/components/catalog/variant-selector";
 import { StarRating } from "@/components/catalog/star-rating";
 import { ReviewForm } from "@/components/catalog/review-form";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
+import { EmptyState } from "@/components/shared/empty-state";
 import { getProductBySlug } from "@/lib/catalog";
 import { auth } from "@/lib/auth";
 import {
@@ -113,9 +114,12 @@ export default async function ProdutoPage({
         )}
 
         {reviews.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Este produto ainda não tem avaliações.
-          </p>
+          <EmptyState
+            image={{ src: "/branding/16_tag_aprovado_pela_chefe.png", width: 120, height: 100 }}
+            title="Ainda sem avaliações"
+            description="Já provou? Depois que seu pedido for entregue, conta pra gente o que achou."
+            className="py-6"
+          />
         ) : (
           <div className="space-y-4">
             {reviews.map((review) => (

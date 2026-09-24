@@ -2,6 +2,8 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getUserOrders } from "@/services/order-service";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 
 export default async function OrdersPage() {
@@ -13,12 +15,16 @@ export default async function OrdersPage() {
       <h1 className="font-heading text-2xl font-semibold">Meus pedidos</h1>
 
       {orders.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Você ainda não fez nenhum pedido.{" "}
-          <Link href="/cardapio" className="text-link underline underline-offset-4">
-            Ver cardápio
-          </Link>
-        </p>
+        <EmptyState
+          image={{ src: "/branding/14_pote_de_biscoitos.png", width: 140, height: 146 }}
+          title="Nenhum pedido ainda"
+          description="Quando você fizer seu primeiro pedido, ele aparece aqui para você acompanhar."
+          action={
+            <Button nativeButton={false} render={<Link href="/cardapio" />}>
+              Ver cardápio
+            </Button>
+          }
+        />
       ) : (
         <div className="space-y-3">
           {orders.map((order) => (

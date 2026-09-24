@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { EmptyState } from "@/components/shared/empty-state";
 import { formatCurrency } from "@/lib/utils";
 
 const NEW_ADDRESS_VALUE = "new";
@@ -183,21 +184,24 @@ export function CheckoutForm({
       clear();
       const destination = ONLINE_PAYMENT_METHODS.includes(data.paymentMethod)
         ? `/conta/pedidos/${result.data.orderId}/pagamento`
-        : `/conta/pedidos/${result.data.orderId}`;
+        : `/conta/pedidos/${result.data.orderId}?novo=1`;
       router.push(destination);
     });
   }
 
   if (items.length === 0) {
     return (
-      <div className="space-y-4 rounded-lg border border-border p-6 text-center">
-        <p className="text-sm text-muted-foreground">
-          Seu carrinho está vazio. Adicione alguns doces antes de finalizar o pedido.
-        </p>
-        <Button nativeButton={false} render={<Link href="/cardapio" />}>
-          Ver cardápio
-        </Button>
-      </div>
+      <EmptyState
+        image={{ src: "/branding/02_gatinha_dormindo.png", width: 160, height: 131 }}
+        title="Carrinho vazio"
+        description="Adicione alguns doces antes de finalizar o pedido."
+        action={
+          <Button nativeButton={false} render={<Link href="/cardapio" />}>
+            Ver cardápio
+          </Button>
+        }
+        className="rounded-lg border border-border"
+      />
     );
   }
 

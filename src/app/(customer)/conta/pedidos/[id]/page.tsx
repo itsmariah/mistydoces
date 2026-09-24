@@ -6,6 +6,7 @@ import { AppError } from "@/lib/errors";
 import { canCustomerCancel } from "@/lib/order-status";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { CancelOrderButton } from "@/components/orders/cancel-order-button";
+import { OrderThanks } from "@/components/orders/order-thanks";
 import { formatCurrency } from "@/lib/utils";
 
 const PAYMENT_LABELS: Record<string, string> = {
@@ -26,10 +27,14 @@ const PAYMENT_STATUS_LABELS: Record<string, string> = {
 
 export default async function OrderDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ novo?: string }>;
 }) {
   const { id } = await params;
+  // `?novo=1` vem do checkout — só a primeira visita ao pedido mostra o agradecimento.
+  const { novo } = await searchParams;
   const session = await auth();
 
   const order = await getUserOrderById(session!.user.id, id).catch((error) => {
@@ -47,6 +52,13 @@ export default async function OrderDetailPage({
           ← Meus pedidos
         </Link>
       </div>
+
+      {novo === "1" && (
+        <OrderThanks
+          title="Pedido recebido!"
+          description="Obrigada por fazer parte dessa doçura! Você recebe um e-mail a cada atualização do seu pedido."
+        />
+      )}
 
       <div className="flex items-start justify-between">
         <div>

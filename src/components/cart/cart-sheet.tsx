@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
+import { EmptyState } from "@/components/shared/empty-state";
 import {
   Sheet,
   SheetContent,
@@ -45,17 +45,12 @@ export function CartSheet() {
         </SheetHeader>
 
         {items.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 px-4 py-6 text-center">
-            <Image
-              src="/branding/02_gatinha_dormindo.png"
-              alt=""
-              width={140}
-              height={115}
-            />
-            <p className="text-sm text-muted-foreground">
-              Seu carrinho está vazio. Que tal dar uma olhada no cardápio?
-            </p>
-          </div>
+          <EmptyState
+            image={{ src: "/branding/02_gatinha_dormindo.png", width: 140, height: 115 }}
+            title="Carrinho vazio"
+            description="Que tal dar uma olhada no cardápio?"
+            className="py-6"
+          />
         ) : (
           <div className="flex-1 space-y-4 overflow-y-auto px-4">
             {items.map((item) => (

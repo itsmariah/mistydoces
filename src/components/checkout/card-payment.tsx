@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { initMercadoPago, Payment as PaymentBrick } from "@mercadopago/sdk-react";
 import { createCardPayment, getOrderPaymentStatus } from "@/actions/payment";
+import { OrderThanks } from "@/components/orders/order-thanks";
 import { formatCurrency } from "@/lib/utils";
 
 const POLL_INTERVAL_MS = 4000;
@@ -71,10 +72,10 @@ export function CardPayment({
 
   if (status === "PAID") {
     return (
-      <div className="space-y-2 rounded-lg border border-primary/30 bg-primary/5 p-6 text-center">
-        <p className="font-heading text-lg font-medium text-link">Pagamento aprovado!</p>
-        <p className="text-sm text-muted-foreground">Seu pedido já foi confirmado.</p>
-      </div>
+      <OrderThanks
+        title="Pagamento aprovado!"
+        description="Seu pedido já foi confirmado. Obrigada por fazer parte dessa doçura!"
+      />
     );
   }
 

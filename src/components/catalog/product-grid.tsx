@@ -1,5 +1,6 @@
 import type { Category, Product, ProductVariant } from "@/generated/prisma/client";
 import { ProductCard } from "@/components/catalog/product-card";
+import { EmptyState } from "@/components/shared/empty-state";
 
 type ProductGridProps = {
   products: Array<
@@ -10,9 +11,12 @@ type ProductGridProps = {
 export function ProductGrid({ products }: ProductGridProps) {
   if (products.length === 0) {
     return (
-      <p className="py-16 text-center text-muted-foreground">
-        Nenhum produto encontrado nessa categoria por enquanto.
-      </p>
+      <EmptyState
+        image={{ src: "/branding/21_gatinha_de_costas.png", width: 110, height: 169 }}
+        title="Nada por aqui ainda"
+        description="Nenhum produto encontrado nessa categoria por enquanto. A chef Misty está preparando novidades!"
+        className="py-16"
+      />
     );
   }
 
