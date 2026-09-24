@@ -1,6 +1,7 @@
 import { CategoryFilter } from "@/components/catalog/category-filter";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { getCategories, getProducts } from "@/lib/catalog";
+import { getBestSellerProductIds } from "@/services/best-seller-service";
 
 export default async function CardapioPage({
   searchParams,
@@ -8,9 +9,10 @@ export default async function CardapioPage({
   searchParams: Promise<{ categoria?: string }>;
 }) {
   const { categoria } = await searchParams;
-  const [categories, products] = await Promise.all([
+  const [categories, products, bestSellerIds] = await Promise.all([
     getCategories(),
     getProducts({ categorySlug: categoria }),
+    getBestSellerProductIds(),
   ]);
 
   return (
@@ -26,7 +28,7 @@ export default async function CardapioPage({
 
       <CategoryFilter categories={categories} activeSlug={categoria} />
 
-      <ProductGrid products={products} />
+      <ProductGrid products={products} bestSellerIds={bestSellerIds} />
     </div>
   );
 }

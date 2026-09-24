@@ -10,9 +10,10 @@ type ProductCardProps = {
     category: Pick<Category, "name">;
     variants: ProductVariant[];
   };
+  isBestSeller?: boolean;
 };
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, isBestSeller = false }: ProductCardProps) {
   const startingPrice = getStartingPrice(product.variants);
   const priceLabel =
     product.variants.length > 1
@@ -35,6 +36,17 @@ export function ProductCard({ product }: ProductCardProps) {
           />
         ) : (
           <ProductPlaceholderImage />
+        )}
+        {isBestSeller && (
+          <Badge variant="secondary" className="absolute left-2 top-2 gap-1 pl-1.5 shadow-sm">
+            <Image
+              src="/branding/10_coracao_patinha.png"
+              alt=""
+              width={16}
+              height={16}
+            />
+            Mais vendido
+          </Badge>
         )}
         {!product.isAvailable && (
           <Badge

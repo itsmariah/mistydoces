@@ -6,9 +6,10 @@ type ProductGridProps = {
   products: Array<
     Product & { category: Pick<Category, "name">; variants: ProductVariant[] }
   >;
+  bestSellerIds?: Set<string>;
 };
 
-export function ProductGrid({ products }: ProductGridProps) {
+export function ProductGrid({ products, bestSellerIds }: ProductGridProps) {
   if (products.length === 0) {
     return (
       <EmptyState
@@ -23,7 +24,11 @@ export function ProductGrid({ products }: ProductGridProps) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={product.id}
+          product={product}
+          isBestSeller={bestSellerIds?.has(product.id)}
+        />
       ))}
     </div>
   );
