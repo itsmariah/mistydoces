@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { changePassword } from "@/actions/profile";
 import { changePasswordSchema, type ChangePasswordInput } from "@/validations/auth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 export function ChangePasswordForm() {
@@ -39,9 +39,8 @@ export function ChangePasswordForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
       <div className="space-y-1.5">
         <Label htmlFor="currentPassword">Senha atual</Label>
-        <Input
+        <PasswordInput
           id="currentPassword"
-          type="password"
           autoComplete="current-password"
           {...register("currentPassword")}
         />
@@ -52,9 +51,8 @@ export function ChangePasswordForm() {
 
       <div className="space-y-1.5">
         <Label htmlFor="newPassword">Nova senha</Label>
-        <Input
+        <PasswordInput
           id="newPassword"
-          type="password"
           autoComplete="new-password"
           {...register("newPassword")}
         />
@@ -65,9 +63,8 @@ export function ChangePasswordForm() {
 
       <div className="space-y-1.5">
         <Label htmlFor="confirmNewPassword">Confirmar nova senha</Label>
-        <Input
+        <PasswordInput
           id="confirmNewPassword"
-          type="password"
           autoComplete="new-password"
           {...register("confirmNewPassword")}
         />

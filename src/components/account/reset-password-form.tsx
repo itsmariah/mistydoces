@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { resetPassword } from "@/actions/auth";
 import { resetPasswordSchema, type ResetPasswordInput } from "@/validations/auth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 export function ResetPasswordForm({ token }: { token: string }) {
@@ -42,9 +42,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
       <div className="space-y-1.5">
         <Label htmlFor="newPassword">Nova senha</Label>
-        <Input
+        <PasswordInput
           id="newPassword"
-          type="password"
           autoComplete="new-password"
           {...register("newPassword")}
         />
@@ -55,9 +54,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
       <div className="space-y-1.5">
         <Label htmlFor="confirmNewPassword">Confirmar nova senha</Label>
-        <Input
+        <PasswordInput
           id="confirmNewPassword"
-          type="password"
           autoComplete="new-password"
           {...register("confirmNewPassword")}
         />

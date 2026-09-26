@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "@/validations/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 // O proxy manda o callbackUrl como URL absoluta; só aceita destinos do próprio site
@@ -66,9 +67,8 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
 
       <div className="space-y-1.5">
         <Label htmlFor="password">Senha</Label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           autoComplete="current-password"
           {...register("password")}
         />
