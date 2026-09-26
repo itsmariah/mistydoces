@@ -15,7 +15,11 @@ const NAV_LINKS = [
 
 export async function Header() {
   const session = await auth();
-  const accountHref = session?.user ? "/conta" : "/login";
+  const accountHref = !session?.user
+    ? "/login"
+    : session.user.role === "ADMIN"
+      ? "/admin"
+      : "/conta";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">

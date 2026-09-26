@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { LoginForm } from "@/components/account/login-form";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl?: string | string[] }>;
+}) {
+  const { callbackUrl } = await searchParams;
+
   return (
     <div className="space-y-6">
       <div className="space-y-1 text-center">
@@ -11,7 +17,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <LoginForm />
+      <LoginForm callbackUrl={typeof callbackUrl === "string" ? callbackUrl : undefined} />
 
       <p className="text-center text-sm text-muted-foreground">
         <Link href="/esqueci-senha" className="font-medium text-link hover:underline">
