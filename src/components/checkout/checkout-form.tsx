@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, type FocusEvent } from "react";
+import { useEffect, useState, useTransition, type FocusEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -54,7 +54,7 @@ export function CheckoutForm({
   deliveryFee: number;
 }) {
   const router = useRouter();
-  const { items, subtotal, clear } = useCart();
+  const { items, subtotal, hasUnavailable, clear, refresh, isRefreshing, removeItem } = useCart();
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
   const [cepStatus, setCepStatus] = useState<"idle" | "loading" | "not-found">("idle");
@@ -64,6 +64,12 @@ export function CheckoutForm({
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(
     null,
   );
+
+  // Confere preços e disponibilidade ao chegar no checkout: o carrinho pode ter
+  // sido montado há dias, e o total mostrado aqui precisa ser o que será cobrado.
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
   const defaultAddressId = addresses.find((a) => a.isDefault)?.id ?? addresses[0]?.id;
 
@@ -145,6 +151,10 @@ export function CheckoutForm({
       setFormError("Seu carrinho está vazio.");
       return;
     }
+    if (hasUnavailable) {
+      setFormError("Remova os itens indisponíveis para finalizar o pedido.");
+      return;
+    }
 
     let addressId: string | undefined;
     let newAddress: CheckoutFormInput["newAddress"] | undefined;
@@ -187,6 +197,10 @@ export function CheckoutForm({
 
       if (!result.success) {
         setFormError(result.error.message);
+        // Algo saiu do cardápio entre a conferência e o envio: atualiza para mostrar o quê.
+        if (result.error.code === "PRODUCT_UNAVAILABLE" || result.error.code === "NOT_FOUND") {
+          void refresh();
+        }
         return;
       }
 
@@ -222,16 +236,38 @@ export function CheckoutForm({
       <section id="etapa-itens" className="scroll-mt-36 space-y-3">
         <h2 className="font-heading text-lg font-medium">Itens do pedido</h2>
         <div className="space-y-2 rounded-lg border border-border p-4">
-          {items.map((item) => (
-            <div key={item.variantId} className="flex justify-between text-sm">
-              <span>
-                {item.quantity}x {item.productName} ({item.variantLabel})
-              </span>
-              <span className="text-muted-foreground">
-                {formatCurrency(item.price * item.quantity)}
-              </span>
-            </div>
-          ))}
+          {items.map((item) =>
+            item.isAvailable ? (
+              <div key={item.variantId} className="flex justify-between text-sm">
+                <span>
+                  {item.quantity}x {item.productName} ({item.variantLabel})
+                </span>
+                <span className="text-muted-foreground">
+                  {formatCurrency(item.price * item.quantity)}
+                </span>
+              </div>
+            ) : (
+              <div key={item.variantId} className="flex items-center justify-between gap-2 text-sm">
+                <span className="text-muted-foreground line-through">
+                  {item.quantity}x {item.productName} ({item.variantLabel})
+                </span>
+                <span className="flex shrink-0 items-center gap-2">
+                  <span className="text-xs text-destructive">Indisponível</span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeItem(item.variantId)}
+                  >
+                    Remover
+                  </Button>
+                </span>
+              </div>
+            ),
+          )}
+          {isRefreshing && (
+            <p className="text-xs text-muted-foreground">Conferindo preços e disponibilidade...</p>
+          )}
         </div>
       </section>
 
@@ -473,8 +509,18 @@ export function CheckoutForm({
       </section>
 
       {formError && <p className="text-sm text-destructive">{formError}</p>}
+      {hasUnavailable && !formError && (
+        <p className="text-sm text-destructive">
+          Remova os itens indisponíveis (em &ldquo;Itens do pedido&rdquo;) para finalizar o pedido.
+        </p>
+      )}
 
-      <Button type="submit" size="lg" className="w-full" disabled={isPending}>
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full"
+        disabled={isPending || isRefreshing || hasUnavailable}
+      >
         {isPending ? "Enviando pedido..." : "Confirmar pedido"}
       </Button>
     </form>

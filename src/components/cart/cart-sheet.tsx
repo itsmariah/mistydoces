@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -16,7 +18,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCart, type CartItem } from "@/components/cart/cart-provider";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { MAX_ITEM_QUANTITY } from "@/validations/order";
 
 export function CartSheet() {
@@ -24,12 +26,21 @@ export function CartSheet() {
     items,
     itemCount,
     subtotal,
+    hasUnavailable,
     updateQuantity,
     removeItem,
     restoreItem,
+    refresh,
     isOpen,
     setOpen,
   } = useCart();
+
+  // Confere preços e disponibilidade toda vez que a pessoa abre o carrinho. Ao adicionar
+  // um item a gaveta abre por `addItem`, sem passar por aqui — o item acabou de vir da página.
+  function handleOpenChange(open: boolean) {
+    setOpen(open);
+    if (open) void refresh();
+  }
 
   // Remover (pela lixeira ou diminuindo até 0) sempre oferece desfazer — é fácil tocar sem querer no celular.
   function handleRemove(item: CartItem, index: number) {
@@ -41,7 +52,7 @@ export function CartSheet() {
   }
 
   return (
-    <Sheet open={isOpen} onOpenChange={setOpen}>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger
         render={
           <Button
@@ -78,8 +89,23 @@ export function CartSheet() {
                 key={item.variantId}
                 className="flex gap-3 border-b border-border pb-4 last:border-0"
               >
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  <ProductPlaceholderImage className="object-contain p-1" />
+                <div
+                  className={cn(
+                    "relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted",
+                    !item.isAvailable && "opacity-50 grayscale",
+                  )}
+                >
+                  {item.imageUrl ? (
+                    <Image
+                      src={item.imageUrl}
+                      alt=""
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <ProductPlaceholderImage className="object-contain p-1" />
+                  )}
                 </div>
                 <div className="flex flex-1 flex-col gap-1">
                   <span className="text-sm font-medium">{item.productName}</span>
@@ -108,9 +134,13 @@ export function CartSheet() {
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
-                  <span className="text-sm font-semibold text-link">
-                    {formatCurrency(item.price * item.quantity)}
-                  </span>
+                  {item.isAvailable ? (
+                    <span className="text-sm font-semibold text-link">
+                      {formatCurrency(item.price * item.quantity)}
+                    </span>
+                  ) : (
+                    <Badge variant="outline">Indisponível</Badge>
+                  )}
                 </div>
               </div>
             ))}
@@ -125,14 +155,25 @@ export function CartSheet() {
                 {formatCurrency(subtotal)}
               </span>
             </div>
-            <Button
-              size="lg"
-              className="w-full"
-              nativeButton={false}
-              render={<Link href="/checkout" onClick={() => setOpen(false)} />}
-            >
-              Finalizar pedido
-            </Button>
+            {hasUnavailable ? (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Remova os itens indisponíveis para finalizar o pedido.
+                </p>
+                <Button size="lg" className="w-full" disabled>
+                  Finalizar pedido
+                </Button>
+              </>
+            ) : (
+              <Button
+                size="lg"
+                className="w-full"
+                nativeButton={false}
+                render={<Link href="/checkout" onClick={() => setOpen(false)} />}
+              >
+                Finalizar pedido
+              </Button>
+            )}
           </SheetFooter>
         )}
       </SheetContent>

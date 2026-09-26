@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { LayoutDashboard, LogOut, MapPin, Package, User } from "lucide-react";
-import { logoutUser } from "@/actions/auth";
+import { useLogout } from "@/components/shared/logout-button";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,6 +31,8 @@ export function AccountMenu({
   /** Página inicial do painel; ausente para clientes. */
   adminHref?: string;
 }) {
+  const logout = useLogout();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -62,7 +64,7 @@ export function AccountMenu({
           </>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => logoutUser()}>
+        <DropdownMenuItem onClick={() => logout()}>
           <LogOut />
           Sair
         </DropdownMenuItem>

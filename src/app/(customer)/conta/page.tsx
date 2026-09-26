@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { logoutUser } from "@/actions/auth";
+import { LogoutButton } from "@/components/shared/logout-button";
 import { ProfileForm } from "@/components/account/profile-form";
 import { ChangePasswordForm } from "@/components/account/change-password-form";
 import { Button } from "@/components/ui/button";
@@ -21,11 +21,7 @@ export default async function AccountPage() {
           <h1 className="font-heading text-2xl font-semibold">Minha conta</h1>
           <p className="text-sm text-muted-foreground">{user.email}</p>
         </div>
-        <form action={logoutUser}>
-          <Button type="submit" variant="ghost">
-            Sair
-          </Button>
-        </form>
+        <LogoutButton variant="ghost">Sair</LogoutButton>
       </div>
 
       <section className="space-y-4">

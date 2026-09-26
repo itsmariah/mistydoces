@@ -8,6 +8,7 @@ import {
   ProductUnavailableError,
 } from "@/lib/errors";
 import { canCustomerCancel, canTransition } from "@/lib/order-status";
+import { isPurchasable } from "@/lib/product-availability";
 import { toCents, fromCents } from "@/lib/money";
 import { getDeliveryFee } from "@/services/store-settings-service";
 import * as couponService from "@/services/coupon-service";
@@ -56,11 +57,7 @@ export async function createOrder(userId: string, input: CheckoutInput) {
     if (!variant) {
       throw new NotFoundError("Um dos itens do carrinho não existe mais.");
     }
-    if (
-      !variant.product.isActive ||
-      !variant.product.isAvailable ||
-      !variant.product.category.isActive
-    ) {
+    if (!isPurchasable(variant.product)) {
       throw new ProductUnavailableError(variant.product.name);
     }
 

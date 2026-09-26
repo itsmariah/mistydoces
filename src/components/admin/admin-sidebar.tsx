@@ -19,7 +19,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Role } from "@/generated/prisma/client";
-import { logoutUser } from "@/actions/auth";
+import { LogoutButton } from "@/components/shared/logout-button";
 import { ROLE_LABELS, adminHomePath, can, type Permission } from "@/lib/permissions";
 import { usePendingOrdersCount } from "@/components/admin/order-alerts";
 import { cn } from "@/lib/utils";
@@ -148,11 +148,9 @@ function SidebarContent({ role, name, onNavigate }: SidebarProps & { onNavigate?
           >
             <Store /> Ver loja
           </Button>
-          <form action={logoutUser}>
-            <Button type="submit" variant="ghost" size="sm" className="w-full">
-              <LogOut /> Sair
-            </Button>
-          </form>
+          <LogoutButton variant="ghost" size="sm" className="w-full">
+            <LogOut /> Sair
+          </LogoutButton>
         </div>
       </div>
     </div>
