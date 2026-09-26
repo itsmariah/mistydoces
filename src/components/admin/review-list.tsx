@@ -10,7 +10,13 @@ import { Button } from "@/components/ui/button";
 
 type Review = Awaited<ReturnType<typeof adminListReviews>>[number];
 
-export function ReviewList({ reviews }: { reviews: Review[] }) {
+export function ReviewList({
+  reviews,
+  canModerate,
+}: {
+  reviews: Review[];
+  canModerate: boolean;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
@@ -61,7 +67,7 @@ export function ReviewList({ reviews }: { reviews: Review[] }) {
           <p className="text-sm text-muted-foreground">Por {review.user.name}</p>
           {review.comment && <p className="text-sm">{review.comment}</p>}
 
-          {confirmingDeleteId === review.id ? (
+          {!canModerate ? null : confirmingDeleteId === review.id ? (
             <div className="flex items-center gap-2">
               <span className="text-sm">Excluir permanentemente?</span>
               <Button

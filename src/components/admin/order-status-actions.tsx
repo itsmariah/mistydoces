@@ -14,18 +14,24 @@ export function OrderStatusActions({
   deliveryType,
   paymentStatus,
   paymentProvider,
+  canCancel,
+  canMarkPaid,
 }: {
   orderId: string;
   status: OrderStatus;
   deliveryType: DeliveryType;
   paymentStatus?: PaymentStatus;
   paymentProvider?: string | null;
+  canCancel: boolean;
+  canMarkPaid: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const nextStatuses = getNextStatuses(status, deliveryType);
+  const nextStatuses = getNextStatuses(status, deliveryType).filter(
+    (next) => next !== "CANCELLED" || canCancel,
+  );
 
   function handleTransition(next: OrderStatus) {
     setError(null);
@@ -51,7 +57,7 @@ export function OrderStatusActions({
     });
   }
 
-  const canMarkPaidManually = paymentStatus === "PENDING" && !paymentProvider;
+  const canMarkPaidManually = canMarkPaid && paymentStatus === "PENDING" && !paymentProvider;
 
   if (nextStatuses.length === 0 && !canMarkPaidManually) return null;
 

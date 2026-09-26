@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { User } from "lucide-react";
 import { auth } from "@/lib/auth";
-import { isStaff } from "@/lib/permissions";
+import { adminHomePath, isStaff } from "@/lib/permissions";
 import { CartSheet } from "@/components/cart/cart-sheet";
 import { Logo } from "@/components/shared/logo";
 import { MobileNav } from "@/components/shared/mobile-nav";
@@ -19,7 +19,7 @@ export async function Header() {
   const accountHref = !session?.user
     ? "/login"
     : isStaff(session.user.role)
-      ? "/admin"
+      ? adminHomePath(session.user.role)
       : "/conta";
 
   return (

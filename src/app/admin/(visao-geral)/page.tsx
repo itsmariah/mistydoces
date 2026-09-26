@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import { requirePagePermission } from "@/lib/require-permission";
 import {
   DASHBOARD_WINDOW_DAYS,
   STORE_TIME_ZONE,
@@ -18,6 +19,7 @@ const todayFormatter = new Intl.DateTimeFormat("pt-BR", {
 });
 
 export default async function AdminDashboardPage() {
+  await requirePagePermission("dashboard:view");
   // "Hoje" depende do momento da requisição — nunca pode sair do prerender.
   await connection();
   const now = new Date();

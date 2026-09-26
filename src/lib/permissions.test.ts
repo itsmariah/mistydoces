@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { can, isStaff, type Permission } from "@/lib/permissions";
+import { adminHomePath, can, isStaff, type Permission } from "@/lib/permissions";
 
 describe("can", () => {
   it("cliente não tem nenhuma permissão de painel", () => {
@@ -51,6 +51,14 @@ describe("can", () => {
     expect(can("OWNER", "settings:manage")).toBe(true);
     expect(can("OWNER", "team:manage")).toBe(true);
     expect(can("OWNER", "coupons:delete")).toBe(true);
+  });
+});
+
+describe("adminHomePath", () => {
+  it("quem vê faturamento começa na visão geral; atendente começa nos pedidos", () => {
+    expect(adminHomePath("OWNER")).toBe("/admin");
+    expect(adminHomePath("MANAGER")).toBe("/admin");
+    expect(adminHomePath("STAFF")).toBe("/admin/pedidos");
   });
 });
 

@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { can } from "@/lib/permissions";
+import { requirePagePermission } from "@/lib/require-permission";
 import { getProductByIdAdmin } from "@/services/product-service";
 import { listCategoriesAdmin } from "@/services/category-service";
 import { AppError } from "@/lib/errors";
@@ -9,6 +11,8 @@ export default async function EditProductPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const user = await requirePagePermission("products:view");
+  const canEdit = can(user.role, "products:edit");
   const { id } = await params;
 
   const [product, categories] = await Promise.all([
@@ -21,9 +25,12 @@ export default async function EditProductPage({
 
   return (
     <div className="px-4 py-12">
-      <h1 className="mb-8 font-heading text-2xl font-semibold">Editar produto</h1>
+      <h1 className="mb-8 font-heading text-2xl font-semibold">
+        {canEdit ? "Editar produto" : "Produto"}
+      </h1>
       <ProductForm
         productId={product.id}
+        readOnly={!canEdit}
         categories={categories}
         defaultValues={{
           name: product.name,

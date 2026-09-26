@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { OrderStatus } from "@/generated/prisma/client";
+import { requirePagePermission } from "@/lib/require-permission";
 import { adminListOrders } from "@/services/order-service";
 import { OrderStatusBadge, STATUS_LABELS } from "@/components/orders/order-status-badge";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -19,6 +20,7 @@ export default async function AdminOrdersPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
+  await requirePagePermission("orders:view");
   const { status } = await searchParams;
   const activeStatus = STATUS_FILTERS.find((s) => s === status);
   const orders = await adminListOrders(activeStatus);

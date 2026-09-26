@@ -10,7 +10,15 @@ import { Button } from "@/components/ui/button";
 
 type Category = Awaited<ReturnType<typeof listCategoriesAdmin>>[number];
 
-export function CategoryList({ categories }: { categories: Category[] }) {
+export function CategoryList({
+  categories,
+  canEdit,
+  canDelete,
+}: {
+  categories: Category[];
+  canEdit: boolean;
+  canDelete: boolean;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -84,30 +92,37 @@ export function CategoryList({ categories }: { categories: Category[] }) {
                 </Button>
               </div>
             ) : (
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setEditingId(category.id)}>
-                  Editar
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setConfirmingDeleteId(category.id)}
-                >
-                  Excluir
-                </Button>
-              </div>
+              (canEdit || canDelete) && (
+                <div className="flex gap-2">
+                  {canEdit && (
+                    <Button variant="outline" size="sm" onClick={() => setEditingId(category.id)}>
+                      Editar
+                    </Button>
+                  )}
+                  {canDelete && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setConfirmingDeleteId(category.id)}
+                    >
+                      Excluir
+                    </Button>
+                  )}
+                </div>
+              )
             )}
           </div>
         ),
       )}
 
-      {addingNew ? (
-        <CategoryForm onSuccess={refreshAndClose} onCancel={() => setAddingNew(false)} />
-      ) : (
-        <Button variant="outline" onClick={() => setAddingNew(true)}>
-          Adicionar categoria
-        </Button>
-      )}
+      {canEdit &&
+        (addingNew ? (
+          <CategoryForm onSuccess={refreshAndClose} onCancel={() => setAddingNew(false)} />
+        ) : (
+          <Button variant="outline" onClick={() => setAddingNew(true)}>
+            Adicionar categoria
+          </Button>
+        ))}
     </div>
   );
 }

@@ -78,3 +78,8 @@ export function can(role: Role | undefined, permission: Permission): boolean {
 export function isStaff(role: Role | undefined): boolean {
   return !!role && role !== "CUSTOMER";
 }
+
+/** Página inicial do painel para o nível: a visão geral, ou os pedidos para quem não vê faturamento. */
+export function adminHomePath(role: Role | undefined): string {
+  return can(role, "dashboard:view") ? "/admin" : "/admin/pedidos";
+}

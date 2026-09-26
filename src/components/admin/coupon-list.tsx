@@ -32,7 +32,15 @@ function describeCoupon(coupon: Coupon): string {
   return parts.join(" — ");
 }
 
-export function CouponList({ coupons }: { coupons: Coupon[] }) {
+export function CouponList({
+  coupons,
+  canEdit,
+  canDelete,
+}: {
+  coupons: Coupon[];
+  canEdit: boolean;
+  canDelete: boolean;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -116,30 +124,37 @@ export function CouponList({ coupons }: { coupons: Coupon[] }) {
                 </Button>
               </div>
             ) : (
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setEditingId(coupon.id)}>
-                  Editar
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setConfirmingDeleteId(coupon.id)}
-                >
-                  Excluir
-                </Button>
-              </div>
+              (canEdit || canDelete) && (
+                <div className="flex gap-2">
+                  {canEdit && (
+                    <Button variant="outline" size="sm" onClick={() => setEditingId(coupon.id)}>
+                      Editar
+                    </Button>
+                  )}
+                  {canDelete && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setConfirmingDeleteId(coupon.id)}
+                    >
+                      Excluir
+                    </Button>
+                  )}
+                </div>
+              )
             )}
           </div>
         ),
       )}
 
-      {addingNew ? (
-        <CouponForm onSuccess={refreshAndClose} onCancel={() => setAddingNew(false)} />
-      ) : (
-        <Button variant="outline" onClick={() => setAddingNew(true)}>
-          Adicionar cupom
-        </Button>
-      )}
+      {canEdit &&
+        (addingNew ? (
+          <CouponForm onSuccess={refreshAndClose} onCancel={() => setAddingNew(false)} />
+        ) : (
+          <Button variant="outline" onClick={() => setAddingNew(true)}>
+            Adicionar cupom
+          </Button>
+        ))}
     </div>
   );
 }

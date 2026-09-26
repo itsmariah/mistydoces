@@ -1,7 +1,9 @@
+import { requirePagePermission } from "@/lib/require-permission";
 import { listCategoriesAdmin } from "@/services/category-service";
 import { ProductForm } from "@/components/admin/product-form";
 
 export default async function NewProductPage() {
+  await requirePagePermission("products:edit");
   const categories = await listCategoriesAdmin();
 
   return (

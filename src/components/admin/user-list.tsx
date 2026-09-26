@@ -13,9 +13,11 @@ type User = Awaited<ReturnType<typeof listUsers>>[number];
 export function UserList({
   users,
   currentUserId,
+  canManageTeam,
 }: {
   users: User[];
   currentUserId: string;
+  canManageTeam: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -65,7 +67,8 @@ export function UserList({
               </p>
             </div>
 
-            {!isSelf &&
+            {canManageTeam &&
+              !isSelf &&
               (confirmingId === user.id ? (
                 <div className="flex items-center gap-2">
                   <span className="text-sm">

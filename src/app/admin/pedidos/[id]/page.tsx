@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { can } from "@/lib/permissions";
+import { requirePagePermission } from "@/lib/require-permission";
 import { adminGetOrderById } from "@/services/order-service";
 import { AppError } from "@/lib/errors";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
@@ -27,6 +29,7 @@ export default async function AdminOrderDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const user = await requirePagePermission("orders:view");
   const { id } = await params;
 
   const order = await adminGetOrderById(id).catch((error) => {
@@ -61,6 +64,8 @@ export default async function AdminOrderDetailPage({
         deliveryType={order.deliveryType}
         paymentStatus={order.payment?.status}
         paymentProvider={order.payment?.provider}
+        canCancel={can(user.role, "orders:cancel")}
+        canMarkPaid={can(user.role, "orders:mark_paid")}
       />
 
       <section className="space-y-3">
