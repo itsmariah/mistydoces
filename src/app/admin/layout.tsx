@@ -14,6 +14,7 @@ const NAV_ITEMS: { href: string; label: string; permission: Permission }[] = [
   { href: "/admin/pedidos", label: "Pedidos", permission: "orders:view" },
   { href: "/admin/avaliacoes", label: "Avaliações", permission: "reviews:view" },
   { href: "/admin/clientes", label: "Clientes", permission: "customers:view" },
+  { href: "/admin/equipe", label: "Equipe", permission: "team:manage" },
   { href: "/admin/configuracoes", label: "Configurações", permission: "settings:manage" },
 ];
 

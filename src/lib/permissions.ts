@@ -70,6 +70,16 @@ export const ROLE_LABELS: Record<Role, string> = {
   OWNER: "Proprietário",
 };
 
+/** Níveis da equipe, do menor para o maior. */
+export const STAFF_ROLES = ["STAFF", "MANAGER", "OWNER"] as const satisfies readonly Role[];
+export type StaffRole = (typeof STAFF_ROLES)[number];
+
+export const STAFF_ROLE_DESCRIPTIONS: Record<StaffRole, string> = {
+  STAFF: "Acompanha pedidos e altera o status. Vê produtos, categorias, cupons, avaliações e clientes, sem editar.",
+  MANAGER: "Tudo do Atendente, mais a visão geral, cancelar pedidos, moderar avaliações e criar/editar produtos, categorias e cupons.",
+  OWNER: "Acesso total: excluir itens, configurações da loja e gestão da equipe.",
+};
+
 export function can(role: Role | undefined, permission: Permission): boolean {
   return !!role && ROLE_PERMISSIONS[role].has(permission);
 }
