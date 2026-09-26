@@ -21,6 +21,7 @@ import {
 import type { Role } from "@/generated/prisma/client";
 import { logoutUser } from "@/actions/auth";
 import { ROLE_LABELS, adminHomePath, can, type Permission } from "@/lib/permissions";
+import { usePendingOrdersCount } from "@/components/admin/order-alerts";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -72,6 +73,7 @@ type SidebarProps = { role: Role; name: string };
 
 function SidebarContent({ role, name, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const pendingCount = usePendingOrdersCount();
   const groups = NAV_GROUPS.map((group) => ({
     ...group,
     items: group.items.filter((item) => can(role, item.permission)),
@@ -108,6 +110,12 @@ function SidebarContent({ role, name, onNavigate }: SidebarProps & { onNavigate?
                     >
                       <Icon className={cn("h-4 w-4 shrink-0", active && "text-link")} />
                       {label}
+                      {href === "/admin/pedidos" && pendingCount > 0 && (
+                        <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
+                          {pendingCount}
+                          <span className="sr-only"> aguardando confirmação</span>
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );
@@ -163,12 +171,32 @@ export function AdminSidebar(props: SidebarProps) {
 /** Barra do topo no celular, com a mesma navegação numa gaveta lateral. */
 export function AdminMobileHeader(props: SidebarProps) {
   const [open, setOpen] = useState(false);
+  const pendingCount = usePendingOrdersCount();
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border bg-background/80 px-2 backdrop-blur supports-backdrop-filter:bg-background/60 md:hidden">
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Abrir menu do painel" />}>
+        <SheetTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              aria-label={
+                pendingCount > 0
+                  ? `Abrir menu do painel (${pendingCount} pedidos aguardando confirmação)`
+                  : "Abrir menu do painel"
+              }
+            />
+          }
+        >
           <Menu className="h-5 w-5" />
+          {pendingCount > 0 && (
+            <span
+              aria-hidden="true"
+              className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-link"
+            />
+          )}
         </SheetTrigger>
         <SheetContent side="left" className="w-72 gap-0 bg-sidebar p-0 text-sidebar-foreground">
           <SheetTitle className="sr-only">Menu do painel</SheetTitle>

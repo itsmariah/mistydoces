@@ -1,28 +1,16 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { MessageCircle } from "lucide-react";
 import { can } from "@/lib/permissions";
 import { requirePagePermission } from "@/lib/require-permission";
 import { adminGetOrderById } from "@/services/order-service";
 import { AppError } from "@/lib/errors";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { OrderStatusActions } from "@/components/admin/order-status-actions";
+import { PAYMENT_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payment-labels";
 import { formatCurrency } from "@/lib/utils";
-
-const PAYMENT_LABELS: Record<string, string> = {
-  CASH: "Dinheiro na entrega/retirada",
-  PIX_MANUAL: "Pix",
-  CARD_ON_DELIVERY: "Cartão na entrega/retirada",
-  PIX_ONLINE: "Pix online",
-  CARD_ONLINE: "Cartão online",
-};
-
-const PAYMENT_STATUS_LABELS: Record<string, string> = {
-  PENDING: "Pendente",
-  PROCESSING: "Em análise",
-  PAID: "Pago",
-  FAILED: "Não aprovado",
-  EXPIRED: "Expirado",
-};
+import { whatsappUrl } from "@/lib/whatsapp";
+import { Button } from "@/components/ui/button";
 
 export default async function AdminOrderDetailPage({
   params,
@@ -36,6 +24,12 @@ export default async function AdminOrderDetailPage({
     if (error instanceof AppError) notFound();
     throw error;
   });
+
+  const firstName = order.user.name.split(" ")[0];
+  const whatsappHref = whatsappUrl(
+    order.user.phone,
+    `Olá, ${firstName}! Aqui é da Misty Doces, sobre o seu pedido #${order.orderNumber}.`,
+  );
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-12">
@@ -74,6 +68,16 @@ export default async function AdminOrderDetailPage({
         <p className="text-sm text-muted-foreground">
           {order.user.name} — {order.user.email} — {order.user.phone}
         </p>
+        {whatsappHref && (
+          <Button
+            variant="outline"
+            size="sm"
+            nativeButton={false}
+            render={<a href={whatsappHref} target="_blank" rel="noopener noreferrer" />}
+          >
+            <MessageCircle /> Conversar no WhatsApp
+          </Button>
+        )}
       </section>
 
       <section className="space-y-3">

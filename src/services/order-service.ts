@@ -1,4 +1,4 @@
-import type { OrderStatus, PaymentStatus } from "@/generated/prisma/client";
+import type { OrderStatus, PaymentStatus, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   AppError,
@@ -187,12 +187,77 @@ export async function cancelOrder(userId: string, orderId: string) {
   return updated;
 }
 
-export function adminListOrders(status?: OrderStatus) {
-  return prisma.order.findMany({
-    where: status ? { status } : undefined,
-    orderBy: { createdAt: "desc" },
-    include: { items: true, payment: true, user: { select: { name: true, email: true } } },
-  });
+export const ADMIN_ORDERS_PAGE_SIZE = 20;
+const MAX_INT = 2_147_483_647;
+
+/** Busca por número do pedido (com ou sem #) ou por nome/e-mail do cliente. */
+function adminOrderSearchWhere(search?: string): Prisma.OrderWhereInput {
+  const term = search?.trim();
+  if (!term) return {};
+
+  const numeric = term.replace(/^#/, "");
+  const orderNumber = /^\d+$/.test(numeric) ? Number(numeric) : null;
+
+  return {
+    OR: [
+      ...(orderNumber !== null && orderNumber <= MAX_INT ? [{ orderNumber }] : []),
+      { user: { name: { contains: term, mode: "insensitive" } } },
+      { user: { email: { contains: term, mode: "insensitive" } } },
+    ],
+  };
+}
+
+export async function adminListOrders({
+  status,
+  search,
+  page,
+}: {
+  status?: OrderStatus;
+  search?: string;
+  page: number;
+}) {
+  const searchWhere = adminOrderSearchWhere(search);
+  const where: Prisma.OrderWhereInput = status ? { ...searchWhere, status } : searchWhere;
+
+  const [orders, total, byStatus] = await Promise.all([
+    prisma.order.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * ADMIN_ORDERS_PAGE_SIZE,
+      take: ADMIN_ORDERS_PAGE_SIZE,
+      include: {
+        payment: { select: { status: true } },
+        user: { select: { name: true } },
+      },
+    }),
+    prisma.order.count({ where }),
+    // As contagens dos filtros respeitam a busca, mas não o status selecionado.
+    prisma.order.groupBy({ by: ["status"], where: searchWhere, _count: { _all: true } }),
+  ]);
+
+  const statusCounts = Object.fromEntries(
+    byStatus.map((row) => [row.status, row._count._all]),
+  ) as Partial<Record<OrderStatus, number>>;
+
+  return {
+    orders,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / ADMIN_ORDERS_PAGE_SIZE)),
+    statusCounts,
+    allCount: byStatus.reduce((sum, row) => sum + row._count._all, 0),
+  };
+}
+
+/** Consulta leve para o aviso de pedido novo e o contador de pendentes do painel. */
+export async function adminGetOrderAlerts() {
+  const [pendingCount, latest] = await Promise.all([
+    prisma.order.count({ where: { status: "PENDING" } }),
+    prisma.order.findFirst({
+      orderBy: { orderNumber: "desc" },
+      select: { id: true, orderNumber: true },
+    }),
+  ]);
+  return { pendingCount, latestOrder: latest };
 }
 
 export async function adminGetOrderById(orderId: string) {

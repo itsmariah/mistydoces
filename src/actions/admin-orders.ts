@@ -25,6 +25,15 @@ export async function updateOrderStatus(
   }
 }
 
+export async function getOrderAlerts() {
+  try {
+    await requirePermission("orders:view");
+    return { success: true as const, data: await orderService.adminGetOrderAlerts() };
+  } catch (error) {
+    return { success: false as const, error: toActionError(error) };
+  }
+}
+
 export async function markPaymentPaid(orderId: string): Promise<ActionResult> {
   try {
     await requirePermission("orders:mark_paid");

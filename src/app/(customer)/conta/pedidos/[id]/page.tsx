@@ -9,23 +9,8 @@ import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { OrderThanks } from "@/components/orders/order-thanks";
 import { OrderTimeline } from "@/components/orders/order-timeline";
 import { OrderStatusWatcher } from "@/components/orders/order-status-watcher";
+import { PAYMENT_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payment-labels";
 import { formatCurrency } from "@/lib/utils";
-
-const PAYMENT_LABELS: Record<string, string> = {
-  CASH: "Dinheiro na entrega/retirada",
-  PIX_MANUAL: "Pix",
-  CARD_ON_DELIVERY: "Cartão na entrega/retirada",
-  PIX_ONLINE: "Pix online",
-  CARD_ONLINE: "Cartão online",
-};
-
-const PAYMENT_STATUS_LABELS: Record<string, string> = {
-  PENDING: "Pendente",
-  PROCESSING: "Em análise",
-  PAID: "Pago",
-  FAILED: "Não aprovado",
-  EXPIRED: "Expirado",
-};
 
 export default async function OrderDetailPage({
   params,
