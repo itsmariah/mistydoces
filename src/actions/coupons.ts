@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { toActionError } from "@/lib/errors";
-import { requireAdmin } from "@/lib/require-admin";
+import { requirePermission } from "@/lib/require-permission";
 import * as couponService from "@/services/coupon-service";
 import { couponSchema } from "@/validations/coupon";
 
@@ -29,7 +29,7 @@ export async function createCoupon(
   }
 
   try {
-    await requireAdmin();
+    await requirePermission("coupons:edit");
     const coupon = await couponService.createCoupon(parsed.data);
     revalidatePath("/admin/cupons");
     return { success: true, data: { id: coupon.id } };
@@ -54,7 +54,7 @@ export async function updateCoupon(
   }
 
   try {
-    await requireAdmin();
+    await requirePermission("coupons:edit");
     await couponService.updateCoupon(couponId, parsed.data);
     revalidatePath("/admin/cupons");
     return { success: true, data: undefined };
@@ -65,7 +65,7 @@ export async function updateCoupon(
 
 export async function deleteCoupon(couponId: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    await requirePermission("coupons:delete");
     await couponService.deleteCoupon(couponId);
     revalidatePath("/admin/cupons");
     return { success: true, data: undefined };

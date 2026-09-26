@@ -2,7 +2,7 @@ import { listCategoriesAdmin } from "@/services/category-service";
 import { CategoryList } from "@/components/admin/category-list";
 
 export default async function AdminCategoriesPage() {
-  // A rota já é protegida pelo proxy (role ADMIN, ver authConfig).
+  // A rota já é protegida pelo proxy (só equipe, ver authConfig).
   const categories = await listCategoriesAdmin();
 
   return (

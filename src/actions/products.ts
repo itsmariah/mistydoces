@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { toActionError } from "@/lib/errors";
-import { requireAdmin } from "@/lib/require-admin";
+import { requirePermission } from "@/lib/require-permission";
 import * as productService from "@/services/product-service";
 import { productSchema } from "@/validations/product";
 
@@ -31,7 +31,7 @@ export async function createProduct(
   }
 
   try {
-    await requireAdmin();
+    await requirePermission("products:edit");
     const product = await productService.createProduct(parsed.data);
     revalidateProductPaths();
     return { success: true, data: { id: product.id } };
@@ -56,7 +56,7 @@ export async function updateProduct(
   }
 
   try {
-    await requireAdmin();
+    await requirePermission("products:edit");
     await productService.updateProduct(productId, parsed.data);
     revalidateProductPaths(productId);
     return { success: true, data: undefined };

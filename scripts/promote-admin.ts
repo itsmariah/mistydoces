@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { prisma } from "@/lib/prisma";
 
-// Promove uma conta já cadastrada a ADMIN. Único jeito de criar o primeiro
+// Promove uma conta já cadastrada a OWNER (Proprietário). Único jeito de criar o primeiro
 // admin (não há bootstrap automático) — funciona igual local e em produção,
 // bastando ter a DATABASE_URL correta no ambiente.
 async function main() {
@@ -19,13 +19,13 @@ async function main() {
     return;
   }
 
-  if (user.role === "ADMIN") {
-    console.log(`"${email}" já é ADMIN.`);
+  if (user.role === "OWNER") {
+    console.log(`"${email}" já é OWNER.`);
     return;
   }
 
-  await prisma.user.update({ where: { email }, data: { role: "ADMIN" } });
-  console.log(`"${email}" agora é ADMIN.`);
+  await prisma.user.update({ where: { email }, data: { role: "OWNER" } });
+  console.log(`"${email}" agora é OWNER.`);
 }
 
 main()

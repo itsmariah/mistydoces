@@ -2,7 +2,7 @@ import { getStoreSettings } from "@/services/store-settings-service";
 import { StoreSettingsForm } from "@/components/admin/store-settings-form";
 
 export default async function AdminSettingsPage() {
-  // A rota já é protegida pelo proxy (role ADMIN, ver authConfig).
+  // A rota já é protegida pelo proxy (só equipe, ver authConfig).
   const settings = await getStoreSettings();
 
   return (

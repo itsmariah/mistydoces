@@ -7,9 +7,13 @@ datasource db {
   provider = "postgresql"
 }
 
+// Níveis da equipe: STAFF (Atendente) < MANAGER (Gerente) < OWNER (Proprietário).
+// O que cada nível pode fazer fica em `src/lib/permissions.ts`.
 enum Role {
   CUSTOMER
-  ADMIN
+  STAFF
+  MANAGER
+  OWNER
 }
 
 enum OrderStatus {

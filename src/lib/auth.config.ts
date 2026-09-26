@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
+import { isStaff } from "@/lib/permissions";
 
 /**
  * Configuração "edge-safe": usada pelo middleware, sem provider de Credentials
@@ -16,7 +17,7 @@ export const authConfig = {
       const { pathname } = request.nextUrl;
 
       if (pathname.startsWith("/admin")) {
-        return isLoggedIn && auth.user.role === "ADMIN";
+        return isLoggedIn && isStaff(auth.user.role);
       }
       if (pathname.startsWith("/conta") || pathname.startsWith("/checkout")) {
         return isLoggedIn;

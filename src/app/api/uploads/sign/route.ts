@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { AppError } from "@/lib/errors";
-import { requireAdmin } from "@/lib/require-admin";
+import { requirePermission } from "@/lib/require-permission";
 import { cloudinary } from "@/lib/cloudinary";
 
 const UPLOAD_FOLDER = "mistydoces/produtos";
 
 export async function POST() {
   try {
-    await requireAdmin();
+    await requirePermission("products:edit");
 
     const timestamp = Math.round(Date.now() / 1000);
     const signature = cloudinary.utils.api_sign_request(

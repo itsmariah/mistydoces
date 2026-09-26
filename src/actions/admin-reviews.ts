@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { toActionError } from "@/lib/errors";
-import { requireAdmin } from "@/lib/require-admin";
+import { requirePermission } from "@/lib/require-permission";
 import * as reviewService from "@/services/review-service";
 
 type ActionResult = { success: true } | { success: false; error: { code: string; message: string } };
@@ -12,7 +12,7 @@ export async function setReviewVisibility(
   isVisible: boolean,
 ): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    await requirePermission("reviews:moderate");
     await reviewService.adminSetReviewVisibility(reviewId, isVisible);
     revalidatePath("/admin/avaliacoes");
     return { success: true };
@@ -23,7 +23,7 @@ export async function setReviewVisibility(
 
 export async function deleteReview(reviewId: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    await requirePermission("reviews:moderate");
     await reviewService.adminDeleteReview(reviewId);
     revalidatePath("/admin/avaliacoes");
     return { success: true };

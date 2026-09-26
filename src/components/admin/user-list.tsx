@@ -6,6 +6,7 @@ import type { listUsers } from "@/services/user-service";
 import { setUserRole } from "@/actions/users";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ROLE_LABELS, isStaff } from "@/lib/permissions";
 
 type User = Awaited<ReturnType<typeof listUsers>>[number];
 
@@ -21,7 +22,7 @@ export function UserList({
   const [error, setError] = useState<string | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
-  function handleToggleRole(userId: string, nextRole: "ADMIN" | "CUSTOMER") {
+  function handleToggleRole(userId: string, nextRole: "OWNER" | "CUSTOMER") {
     setError(null);
     startTransition(async () => {
       const result = await setUserRole(userId, nextRole);
@@ -41,7 +42,7 @@ export function UserList({
 
       {users.map((user) => {
         const isSelf = user.id === currentUserId;
-        const nextRole = user.role === "ADMIN" ? "CUSTOMER" : "ADMIN";
+        const nextRole = isStaff(user.role) ? "CUSTOMER" : "OWNER";
 
         return (
           <div
@@ -51,8 +52,8 @@ export function UserList({
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{user.name}</span>
-                <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>
-                  {user.role === "ADMIN" ? "Admin" : "Cliente"}
+                <Badge variant={isStaff(user.role) ? "default" : "secondary"}>
+                  {ROLE_LABELS[user.role]}
                 </Badge>
                 {isSelf && <Badge variant="outline">Você</Badge>}
               </div>
@@ -68,7 +69,7 @@ export function UserList({
               (confirmingId === user.id ? (
                 <div className="flex items-center gap-2">
                   <span className="text-sm">
-                    {nextRole === "ADMIN" ? "Promover a admin?" : "Rebaixar a cliente?"}
+                    {nextRole === "OWNER" ? "Promover a proprietário?" : "Rebaixar a cliente?"}
                   </span>
                   <Button
                     size="sm"
@@ -88,7 +89,7 @@ export function UserList({
                 </div>
               ) : (
                 <Button variant="outline" size="sm" onClick={() => setConfirmingId(user.id)}>
-                  {user.role === "ADMIN" ? "Rebaixar a cliente" : "Promover a admin"}
+                  {isStaff(user.role) ? "Rebaixar a cliente" : "Promover a proprietário"}
                 </Button>
               ))}
           </div>

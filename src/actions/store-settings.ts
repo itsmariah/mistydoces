@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { toActionError } from "@/lib/errors";
-import { requireAdmin } from "@/lib/require-admin";
+import { requirePermission } from "@/lib/require-permission";
 import { upsertStoreSettings } from "@/services/store-settings-service";
 import { storeSettingsSchema } from "@/validations/store-settings";
 
@@ -21,7 +21,7 @@ export async function updateStoreSettings(input: unknown): Promise<ActionResult>
   }
 
   try {
-    await requireAdmin();
+    await requirePermission("settings:manage");
 
     await upsertStoreSettings(parsed.data);
 
