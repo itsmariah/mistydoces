@@ -4,6 +4,7 @@ import { logoutUser } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
+  { href: "/admin", label: "Visão geral" },
   { href: "/admin/produtos", label: "Produtos" },
   { href: "/admin/categorias", label: "Categorias" },
   { href: "/admin/cupons", label: "Cupons" },

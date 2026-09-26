@@ -86,7 +86,10 @@ npm test
 - [x] Fase 6 — Painel administrativo
 - [x] Fase 7 — Polimento, segurança e testes
 - [ ] Fase 8 — Funcionalidades futuras (cupons de desconto ✅ · avaliações de produto ✅ · notificações por e-mail ✅ · pagamento online pendente)
+- [ ] Extra — Dashboard do painel administrativo (resumo de vendas, pedidos em aberto e mais vendidos)
 - [ ] Fase 9 — Deploy (com domínio próprio)
+
+> **Observação:** o dashboard do admin não fazia parte do planejamento original. Até então, `/admin` redirecionava direto para a lista de pedidos. Ele foi incluído depois da Fase 8, a partir do uso real do painel, e entra antes do deploy.
 
 ---
 

@@ -9,7 +9,7 @@ export const BEST_SELLER_WINDOW_DAYS = 90;
 export const BEST_SELLER_MIN_UNITS = 3;
 
 // Só pedidos que a loja aceitou: PENDING pode ser um Pix nunca pago, CANCELLED não virou venda.
-const COUNTED_STATUSES: OrderStatus[] = [
+export const COUNTED_STATUSES: OrderStatus[] = [
   "CONFIRMED",
   "PREPARING",
   "READY",
