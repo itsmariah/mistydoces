@@ -11,14 +11,16 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-type Review = Awaited<ReturnType<typeof adminListReviews>>[number];
+type Review = Awaited<ReturnType<typeof adminListReviews>>["reviews"][number];
 
 export function ReviewList({
   reviews,
   canModerate,
+  isFiltered,
 }: {
   reviews: Review[];
   canModerate: boolean;
+  isFiltered: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -49,8 +51,12 @@ export function ReviewList({
     return (
       <EmptyState
         image={{ src: "/branding/16_tag_aprovado_pela_chefe.png", width: 132, height: 110 }}
-        title="Nenhuma avaliação ainda"
-        description="Quando clientes avaliarem os doces que receberam, as avaliações aparecem aqui."
+        title={isFiltered ? "Nenhuma avaliação aqui" : "Nenhuma avaliação ainda"}
+        description={
+          isFiltered
+            ? "Nenhuma avaliação combina com esses filtros."
+            : "Quando clientes avaliarem os doces que receberam, as avaliações aparecem aqui."
+        }
       />
     );
   }

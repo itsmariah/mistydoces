@@ -210,13 +210,19 @@ function adminOrderSearchWhere(search?: string): Prisma.OrderWhereInput {
 export async function adminListOrders({
   status,
   search,
+  customerId,
   page,
 }: {
   status?: OrderStatus;
   search?: string;
+  /** "Ver pedidos" a partir da lista de clientes. */
+  customerId?: string;
   page: number;
 }) {
-  const searchWhere = adminOrderSearchWhere(search);
+  const baseWhere = adminOrderSearchWhere(search);
+  const searchWhere: Prisma.OrderWhereInput = customerId
+    ? { ...baseWhere, userId: customerId }
+    : baseWhere;
   const where: Prisma.OrderWhereInput = status ? { ...searchWhere, status } : searchWhere;
 
   const [orders, total, byStatus] = await Promise.all([

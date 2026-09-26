@@ -90,14 +90,38 @@ export async function createReview(userId: string, productId: string, input: Rev
   });
 }
 
-export function adminListReviews() {
-  return prisma.review.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: { select: { name: true } },
-      product: { select: { name: true, slug: true } },
-    },
-  });
+export async function adminListReviews({
+  rating,
+  isVisible,
+}: {
+  rating?: number;
+  isVisible?: boolean;
+} = {}) {
+  const ratingWhere = rating === undefined ? {} : { rating };
+  const visibilityWhere = isVisible === undefined ? {} : { isVisible };
+
+  const [reviews, byRating, byVisibility] = await Promise.all([
+    prisma.review.findMany({
+      where: { ...ratingWhere, ...visibilityWhere },
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: { select: { name: true } },
+        product: { select: { name: true, slug: true } },
+      },
+    }),
+    // Contagens cruzadas: cada grupo de filtros respeita o outro, mas não a si mesmo.
+    prisma.review.groupBy({ by: ["rating"], where: visibilityWhere, _count: { _all: true } }),
+    prisma.review.groupBy({ by: ["isVisible"], where: ratingWhere, _count: { _all: true } }),
+  ]);
+
+  return {
+    reviews,
+    ratingCounts: Object.fromEntries(
+      byRating.map((row) => [row.rating, row._count._all]),
+    ) as Partial<Record<number, number>>,
+    visibleCount: byVisibility.find((row) => row.isVisible)?._count._all ?? 0,
+    hiddenCount: byVisibility.find((row) => !row.isVisible)?._count._all ?? 0,
+  };
 }
 
 export async function adminSetReviewVisibility(reviewId: string, isVisible: boolean) {

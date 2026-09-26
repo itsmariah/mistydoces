@@ -8,12 +8,13 @@ const prismaMock = {
     findMany: vi.fn(),
     findUnique: vi.fn(),
     create: vi.fn(),
+    groupBy: vi.fn(),
   },
 };
 
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 
-const { createReview, getFeaturedReviews } = await import("@/services/review-service");
+const { adminListReviews, createReview, getFeaturedReviews } = await import("@/services/review-service");
 const { AppError, ForbiddenError } = await import("@/lib/errors");
 
 describe("createReview", () => {
@@ -84,5 +85,44 @@ describe("getFeaturedReviews", () => {
     const { where, take } = prismaMock.review.findMany.mock.calls[0][0];
     expect(where).toMatchObject({ isVisible: true, rating: { gte: 4 }, comment: { not: null } });
     expect(take).toBe(3);
+  });
+});
+
+describe("adminListReviews", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    prismaMock.review.findMany.mockResolvedValue([]);
+  });
+
+  it("aplica os dois filtros na lista e contagens cruzadas nos grupos", async () => {
+    prismaMock.review.groupBy
+      .mockResolvedValueOnce([{ rating: 5, _count: { _all: 3 } }])
+      .mockResolvedValueOnce([
+        { isVisible: true, _count: { _all: 2 } },
+        { isVisible: false, _count: { _all: 1 } },
+      ]);
+
+    const result = await adminListReviews({ rating: 5, isVisible: false });
+
+    expect(prismaMock.review.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { rating: 5, isVisible: false } }),
+    );
+    // Contagem por nota respeita só a visibilidade; por visibilidade, só a nota.
+    expect(prismaMock.review.groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({ by: ["rating"], where: { isVisible: false } }),
+    );
+    expect(prismaMock.review.groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({ by: ["isVisible"], where: { rating: 5 } }),
+    );
+    expect(result).toMatchObject({ ratingCounts: { 5: 3 }, visibleCount: 2, hiddenCount: 1 });
+  });
+
+  it("sem filtros, não restringe nada", async () => {
+    prismaMock.review.groupBy.mockResolvedValue([]);
+
+    const result = await adminListReviews();
+
+    expect(prismaMock.review.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
+    expect(result).toMatchObject({ visibleCount: 0, hiddenCount: 0 });
   });
 });

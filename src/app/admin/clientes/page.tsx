@@ -1,12 +1,37 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Search } from "lucide-react";
 import { can } from "@/lib/permissions";
+import { parsePage } from "@/lib/pagination";
 import { requirePagePermission } from "@/lib/require-permission";
 import { listUsers } from "@/services/user-service";
+import { Pagination } from "@/components/admin/pagination";
 import { UserList } from "@/components/admin/user-list";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-export default async function AdminCustomersPage() {
+function customersHref({ busca, pagina }: { busca?: string; pagina?: number }) {
+  const params = new URLSearchParams();
+  if (busca) params.set("busca", busca);
+  if (pagina && pagina > 1) params.set("pagina", String(pagina));
+  const query = params.toString();
+  return query ? `/admin/clientes?${query}` : "/admin/clientes";
+}
+
+export default async function AdminCustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ busca?: string; pagina?: string }>;
+}) {
   const user = await requirePagePermission("customers:view");
-  const users = await listUsers();
+  const params = await searchParams;
+  const busca = params.busca?.trim() || undefined;
+  const page = parsePage(params.pagina);
+
+  const { users, total, totalPages } = await listUsers({ search: busca, page });
+
+  // Página além do fim (ex.: link antigo depois de buscar) volta para a última que existe.
+  if (page > totalPages) redirect(customersHref({ busca, pagina: totalPages }));
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-12">
@@ -22,7 +47,41 @@ export default async function AdminCustomersPage() {
           </p>
         )}
       </div>
-      <UserList users={users} currentUserId={user.id} />
+
+      <form action="/admin/clientes" className="flex gap-2" role="search">
+        <Input
+          name="busca"
+          type="search"
+          defaultValue={busca}
+          placeholder="Buscar por nome, e-mail ou telefone"
+          aria-label="Buscar clientes"
+        />
+        <Button type="submit" variant="outline">
+          <Search /> Buscar
+        </Button>
+      </form>
+
+      {busca && (
+        <p className="text-sm text-muted-foreground">
+          {total} resultado(s) para &ldquo;{busca}&rdquo; ·{" "}
+          <Link href="/admin/clientes" className="text-link hover:underline">
+            Limpar busca
+          </Link>
+        </p>
+      )}
+
+      <UserList
+        users={users}
+        currentUserId={user.id}
+        canViewOrders={can(user.role, "orders:view")}
+        isSearch={Boolean(busca)}
+      />
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        hrefFor={(pagina) => customersHref({ busca, pagina })}
+      />
     </div>
   );
 }

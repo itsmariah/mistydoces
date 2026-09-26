@@ -4,6 +4,8 @@ const prismaMock = {
   $queryRaw: vi.fn(),
   $transaction: vi.fn((callback: (tx: unknown) => unknown) => callback(prismaMock)),
   user: {
+    count: vi.fn(),
+    findMany: vi.fn(),
     findFirst: vi.fn(),
     findUnique: vi.fn(),
     update: vi.fn(),
@@ -12,7 +14,7 @@ const prismaMock = {
 
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 
-const { addTeamMember, setUserRole } = await import("@/services/user-service");
+const { addTeamMember, listUsers, setUserRole } = await import("@/services/user-service");
 const { AppError, NotFoundError } = await import("@/lib/errors");
 
 describe("setUserRole", () => {
@@ -92,5 +94,41 @@ describe("addTeamMember", () => {
       where: { id: "c-1" },
       data: { role: "STAFF" },
     });
+  });
+});
+
+describe("listUsers", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    prismaMock.user.findMany.mockResolvedValue([]);
+  });
+
+  it("pagina de 20 em 20 e calcula o total de páginas", async () => {
+    prismaMock.user.count.mockResolvedValue(41);
+
+    const result = await listUsers({ page: 3 });
+
+    expect(prismaMock.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: {}, skip: 40, take: 20 }),
+    );
+    expect(result.totalPages).toBe(3);
+  });
+
+  it("busca por nome, e-mail ou telefone", async () => {
+    prismaMock.user.count.mockResolvedValue(0);
+
+    const result = await listUsers({ search: "  maria ", page: 1 });
+
+    const where = {
+      OR: [
+        { name: { contains: "maria", mode: "insensitive" } },
+        { email: { contains: "maria", mode: "insensitive" } },
+        { phone: { contains: "maria" } },
+      ],
+    };
+    expect(prismaMock.user.findMany).toHaveBeenCalledWith(expect.objectContaining({ where }));
+    expect(prismaMock.user.count).toHaveBeenCalledWith({ where });
+    // Sem resultados ainda existe uma página (a do estado vazio).
+    expect(result.totalPages).toBe(1);
   });
 });
