@@ -37,11 +37,16 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             ))}
           </nav>
         </div>
-        <form action={logoutUser}>
-          <Button type="submit" variant="ghost" size="sm">
-            Sair
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/" />}>
+            Ver loja
           </Button>
-        </form>
+          <form action={logoutUser}>
+            <Button type="submit" variant="ghost" size="sm">
+              Sair
+            </Button>
+          </form>
+        </div>
       </header>
       <main>{children}</main>
     </div>
