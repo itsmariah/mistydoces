@@ -12,16 +12,18 @@ const SIZES = {
 export function Logo({
   className,
   size = "sm",
+  href = "/",
 }: {
   className?: string;
   size?: keyof typeof SIZES;
+  href?: string;
 }) {
   const { icon: iconHeight, text: textSize } = SIZES[size];
   const iconWidth = Math.round(iconHeight * ICON_ASPECT_RATIO);
 
   return (
     <Link
-      href="/"
+      href={href}
       className={cn(
         "inline-flex items-center gap-1.5 font-heading font-semibold text-foreground",
         textSize,
