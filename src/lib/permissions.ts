@@ -15,6 +15,7 @@ export type Permission =
   | "reviews:moderate"
   | "customers:view"
   | "products:view"
+  | "products:toggle_availability"
   | "products:edit"
   | "products:delete"
   | "categories:view"
@@ -32,6 +33,7 @@ const STAFF_PERMISSIONS: Permission[] = [
   "reviews:view",
   "customers:view",
   "products:view",
+  "products:toggle_availability",
   "categories:view",
   "coupons:view",
 ];
@@ -75,7 +77,7 @@ export const STAFF_ROLES = ["STAFF", "MANAGER", "OWNER"] as const satisfies read
 export type StaffRole = (typeof STAFF_ROLES)[number];
 
 export const STAFF_ROLE_DESCRIPTIONS: Record<StaffRole, string> = {
-  STAFF: "Acompanha pedidos e altera o status. Vê produtos, categorias, cupons, avaliações e clientes, sem editar.",
+  STAFF: "Acompanha pedidos e altera o status, marca produtos como esgotados. Vê produtos, categorias, cupons, avaliações e clientes, sem editar.",
   MANAGER: "Tudo do Atendente, mais a visão geral, cancelar pedidos, moderar avaliações e criar/editar produtos, categorias e cupons.",
   OWNER: "Acesso total: excluir itens, configurações da loja e gestão da equipe.",
 };

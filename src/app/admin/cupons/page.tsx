@@ -14,6 +14,7 @@ export default async function AdminCouponsPage() {
         coupons={coupons}
         canEdit={can(user.role, "coupons:edit")}
         canDelete={can(user.role, "coupons:delete")}
+        now={new Date()}
       />
     </div>
   );

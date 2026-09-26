@@ -2,6 +2,7 @@ import type { Coupon } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { AppError, NotFoundError } from "@/lib/errors";
 import { fromCents, toCents } from "@/lib/money";
+import { getCouponStatus } from "@/lib/coupon-status";
 import { formatCurrency } from "@/lib/utils";
 import type { CouponInput } from "@/validations/coupon";
 
@@ -63,13 +64,15 @@ export async function findCouponByCode(code: string) {
  * criação do pedido (ver `createOrder`), dentro de uma transação atômica.
  */
 export function evaluateCoupon(coupon: Coupon, subtotalCents: number): number {
-  if (!coupon.isActive) {
+  // Mesma classificação que o painel usa nos selos dos cupons.
+  const status = getCouponStatus(coupon, new Date());
+  if (status === "INACTIVE") {
     throw new AppError("COUPON_INACTIVE", "Este cupom não está mais ativo.", 409);
   }
-  if (coupon.expiresAt && coupon.expiresAt.getTime() < Date.now()) {
+  if (status === "EXPIRED") {
     throw new AppError("COUPON_EXPIRED", "Este cupom expirou.", 409);
   }
-  if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) {
+  if (status === "EXHAUSTED") {
     throw new AppError("COUPON_EXHAUSTED", "Este cupom atingiu o limite de usos.", 409);
   }
 

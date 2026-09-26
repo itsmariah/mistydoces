@@ -16,6 +16,7 @@ describe("can", () => {
       "products:view",
       "categories:view",
       "coupons:view",
+      "products:toggle_availability",
     ];
     for (const permission of allowed) expect(can("STAFF", permission)).toBe(true);
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import type { listCouponsAdmin } from "@/services/coupon-service";
 import { deleteCoupon } from "@/actions/coupons";
@@ -10,9 +11,26 @@ import { CouponForm } from "@/components/admin/coupon-form";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils";
+import { COUPON_STATUS_LABELS, getCouponStatus, type CouponStatus } from "@/lib/coupon-status";
+import { cn, formatCurrency } from "@/lib/utils";
 
 type Coupon = Awaited<ReturnType<typeof listCouponsAdmin>>[number];
+
+const STATUS_STYLES: Record<CouponStatus, string> = {
+  ACTIVE: "border-transparent bg-primary/15 text-link",
+  INACTIVE: "text-muted-foreground",
+  EXPIRED: "text-muted-foreground",
+  EXHAUSTED: "text-muted-foreground",
+};
+
+async function copyCode(code: string) {
+  try {
+    await navigator.clipboard.writeText(code);
+    toast.success(`Código ${code} copiado.`);
+  } catch {
+    toast.error("Não foi possível copiar o código.");
+  }
+}
 
 function describeCoupon(coupon: Coupon): string {
   const discount =
@@ -39,8 +57,11 @@ export function CouponList({
   coupons,
   canEdit,
   canDelete,
+  now,
 }: {
   coupons: Coupon[];
+  /** Referência para "vencido", vinda do servidor (evita divergência na hidratação). */
+  now: Date;
   canEdit: boolean;
   canDelete: boolean;
 }) {
@@ -104,7 +125,15 @@ export function CouponList({
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="font-mono font-medium">{coupon.code}</span>
-                {!coupon.isActive && <Badge variant="outline">Inativo</Badge>}
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Copiar código ${coupon.code}`}
+                  onClick={() => copyCode(coupon.code)}
+                >
+                  <Copy />
+                </Button>
+                <CouponStatusBadge status={getCouponStatus(coupon, now)} />
               </div>
               <p className="text-sm text-muted-foreground">{describeCoupon(coupon)}</p>
             </div>
@@ -145,5 +174,13 @@ export function CouponList({
           </Button>
         ))}
     </div>
+  );
+}
+
+function CouponStatusBadge({ status }: { status: CouponStatus }) {
+  return (
+    <Badge variant="outline" className={cn(STATUS_STYLES[status])}>
+      {COUPON_STATUS_LABELS[status]}
+    </Badge>
   );
 }

@@ -64,3 +64,25 @@ export async function updateProduct(
     return { success: false, error: toActionError(error) };
   }
 }
+
+export async function setProductAvailability(
+  productId: string,
+  isAvailable: unknown,
+): Promise<ActionResult> {
+  if (typeof isAvailable !== "boolean") {
+    return {
+      success: false,
+      error: { code: "VALIDATION_ERROR", message: "Dados inválidos." },
+    };
+  }
+
+  try {
+    // Permissão própria: o Atendente marca esgotado sem poder editar o produto.
+    await requirePermission("products:toggle_availability");
+    await productService.setProductAvailability(productId, isAvailable);
+    revalidateProductPaths(productId);
+    return { success: true, data: undefined };
+  } catch (error) {
+    return { success: false, error: toActionError(error) };
+  }
+}

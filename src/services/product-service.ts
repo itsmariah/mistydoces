@@ -111,3 +111,10 @@ export async function updateProduct(productId: string, input: ProductInput) {
     }),
   ]);
 }
+
+/** Troca rápida de estoque (esgotado/disponível), sem mexer no resto do produto. */
+export async function setProductAvailability(productId: string, isAvailable: boolean) {
+  const product = await prisma.product.findUnique({ where: { id: productId } });
+  if (!product) throw new NotFoundError("Produto não encontrado.");
+  return prisma.product.update({ where: { id: productId }, data: { isAvailable } });
+}
