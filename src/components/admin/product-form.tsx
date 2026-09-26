@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
@@ -68,6 +69,7 @@ export function ProductForm({
         setFormError(result.error.message);
         return;
       }
+      toast.success(productId ? "Produto atualizado." : "Produto criado.");
       router.push("/admin/produtos");
       router.refresh();
     });

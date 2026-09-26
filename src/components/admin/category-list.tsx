@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import type { listCategoriesAdmin } from "@/services/category-service";
 import { deleteCategory } from "@/actions/categories";
 import { CategoryForm } from "@/components/admin/category-form";
+import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -20,11 +23,8 @@ export function CategoryList({
   canDelete: boolean;
 }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [addingNew, setAddingNew] = useState(false);
-  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   function refreshAndClose() {
     setEditingId(null);
@@ -32,23 +32,31 @@ export function CategoryList({
     router.refresh();
   }
 
-  function handleDelete(categoryId: string) {
-    setError(null);
-    startTransition(async () => {
-      const result = await deleteCategory(categoryId);
-      if (!result.success) {
-        setError(result.error.message);
-        setConfirmingDeleteId(null);
-        return;
-      }
-      router.refresh();
-    });
+  async function handleDelete(category: Category) {
+    const result = await deleteCategory(category.id);
+    if (!result.success) {
+      toast.error(result.error.message);
+      return;
+    }
+    toast.success(`Categoria "${category.name}" excluída.`);
+    router.refresh();
+  }
+
+  if (categories.length === 0 && !addingNew) {
+    return (
+      <EmptyState
+        image={{ src: "/branding/04_laco_lilas.png", width: 106, height: 92 }}
+        title="Nenhuma categoria ainda"
+        description="As categorias organizam o cardápio, como Brigadeiros ou Bolos."
+        action={
+          canEdit && <Button onClick={() => setAddingNew(true)}>Adicionar categoria</Button>
+        }
+      />
+    );
   }
 
   return (
     <div className="space-y-3">
-      {error && <p className="text-sm text-destructive">{error}</p>}
-
       {categories.map((category) =>
         editingId === category.id ? (
           <CategoryForm
@@ -71,45 +79,28 @@ export function CategoryList({
               </span>
             </div>
 
-            {confirmingDeleteId === category.id ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Excluir?</span>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  disabled={isPending}
-                  onClick={() => handleDelete(category.id)}
-                >
-                  Sim
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isPending}
-                  onClick={() => setConfirmingDeleteId(null)}
-                >
-                  Voltar
-                </Button>
+            {(canEdit || canDelete) && (
+              <div className="flex gap-2">
+                {canEdit && (
+                  <Button variant="outline" size="sm" onClick={() => setEditingId(category.id)}>
+                    Editar
+                  </Button>
+                )}
+                {canDelete && (
+                  <ConfirmDialog
+                    trigger={
+                      <Button variant="destructive" size="sm">
+                        Excluir
+                      </Button>
+                    }
+                    title={`Excluir a categoria "${category.name}"?`}
+                    description="Essa ação não pode ser desfeita."
+                    confirmLabel="Excluir"
+                    destructive
+                    onConfirm={() => handleDelete(category)}
+                  />
+                )}
               </div>
-            ) : (
-              (canEdit || canDelete) && (
-                <div className="flex gap-2">
-                  {canEdit && (
-                    <Button variant="outline" size="sm" onClick={() => setEditingId(category.id)}>
-                      Editar
-                    </Button>
-                  )}
-                  {canDelete && (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => setConfirmingDeleteId(category.id)}
-                    >
-                      Excluir
-                    </Button>
-                  )}
-                </div>
-              )
             )}
           </div>
         ),

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { addTeamMember } from "@/actions/users";
 import { ROLE_LABELS, STAFF_ROLES } from "@/lib/permissions";
 import { teamMemberSchema, type TeamMemberInput } from "@/validations/team";
@@ -44,6 +45,7 @@ export function TeamMemberForm() {
         setFormError(result.error.message);
         return;
       }
+      toast.success(`${data.email} agora faz parte da equipe como ${ROLE_LABELS[data.role]}.`);
       reset();
       router.refresh();
     });

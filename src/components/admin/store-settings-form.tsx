@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateStoreSettings } from "@/actions/store-settings";
 import {
@@ -18,9 +19,7 @@ export function StoreSettingsForm({
   defaultValues: StoreSettingsInput;
 }) {
   const [isPending, startTransition] = useTransition();
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(
-    null,
-  );
+  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
@@ -32,14 +31,14 @@ export function StoreSettingsForm({
   });
 
   function onSubmit(data: StoreSettingsInput) {
-    setFeedback(null);
+    setFormError(null);
     startTransition(async () => {
       const result = await updateStoreSettings(data);
-      setFeedback(
-        result.success
-          ? { type: "success", message: "Configurações salvas." }
-          : { type: "error", message: result.error.message },
-      );
+      if (!result.success) {
+        setFormError(result.error.message);
+        return;
+      }
+      toast.success("Configurações salvas.");
     });
   }
 
@@ -67,15 +66,7 @@ export function StoreSettingsForm({
         )}
       </div>
 
-      {feedback && (
-        <p
-          className={
-            feedback.type === "success" ? "text-sm text-link" : "text-sm text-destructive"
-          }
-        >
-          {feedback.message}
-        </p>
-      )}
+      {formError && <p className="text-sm text-destructive">{formError}</p>}
 
       <Button type="submit" disabled={isPending}>
         {isPending ? "Salvando..." : "Salvar alterações"}

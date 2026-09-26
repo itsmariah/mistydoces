@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCoupon, updateCoupon } from "@/actions/coupons";
@@ -57,6 +58,7 @@ export function CouponForm({
         setFormError(result.error.message);
         return;
       }
+      toast.success(couponId ? "Cupom atualizado." : "Cupom criado.");
       onSuccess();
     });
   }

@@ -1,15 +1,22 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import type { DeliveryType, OrderStatus, PaymentStatus } from "@/generated/prisma/client";
 import { getNextStatuses } from "@/lib/order-status";
 import { markPaymentPaid, updateOrderStatus } from "@/actions/admin-orders";
+import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { STATUS_LABELS } from "@/components/orders/order-status-badge";
 import { Button } from "@/components/ui/button";
 
+function statusLabel(status: OrderStatus, deliveryType: DeliveryType) {
+  return status === "DELIVERED" && deliveryType === "PICKUP" ? "Retirado" : STATUS_LABELS[status];
+}
+
 export function OrderStatusActions({
   orderId,
+  orderNumber,
   status,
   deliveryType,
   paymentStatus,
@@ -18,6 +25,7 @@ export function OrderStatusActions({
   canMarkPaid,
 }: {
   orderId: string;
+  orderNumber: number;
   status: OrderStatus;
   deliveryType: DeliveryType;
   paymentStatus?: PaymentStatus;
@@ -27,32 +35,29 @@ export function OrderStatusActions({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
 
   const nextStatuses = getNextStatuses(status, deliveryType).filter(
     (next) => next !== "CANCELLED" || canCancel,
   );
 
-  function handleTransition(next: OrderStatus) {
-    setError(null);
-    startTransition(async () => {
-      const result = await updateOrderStatus(orderId, next);
-      if (!result.success) {
-        setError(result.error.message);
-        return;
-      }
-      router.refresh();
-    });
+  async function changeStatus(next: OrderStatus) {
+    const result = await updateOrderStatus(orderId, next);
+    if (!result.success) {
+      toast.error(result.error.message);
+      return;
+    }
+    toast.success(`Pedido #${orderNumber}: ${statusLabel(next, deliveryType)}.`);
+    router.refresh();
   }
 
   function handleMarkPaid() {
-    setError(null);
     startTransition(async () => {
       const result = await markPaymentPaid(orderId);
       if (!result.success) {
-        setError(result.error.message);
+        toast.error(result.error.message);
         return;
       }
+      toast.success(`Pagamento do pedido #${orderNumber} confirmado.`);
       router.refresh();
     });
   }
@@ -72,35 +77,31 @@ export function OrderStatusActions({
               key={next}
               size="sm"
               disabled={isPending}
-              onClick={() => handleTransition(next)}
+              onClick={() => startTransition(() => changeStatus(next))}
             >
-              {next === "DELIVERED" && deliveryType === "PICKUP"
-                ? "Marcar como Retirado"
-                : `Marcar como ${STATUS_LABELS[next]}`}
+              Marcar como {statusLabel(next, deliveryType)}
             </Button>
           ))}
         {nextStatuses.includes("CANCELLED") && (
-          <Button
-            variant="destructive"
-            size="sm"
-            disabled={isPending}
-            onClick={() => handleTransition("CANCELLED")}
-          >
-            Cancelar pedido
-          </Button>
+          <ConfirmDialog
+            trigger={
+              <Button variant="destructive" size="sm" disabled={isPending}>
+                Cancelar pedido
+              </Button>
+            }
+            title={`Cancelar o pedido #${orderNumber}?`}
+            description="O cliente recebe um e-mail avisando do cancelamento. Essa ação não pode ser desfeita."
+            confirmLabel="Cancelar pedido"
+            destructive
+            onConfirm={() => changeStatus("CANCELLED")}
+          />
         )}
         {canMarkPaidManually && (
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={isPending}
-            onClick={handleMarkPaid}
-          >
+          <Button variant="outline" size="sm" disabled={isPending} onClick={handleMarkPaid}>
             Marcar pagamento como pago
           </Button>
         )}
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

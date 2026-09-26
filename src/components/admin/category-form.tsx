@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCategory, updateCategory } from "@/actions/categories";
@@ -45,6 +46,7 @@ export function CategoryForm({
         setFormError(result.error.message);
         return;
       }
+      toast.success(categoryId ? "Categoria atualizada." : "Categoria criada.");
       onSuccess();
     });
   }

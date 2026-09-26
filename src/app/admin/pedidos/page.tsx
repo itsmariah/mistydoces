@@ -3,6 +3,7 @@ import type { OrderStatus } from "@/generated/prisma/client";
 import { requirePagePermission } from "@/lib/require-permission";
 import { adminListOrders } from "@/services/order-service";
 import { OrderStatusBadge, STATUS_LABELS } from "@/components/orders/order-status-badge";
+import { EmptyState } from "@/components/shared/empty-state";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const STATUS_FILTERS: OrderStatus[] = [
@@ -55,7 +56,15 @@ export default async function AdminOrdersPage({
 
       <div className="space-y-3">
         {orders.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhum pedido encontrado.</p>
+          <EmptyState
+            image={{ src: "/branding/02_gatinha_dormindo.png", width: 146, height: 120 }}
+            title={activeStatus ? "Nenhum pedido aqui" : "Nenhum pedido ainda"}
+            description={
+              activeStatus
+                ? `Não há pedidos com o status "${STATUS_LABELS[activeStatus]}" no momento.`
+                : "Quando clientes fizerem pedidos pelo site, eles aparecem aqui."
+            }
+          />
         ) : (
           orders.map((order) => (
             <Link
