@@ -23,5 +23,13 @@ export const authConfig = {
       }
       return true;
     },
+    // Precisa estar aqui, e não só em `lib/auth.ts`: sem ele o proxy recebe a
+    // sessão padrão (só name/email/image) e `auth.user.role` fica undefined,
+    // barrando todo admin em /admin. Lê só o token, então segue edge-safe.
+    session({ session, token }) {
+      session.user.id = token.id;
+      session.user.role = token.role;
+      return session;
+    },
   },
 } satisfies NextAuthConfig;
