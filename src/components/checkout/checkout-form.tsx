@@ -21,6 +21,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CheckoutSteps, type CheckoutStep } from "@/components/checkout/checkout-steps";
+import { PickupDetails } from "@/components/shared/pickup-details";
+import type { PickupInfo } from "@/lib/store-contact";
 import { formatCurrency } from "@/lib/utils";
 
 const NEW_ADDRESS_VALUE = "new";
@@ -49,9 +51,12 @@ const CHECKOUT_STEPS: CheckoutStep[] = [
 export function CheckoutForm({
   addresses,
   deliveryFee,
+  pickup,
 }: {
   addresses: Address[];
   deliveryFee: number;
+  /** Endereço e horário da loja; `null` se ainda não foram preenchidos no painel. */
+  pickup: PickupInfo | null;
 }) {
   const router = useRouter();
   const { items, subtotal, hasUnavailable, clear, refresh, isRefreshing, removeItem } = useCart();
@@ -289,6 +294,9 @@ export function CheckoutForm({
             </RadioGroup>
           )}
         />
+        {deliveryType === "PICKUP" && pickup && (
+          <PickupDetails pickup={pickup} className="rounded-lg border border-border p-4" />
+        )}
       </section>
 
       {deliveryType === "DELIVERY" && (

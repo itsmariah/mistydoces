@@ -25,7 +25,8 @@ export async function updateStoreSettings(input: unknown): Promise<ActionResult>
 
     await upsertStoreSettings(parsed.data);
 
-    revalidatePath("/admin/configuracoes");
+    // Contato, rodapé e retirada aparecem em toda a loja: revalida tudo a partir da raiz.
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error) {
     return { success: false, error: toActionError(error) };

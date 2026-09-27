@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getUserOrderById } from "@/services/order-service";
+import { getStoreContact } from "@/services/store-settings-service";
 import { AppError } from "@/lib/errors";
 import { canCustomerCancel } from "@/lib/order-status";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
@@ -9,6 +10,7 @@ import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { OrderThanks } from "@/components/orders/order-thanks";
 import { OrderTimeline } from "@/components/orders/order-timeline";
 import { OrderStatusWatcher } from "@/components/orders/order-status-watcher";
+import { PickupDetails } from "@/components/shared/pickup-details";
 import { PAYMENT_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payment-labels";
 import { formatCurrency } from "@/lib/utils";
 
@@ -28,6 +30,11 @@ export default async function OrderDetailPage({
     if (error instanceof AppError) notFound();
     throw error;
   });
+
+  // Onde e quando retirar só interessa enquanto o pedido ainda vai ser retirado.
+  const awaitingPickup =
+    order.deliveryType === "PICKUP" && order.status !== "DELIVERED" && order.status !== "CANCELLED";
+  const pickup = awaitingPickup ? (await getStoreContact()).pickup : null;
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-12">
@@ -103,6 +110,7 @@ export default async function OrderDetailPage({
             {order.deliveryNeighborhood}, {order.deliveryCity}/{order.deliveryState}
           </p>
         )}
+        {pickup && <PickupDetails pickup={pickup} />}
       </section>
 
       <section className="space-y-3">

@@ -264,9 +264,9 @@ model Payment {
 model StoreSettings {
   id           String   @id @default("singleton")
   storeName    String
-  logoUrl      String?
   description  String?
   phone        String?
+  email        String?
   whatsapp     String?
   instagram    String?
   street       String?
