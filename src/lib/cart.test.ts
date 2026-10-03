@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   parseStoredCart,
+  planReorder,
   reconcileCart,
   serializeCart,
   type CartItem,
@@ -97,5 +98,43 @@ describe("reconcileCart", () => {
   it("sem mudanças, não gera avisos", () => {
     const result = reconcileCart([item()], [snapshot()], ["v1"]);
     expect(result).toMatchObject({ removed: [], priceChanged: [], becameUnavailable: [] });
+  });
+});
+
+describe("planReorder", () => {
+  const snapshot = (overrides: Partial<CartVariantSnapshot> = {}): CartVariantSnapshot => ({
+    variantId: "v1",
+    productSlug: "brigadeiro",
+    productName: "Brigadeiro",
+    variantLabel: "Cento",
+    price: 120,
+    imageUrl: null,
+    isAvailable: true,
+    ...overrides,
+  });
+
+  it("repete as quantidades do pedido com o preço de hoje", () => {
+    const { toAdd, skipped } = planReorder(
+      [{ variantId: "v1", quantity: 3, productName: "Brigadeiro" }],
+      [snapshot()],
+    );
+    expect(toAdd).toEqual([{ snapshot: snapshot(), quantity: 3 }]);
+    expect(skipped).toEqual([]);
+  });
+
+  it("deixa de fora o que está esgotado ou saiu do cardápio", () => {
+    const { toAdd, skipped } = planReorder(
+      [
+        { variantId: "v1", quantity: 1, productName: "Brigadeiro" },
+        { variantId: "v2", quantity: 1, productName: "Bolo antigo" },
+        { variantId: "v3", quantity: 2, productName: "Cookie" },
+      ],
+      [
+        snapshot(),
+        snapshot({ variantId: "v3", productName: "Cookie", isAvailable: false }),
+      ],
+    );
+    expect(toAdd.map((line) => line.snapshot.variantId)).toEqual(["v1"]);
+    expect(skipped).toEqual(["Bolo antigo", "Cookie"]);
   });
 });

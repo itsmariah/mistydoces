@@ -6,10 +6,10 @@ import { toast } from "sonner";
 import type { OrderStatus, PaymentStatus } from "@/generated/prisma/client";
 import { getOrderPaymentStatus } from "@/actions/payment";
 import { STATUS_LABELS } from "@/components/orders/order-status-badge";
+import { isFinalStatus } from "@/lib/order-status";
 
 /** Status do pedido mudam em minutos, não segundos — checar mais que isso só gasta servidor. */
 const POLL_INTERVAL_MS = 20_000;
-const FINAL_STATUSES: OrderStatus[] = ["DELIVERED", "CANCELLED"];
 
 type OrderStatusWatcherProps = {
   orderId: string;
@@ -26,7 +26,7 @@ export function OrderStatusWatcher({ orderId, status, paymentStatus }: OrderStat
   const router = useRouter();
 
   useEffect(() => {
-    if (FINAL_STATUSES.includes(status)) return;
+    if (isFinalStatus(status)) return;
 
     let cancelled = false;
 

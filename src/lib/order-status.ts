@@ -48,6 +48,11 @@ export function canCustomerCancel(status: OrderStatus): boolean {
   return status === "PENDING";
 }
 
+/** Entregue ou cancelado: o pedido não muda mais. */
+export function isFinalStatus(status: OrderStatus): boolean {
+  return status === "DELIVERED" || status === "CANCELLED";
+}
+
 export function isOrderFlowStatus(status: OrderStatus): boolean {
   return ORDER_FLOW.includes(status);
 }

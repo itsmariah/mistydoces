@@ -1,15 +1,21 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
+import { MessageCircle } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { getUserOrderById } from "@/services/order-service";
-import { getStoreContact } from "@/services/store-settings-service";
+import { getStoreContact, getStoreSettings } from "@/services/store-settings-service";
 import { AppError } from "@/lib/errors";
-import { canCustomerCancel } from "@/lib/order-status";
+import { canCustomerCancel, isFinalStatus } from "@/lib/order-status";
+import { whatsappUrl } from "@/lib/whatsapp";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { OrderThanks } from "@/components/orders/order-thanks";
 import { OrderTimeline } from "@/components/orders/order-timeline";
 import { OrderStatusWatcher } from "@/components/orders/order-status-watcher";
+import { ReorderButton } from "@/components/orders/reorder-button";
+import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
+import { Button } from "@/components/ui/button";
 import { PickupDetails } from "@/components/shared/pickup-details";
 import { PAYMENT_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payment-labels";
 import { formatCurrency } from "@/lib/utils";
@@ -31,13 +37,18 @@ export default async function OrderDetailPage({
     throw error;
   });
 
+  const isFinal = isFinalStatus(order.status);
   // Onde e quando retirar só interessa enquanto o pedido ainda vai ser retirado.
-  const awaitingPickup =
-    order.deliveryType === "PICKUP" && order.status !== "DELIVERED" && order.status !== "CANCELLED";
-  const pickup = awaitingPickup ? (await getStoreContact()).pickup : null;
+  const awaitingPickup = order.deliveryType === "PICKUP" && !isFinal;
+  const [contact, settings] = await Promise.all([getStoreContact(), getStoreSettings()]);
+  const pickup = awaitingPickup ? contact.pickup : null;
+  // A mensagem já leva o número: a loja não precisa perguntar de qual pedido se trata.
+  const orderWhatsappHref = settings?.whatsapp
+    ? whatsappUrl(settings.whatsapp, `Olá! Quero falar sobre o meu pedido #${order.orderNumber}.`)
+    : null;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 px-4 py-12">
+    <div className="space-y-8">
       <div>
         <Link
           href="/conta/pedidos"
@@ -56,7 +67,7 @@ export default async function OrderDetailPage({
 
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-semibold">
+          <h1 className="font-heading text-xl font-semibold">
             Pedido #{order.orderNumber}
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -71,7 +82,7 @@ export default async function OrderDetailPage({
 
       <section className="space-y-3 rounded-lg border border-border p-4 sm:p-6">
         <OrderTimeline status={order.status} deliveryType={order.deliveryType} />
-        {order.status !== "DELIVERED" && order.status !== "CANCELLED" && (
+        {!isFinal && (
           <p className="text-xs text-muted-foreground">
             Esta página se atualiza sozinha quando o status do pedido mudar.
           </p>
@@ -85,18 +96,39 @@ export default async function OrderDetailPage({
 
       <section className="space-y-3">
         <h2 className="font-heading text-lg font-medium">Itens</h2>
-        <div className="space-y-2 rounded-lg border border-border p-4">
+        <ul className="divide-y divide-border rounded-2xl border border-border bg-card px-4">
           {order.items.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm">
-              <span>
-                {item.quantity}x {item.productNameSnapshot} ({item.variantLabelSnapshot})
+            <li key={item.id} className="flex items-center gap-3 py-3 text-sm">
+              <span className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-muted">
+                {item.variant.product.imageUrl ? (
+                  <Image
+                    src={item.variant.product.imageUrl}
+                    alt=""
+                    fill
+                    sizes="44px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <ProductPlaceholderImage className="object-contain p-1" />
+                )}
               </span>
-              <span className="text-muted-foreground">
+              <span className="min-w-0 flex-1">
+                <Link
+                  href={`/cardapio/${item.variant.product.slug}`}
+                  className="block truncate font-medium hover:underline"
+                >
+                  {item.quantity}x {item.productNameSnapshot}
+                </Link>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {item.variantLabelSnapshot}
+                </span>
+              </span>
+              <span className="shrink-0 text-muted-foreground">
                 {formatCurrency(item.subtotal.toString())}
               </span>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       <section className="space-y-3">
@@ -160,6 +192,30 @@ export default async function OrderDetailPage({
           <span className="text-link">{formatCurrency(order.total.toString())}</span>
         </div>
       </section>
+
+      {(isFinal || orderWhatsappHref) && (
+        <div className="flex flex-wrap gap-2">
+          {isFinal && (
+            <ReorderButton
+              lines={order.items.map((item) => ({
+                variantId: item.variantId,
+                quantity: item.quantity,
+                productName: item.productNameSnapshot,
+              }))}
+            />
+          )}
+          {orderWhatsappHref && (
+            <Button
+              variant="outline"
+              nativeButton={false}
+              render={<a href={orderWhatsappHref} target="_blank" rel="noopener noreferrer" />}
+            >
+              <MessageCircle />
+              Falar sobre este pedido
+            </Button>
+          )}
+        </div>
+      )}
 
       {canCustomerCancel(order.status) && <CancelOrderButton orderId={order.id} />}
     </div>

@@ -30,7 +30,8 @@ export async function updateProfile(input: unknown): Promise<ActionResult> {
       data: { name: parsed.data.name, phone: parsed.data.phone },
     });
 
-    revalidatePath("/conta");
+    // "layout": a saudação com o nome fica no layout da conta, não só na página.
+    revalidatePath("/conta", "layout");
     return { success: true };
   } catch (error) {
     return { success: false, error: toActionError(error) };

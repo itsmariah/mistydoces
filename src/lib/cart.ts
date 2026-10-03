@@ -103,3 +103,30 @@ export function reconcileCart(
 
   return result;
 }
+
+export type ReorderLine = { variantId: string; quantity: number; productName: string };
+
+/**
+ * "Pedir de novo": separa as linhas de um pedido antigo entre o que ainda dá para comprar
+ * (com o preço de hoje, vindo do snapshot) e o que ficou de fora — saiu do cardápio ou
+ * está esgotado. `skipped` traz os nomes para avisar a pessoa.
+ */
+export function planReorder(
+  lines: ReorderLine[],
+  snapshots: CartVariantSnapshot[],
+): { toAdd: { snapshot: CartVariantSnapshot; quantity: number }[]; skipped: string[] } {
+  const byId = new Map(snapshots.map((snapshot) => [snapshot.variantId, snapshot]));
+  const toAdd: { snapshot: CartVariantSnapshot; quantity: number }[] = [];
+  const skipped: string[] = [];
+
+  for (const line of lines) {
+    const snapshot = byId.get(line.variantId);
+    if (snapshot?.isAvailable) {
+      toAdd.push({ snapshot, quantity: line.quantity });
+    } else {
+      skipped.push(snapshot?.productName ?? line.productName);
+    }
+  }
+
+  return { toAdd, skipped };
+}

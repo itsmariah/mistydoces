@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function OrderDetailLoading() {
   return (
-    <div className="mx-auto max-w-2xl space-y-8 px-4 py-12" aria-busy="true">
+    <div className="space-y-8" aria-busy="true">
       <span className="sr-only">Carregando o pedido…</span>
       <Skeleton className="h-4 w-28" />
 

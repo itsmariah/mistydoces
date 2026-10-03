@@ -142,18 +142,26 @@ export async function createOrder(userId: string, input: CheckoutInput) {
   return order;
 }
 
+// Cada item traz a foto e o slug atuais do produto: miniaturas, link para o produto e "Pedir de novo".
+const CUSTOMER_ORDER_INCLUDE = {
+  items: {
+    include: { variant: { select: { product: { select: { imageUrl: true, slug: true } } } } },
+  },
+  payment: true,
+} as const;
+
 export function getUserOrders(userId: string) {
   return prisma.order.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
-    include: { items: true, payment: true },
+    include: CUSTOMER_ORDER_INCLUDE,
   });
 }
 
 export async function getUserOrderById(userId: string, orderId: string) {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    include: { items: true, payment: true },
+    include: CUSTOMER_ORDER_INCLUDE,
   });
   if (!order) throw new NotFoundError("Pedido não encontrado.");
   if (order.userId !== userId) throw new ForbiddenError();

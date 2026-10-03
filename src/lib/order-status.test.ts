@@ -4,7 +4,17 @@ import {
   canTransition,
   getNextStatuses,
   getTimelineSteps,
+  isFinalStatus,
 } from "@/lib/order-status";
+
+describe("isFinalStatus", () => {
+  it("entregue e cancelado são finais; o resto ainda anda", () => {
+    expect(isFinalStatus("DELIVERED")).toBe(true);
+    expect(isFinalStatus("CANCELLED")).toBe(true);
+    expect(isFinalStatus("PENDING")).toBe(false);
+    expect(isFinalStatus("OUT_FOR_DELIVERY")).toBe(false);
+  });
+});
 
 describe("canTransition", () => {
   it("permite avançar no fluxo principal", () => {
