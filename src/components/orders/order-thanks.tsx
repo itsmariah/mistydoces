@@ -1,14 +1,16 @@
 import Image from "next/image";
+import { CelebrationBurst } from "@/components/orders/celebration-burst";
 
 type OrderThanksProps = {
   title: string;
   description: string;
 };
 
-/** Bloco de agradecimento exibido logo após o pedido ser feito ou pago. */
+/** Bloco de agradecimento exibido logo após o pedido ser feito ou pago, com a chuva de patinhas. */
 export function OrderThanks({ title, description }: OrderThanksProps) {
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 p-6 text-center sm:flex-row sm:text-left">
+      <CelebrationBurst />
       <Image
         src="/branding/19_tag_obrigada.png"
         alt=""

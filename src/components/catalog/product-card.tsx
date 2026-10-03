@@ -1,3 +1,4 @@
+import { ViewTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Category, Product, ProductVariant } from "@/generated/prisma/client";
@@ -5,6 +6,7 @@ import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { QuickAddButton } from "@/components/catalog/quick-add-button";
+import { productImageTransitionName } from "@/lib/view-transitions";
 import { formatRating, type RatingSummary } from "@/lib/rating";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
 
@@ -43,17 +45,28 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
       style={{ animationDelay: `${Math.min(index, MAX_STAGGERED_CARDS) * STAGGER_STEP_MS}ms` }}
     >
       <div className="relative aspect-square w-full overflow-hidden bg-muted">
-        {product.imageUrl ? (
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-          />
-        ) : (
-          <ProductPlaceholderImage />
-        )}
+        {/* Mesmo `name` da foto na página do produto: o navegador "leva" a imagem de um lugar
+            ao outro. Só a foto viaja (os selos ficam fora). `default="none"` evita que ela
+            anime em transições que não são dela. */}
+        <ViewTransition
+          name={productImageTransitionName(product.slug)}
+          share="product-image"
+          default="none"
+        >
+          <div className="absolute inset-0">
+            {product.imageUrl ? (
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+              />
+            ) : (
+              <ProductPlaceholderImage />
+            )}
+          </div>
+        </ViewTransition>
         {isBestSeller && (
           <Badge variant="secondary" className="absolute left-2 top-2 gap-1 pl-1.5 shadow-sm">
             <Image

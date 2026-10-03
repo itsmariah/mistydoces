@@ -57,6 +57,8 @@
    para manter a inclinação própria durante o balanço. */
 @theme {
   --animate-float: float 6s ease-in-out infinite;
+  --animate-pop: pop 450ms ease-out;
+  --animate-confetti: confetti var(--confetti-duration, 2.6s) ease-in var(--confetti-delay, 0s) both;
 
   @keyframes float {
     0%,
@@ -65,6 +67,35 @@
     }
     50% {
       transform: translateY(-10px) rotate(calc(var(--float-rotate, 0deg) + 4deg));
+    }
+  }
+
+  /* Ícone do carrinho "pulando" quando um item entra. */
+  @keyframes pop {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(1.3) rotate(-8deg);
+    }
+    70% {
+      transform: scale(0.95) rotate(4deg);
+    }
+  }
+
+  /* Patinhas e corações caindo na confirmação do pedido (ver CelebrationBurst). */
+  @keyframes confetti {
+    from {
+      transform: translate(0, -10vh) rotate(0deg);
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    to {
+      transform: translate(var(--confetti-drift, 0px), 105vh) rotate(var(--confetti-spin, 360deg));
+      opacity: 0;
     }
   }
 }
@@ -188,6 +219,20 @@ html[data-nav="pop"] [data-enter-animation] {
   animation: none;
 }
 
+/* Imagem do produto "viajando" do card para a página do produto (e de volta).
+   O blur no meio do caminho disfarça a interpolação entre as duas fotos. */
+::view-transition-group(.product-image) {
+  animation-duration: 400ms;
+}
+::view-transition-image-pair(.product-image) {
+  animation-name: via-blur;
+}
+@keyframes via-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
 /* Quem pediu menos movimento no sistema operacional vê tudo já no lugar final:
    animações e transições viram instantâneas (em vez de removidas, para eventos
    de fim de animação continuarem disparando) e a rolagem deixa de ser suave. */
@@ -201,5 +246,12 @@ html[data-nav="pop"] [data-enter-animation] {
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
     scroll-behavior: auto !important;
+  }
+  /* Transições de página (View Transitions) também viram troca instantânea. */
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }

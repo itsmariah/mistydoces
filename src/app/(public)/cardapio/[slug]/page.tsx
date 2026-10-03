@@ -1,3 +1,4 @@
+import { ViewTransition } from "react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import type { Metadata } from "next";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
 import { formatRating } from "@/lib/rating";
+import { productImageTransitionName } from "@/lib/view-transitions";
 import { BASE_OPEN_GRAPH } from "@/lib/site-metadata";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
 import { auth } from "@/lib/auth";
@@ -88,19 +90,25 @@ export default async function ProdutoPage({
       <BackToCardapioLink />
 
       <div className="grid gap-8 sm:grid-cols-2">
-        <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-muted">
-          {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              fill
-              className="object-cover"
-              sizes="(min-width: 640px) 50vw, 100vw"
-            />
-          ) : (
-            <ProductPlaceholderImage className="object-contain p-10" />
-          )}
-        </div>
+        <ViewTransition
+          name={productImageTransitionName(product.slug)}
+          share="product-image"
+          default="none"
+        >
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-muted">
+            {product.imageUrl ? (
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover"
+                sizes="(min-width: 640px) 50vw, 100vw"
+              />
+            ) : (
+              <ProductPlaceholderImage className="object-contain p-10" />
+            )}
+          </div>
+        </ViewTransition>
 
         <div className="flex flex-col gap-4">
           <div className="space-y-1">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, Trash2 } from "lucide-react";
@@ -18,6 +19,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCart, type CartItem } from "@/components/cart/cart-provider";
+import { useMounted } from "@/lib/use-mounted";
 import { cn, formatCurrency } from "@/lib/utils";
 import { MAX_ITEM_QUANTITY } from "@/validations/order";
 
@@ -34,6 +36,19 @@ export function CartSheet() {
     isOpen,
     setOpen,
   } = useCart();
+
+  // O ícone "pula" quando a quantidade de itens sobe (adicionar, pedir de novo, desfazer
+  // remoção). Ajuste durante a renderização, sem efeito: é o padrão do React para reagir
+  // a uma mudança de valor. Trocar a `key` remonta o ícone e reinicia a animação.
+  // Antes da hidratação o carrinho aparece vazio: o primeiro valor real é só a referência,
+  // senão o ícone pularia em todo carregamento de página com itens salvos.
+  const mounted = useMounted();
+  const [previousCount, setPreviousCount] = useState<number | null>(null);
+  const [bumpKey, setBumpKey] = useState(0);
+  if (mounted && itemCount !== previousCount) {
+    if (previousCount !== null && itemCount > previousCount) setBumpKey((key) => key + 1);
+    setPreviousCount(itemCount);
+  }
 
   // Confere preços e disponibilidade toda vez que a pessoa abre o carrinho. Ao adicionar
   // um item a gaveta abre por `addItem`, sem passar por aqui — o item acabou de vir da página.
@@ -63,12 +78,14 @@ export function CartSheet() {
           />
         }
       >
-        <ShoppingBag className="h-5 w-5" />
-        {itemCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-            {itemCount}
-          </span>
-        )}
+        <span key={bumpKey} className={cn("relative flex", bumpKey > 0 && "animate-pop")}>
+          <ShoppingBag className="h-5 w-5" />
+          {itemCount > 0 && (
+            <span className="absolute -top-2 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+              {itemCount}
+            </span>
+          )}
+        </span>
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:max-w-md">
         <SheetHeader>
