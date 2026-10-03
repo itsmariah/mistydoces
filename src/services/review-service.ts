@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { AppError, ForbiddenError, NotFoundError } from "@/lib/errors";
+import { summarizeRatings, type RatingBreakdown, type RatingSummary } from "@/lib/rating";
 import type { ReviewInput } from "@/validations/review";
 
 export function getProductReviews(productId: string) {
@@ -42,13 +43,33 @@ export async function getFeaturedReviews(limit: number) {
   }));
 }
 
-export async function getProductRatingSummary(productId: string) {
-  const result = await prisma.review.aggregate({
+/** Média, total e distribuição por nota das avaliações visíveis de um produto. */
+export async function getProductRatingSummary(productId: string): Promise<RatingBreakdown> {
+  const rows = await prisma.review.groupBy({
+    by: ["rating"],
     where: { productId, isVisible: true },
-    _avg: { rating: true },
-    _count: true,
+    _count: { _all: true },
   });
-  return { average: result._avg.rating ?? 0, count: result._count };
+  return summarizeRatings(rows.map((row) => ({ rating: row.rating, count: row._count._all })));
+}
+
+/**
+ * Média e total de avaliações visíveis por produto, para os cards. Sem `productIds`,
+ * traz todos os produtos avaliados (o cardápio mostra o catálogo inteiro).
+ */
+export async function getRatingSummaries(
+  productIds?: string[],
+): Promise<Map<string, RatingSummary>> {
+  if (productIds?.length === 0) return new Map();
+  const rows = await prisma.review.groupBy({
+    by: ["productId"],
+    where: { isVisible: true, ...(productIds ? { productId: { in: productIds } } : {}) },
+    _avg: { rating: true },
+    _count: { _all: true },
+  });
+  return new Map(
+    rows.map((row) => [row.productId, { average: row._avg.rating ?? 0, count: row._count._all }]),
+  );
 }
 
 async function hasPurchasedProduct(userId: string, productId: string): Promise<boolean> {

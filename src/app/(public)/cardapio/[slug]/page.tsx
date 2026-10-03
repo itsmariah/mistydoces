@@ -6,17 +6,30 @@ import { StarRating } from "@/components/catalog/star-rating";
 import { ReviewForm } from "@/components/catalog/review-form";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { BackToCardapioLink } from "@/components/catalog/back-to-cardapio-link";
+import { ProductCard } from "@/components/catalog/product-card";
+import { RatingBreakdown } from "@/components/catalog/rating-breakdown";
+import { ShareButton } from "@/components/catalog/share-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import type { Metadata } from "next";
-import { getProductBySlug } from "@/lib/catalog";
+import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
+import { formatRating } from "@/lib/rating";
 import { BASE_OPEN_GRAPH } from "@/lib/site-metadata";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
 import { auth } from "@/lib/auth";
+import { getBestSellerProductIds } from "@/services/best-seller-service";
 import {
   getProductRatingSummary,
   getProductReviews,
+  getRatingSummaries,
   getReviewEligibility,
 } from "@/services/review-service";
+
+const RELATED_PRODUCTS_LIMIT = 4;
+
+function getPriceLabel(variants: { price: { toString(): string } }[]) {
+  const startingPrice = formatCurrency(getStartingPrice(variants));
+  return variants.length > 1 ? `A partir de ${startingPrice}` : startingPrice;
+}
 
 export async function generateMetadata({
   params,
@@ -28,9 +41,7 @@ export async function generateMetadata({
   if (!product) return {};
 
   // O preço vai na frente da descrição: é o que aparece na prévia do link no WhatsApp.
-  const startingPrice = formatCurrency(getStartingPrice(product.variants));
-  const priceLabel = product.variants.length > 1 ? `A partir de ${startingPrice}` : startingPrice;
-  const description = `${priceLabel} · ${product.description}`;
+  const description = `${getPriceLabel(product.variants)} · ${product.description}`;
   const image = product.imageUrl
     ? { url: product.imageUrl, alt: product.name }
     : { url: "/branding/17_gatinha_chefe_de_pe.png", alt: product.name };
@@ -61,13 +72,16 @@ export default async function ProdutoPage({
   }
 
   const session = await auth();
-  const [ratingSummary, reviews, eligibility] = await Promise.all([
+  const [ratingSummary, reviews, eligibility, bestSellerIds, related] = await Promise.all([
     getProductRatingSummary(product.id),
     getProductReviews(product.id),
     session?.user
       ? getReviewEligibility(session.user.id, product.id)
       : Promise.resolve(null),
+    getBestSellerProductIds(),
+    getRelatedProducts(product, RELATED_PRODUCTS_LIMIT),
   ]);
+  const relatedRatings = await getRatingSummaries(related.map((item) => item.id));
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-12">
@@ -90,20 +104,28 @@ export default async function ProdutoPage({
 
         <div className="flex flex-col gap-4">
           <div className="space-y-1">
-            <span className="text-sm font-medium text-muted-foreground">
-              {product.category.name}
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-muted-foreground">
+                {product.category.name}
+              </span>
+              {bestSellerIds.has(product.id) && (
+                <Badge variant="secondary" className="gap-1 pl-1.5">
+                  <Image src="/branding/10_coracao_patinha.png" alt="" width={16} height={16} />
+                  Mais vendido
+                </Badge>
+              )}
+            </div>
             <h1 className="font-heading text-2xl font-semibold sm:text-3xl">
               {product.name}
             </h1>
             {ratingSummary.count > 0 && (
-              <div className="flex items-center gap-2">
+              <a href="#avaliacoes" className="flex w-fit items-center gap-2 hover:underline">
                 <StarRating value={ratingSummary.average} />
                 <span className="text-sm text-muted-foreground">
-                  {ratingSummary.average.toFixed(1)} ({ratingSummary.count}{" "}
+                  {formatRating(ratingSummary.average)} ({ratingSummary.count}{" "}
                   {ratingSummary.count === 1 ? "avaliação" : "avaliações"})
                 </span>
-              </div>
+              </a>
             )}
           </div>
 
@@ -126,11 +148,20 @@ export default async function ProdutoPage({
             }))}
             disabled={!product.isAvailable}
           />
+
+          <div>
+            <ShareButton
+              title={product.name}
+              text={`${product.name} · ${getPriceLabel(product.variants)} na MistyDoces`}
+            />
+          </div>
         </div>
       </div>
 
-      <section className="space-y-4 border-t border-border pt-8">
+      <section id="avaliacoes" className="scroll-mt-20 space-y-4 border-t border-border pt-8">
         <h2 className="font-heading text-lg font-medium">Avaliações</h2>
+
+        {ratingSummary.count > 0 && <RatingBreakdown summary={ratingSummary} />}
 
         {eligibility?.canReview && (
           <ReviewForm productId={product.id} productSlug={product.slug} />
@@ -162,6 +193,25 @@ export default async function ProdutoPage({
           </div>
         )}
       </section>
+
+      {related.length > 0 && (
+        <section aria-labelledby="relacionados-titulo" className="space-y-4 border-t border-border pt-8">
+          <h2 id="relacionados-titulo" className="font-heading text-lg font-medium">
+            Você também vai gostar
+          </h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {related.map((item, index) => (
+              <ProductCard
+                key={item.id}
+                product={item}
+                index={index}
+                isBestSeller={bestSellerIds.has(item.id)}
+                rating={relatedRatings.get(item.id)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -1,8 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Category, Product, ProductVariant } from "@/generated/prisma/client";
+import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
+import { QuickAddButton } from "@/components/catalog/quick-add-button";
+import { formatRating, type RatingSummary } from "@/lib/rating";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
 
 type ProductCardProps = {
@@ -11,6 +14,8 @@ type ProductCardProps = {
     variants: ProductVariant[];
   };
   isBestSeller?: boolean;
+  /** Média das avaliações visíveis; sem avaliações, o card não mostra estrelas. */
+  rating?: RatingSummary;
   /** Posição na grade — define o atraso da animação de entrada em cascata. */
   index?: number;
 };
@@ -19,18 +24,22 @@ type ProductCardProps = {
 const MAX_STAGGERED_CARDS = 12;
 const STAGGER_STEP_MS = 60;
 
-export function ProductCard({ product, isBestSeller = false, index = 0 }: ProductCardProps) {
+export function ProductCard({ product, isBestSeller = false, rating, index = 0 }: ProductCardProps) {
   const startingPrice = getStartingPrice(product.variants);
   const priceLabel =
     product.variants.length > 1
       ? `A partir de ${formatCurrency(startingPrice)}`
       : formatCurrency(startingPrice);
+  // O "+" só aparece quando não há escolha a fazer: uma única opção, e à venda.
+  const quickAddVariant =
+    product.isAvailable && product.variants.length === 1 ? product.variants[0] : null;
 
+  // O card é um <article>, não um link: o "+" é um botão, e botão dentro de link não é HTML válido.
+  // O link do título se estica (`after:inset-0`) e deixa o card inteiro clicável.
   return (
-    <Link
-      href={`/cardapio/${product.slug}`}
+    <article
       data-enter-animation
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card outline-none animate-in fade-in slide-in-from-bottom-4 fill-mode-both animation-duration-500 transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary-foreground/15 focus-visible:-translate-y-1 focus-visible:ring-3 focus-visible:ring-ring/50"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card animate-in fade-in slide-in-from-bottom-4 fill-mode-both animation-duration-500 transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary-foreground/15 has-[a:focus-visible]:-translate-y-1 has-[a:focus-visible]:ring-3 has-[a:focus-visible]:ring-ring/50"
       style={{ animationDelay: `${Math.min(index, MAX_STAGGERED_CARDS) * STAGGER_STEP_MS}ms` }}
     >
       <div className="relative aspect-square w-full overflow-hidden bg-muted">
@@ -70,15 +79,40 @@ export function ProductCard({ product, isBestSeller = false, index = 0 }: Produc
           {product.category.name}
         </span>
         <h3 className="font-heading text-base font-semibold">
-          {product.name}
+          <Link
+            href={`/cardapio/${product.slug}`}
+            className="outline-none after:absolute after:inset-0"
+          >
+            {product.name}
+          </Link>
         </h3>
+        {rating && rating.count > 0 && (
+          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Star className="size-3.5 fill-link text-link" aria-hidden="true" />
+            <span className="font-medium text-foreground">{formatRating(rating.average)}</span>
+            <span aria-hidden="true">({rating.count})</span>
+            <span className="sr-only">
+              de 5, {rating.count} {rating.count === 1 ? "avaliação" : "avaliações"}
+            </span>
+          </p>
+        )}
         <p className="line-clamp-2 text-sm text-muted-foreground">
           {product.description}
         </p>
-        <span className="mt-auto pt-2 text-lg font-semibold text-link">
-          {priceLabel}
-        </span>
+        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+          <span className="text-lg font-semibold text-link">{priceLabel}</span>
+          {quickAddVariant && (
+            <QuickAddButton
+              variantId={quickAddVariant.id}
+              variantLabel={quickAddVariant.label}
+              price={Number(quickAddVariant.price)}
+              productSlug={product.slug}
+              productName={product.name}
+              imageUrl={product.imageUrl}
+            />
+          )}
+        </div>
       </div>
-    </Link>
+    </article>
   );
 }

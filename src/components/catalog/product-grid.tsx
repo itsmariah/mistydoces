@@ -2,17 +2,19 @@ import type { ReactNode } from "react";
 import type { Category, Product, ProductVariant } from "@/generated/prisma/client";
 import { ProductCard } from "@/components/catalog/product-card";
 import { EmptyState } from "@/components/shared/empty-state";
+import type { RatingSummary } from "@/lib/rating";
 
 type ProductGridProps = {
   products: Array<
     Product & { category: Pick<Category, "name">; variants: ProductVariant[] }
   >;
   bestSellerIds?: Set<string>;
+  ratings?: Map<string, RatingSummary>;
   /** Substitui o estado vazio padrão (ex.: busca sem resultado). */
   emptyState?: ReactNode;
 };
 
-export function ProductGrid({ products, bestSellerIds, emptyState }: ProductGridProps) {
+export function ProductGrid({ products, bestSellerIds, ratings, emptyState }: ProductGridProps) {
   if (products.length === 0) {
     if (emptyState) return emptyState;
     return (
@@ -33,6 +35,7 @@ export function ProductGrid({ products, bestSellerIds, emptyState }: ProductGrid
           index={index}
           product={product}
           isBestSeller={bestSellerIds?.has(product.id)}
+          rating={ratings?.get(product.id)}
         />
       ))}
     </div>

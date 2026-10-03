@@ -30,7 +30,12 @@ type CartContextValue = {
   /** Soma só os itens disponíveis — os indisponíveis não podem ser comprados. */
   subtotal: number;
   hasUnavailable: boolean;
-  addItem: (item: Omit<CartItem, "quantity" | "isAvailable">, quantity?: number) => void;
+  /** Por padrão abre a gaveta do carrinho; `openCart: false` é para adicionar sem tirar a pessoa da página. */
+  addItem: (
+    item: Omit<CartItem, "quantity" | "isAvailable">,
+    quantity?: number,
+    options?: { openCart?: boolean },
+  ) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
   removeItem: (variantId: string) => void;
   /** Recoloca um item removido na mesma posição — usado pelo "Desfazer" do toast. */
@@ -123,7 +128,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  function addItem(item: Omit<CartItem, "quantity" | "isAvailable">, quantity = 1) {
+  function addItem(
+    item: Omit<CartItem, "quantity" | "isAvailable">,
+    quantity = 1,
+    { openCart = true }: { openCart?: boolean } = {},
+  ) {
     setItems((current) => {
       const existing = current.find((line) => line.variantId === item.variantId);
       if (existing) {
@@ -139,7 +148,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         { ...item, isAvailable: true, quantity: Math.min(quantity, MAX_ITEM_QUANTITY) },
       ];
     });
-    setOpen(true);
+    if (openCart) setOpen(true);
   }
 
   function updateQuantity(variantId: string, quantity: number) {

@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check } from "lucide-react";
+import { Radio } from "@base-ui/react/radio";
+import { RadioGroup } from "@base-ui/react/radio-group";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/components/cart/cart-provider";
 import { QuantityStepper } from "@/components/cart/quantity-stepper";
@@ -89,23 +91,26 @@ export function VariantSelector({
   return (
     <div className="flex flex-col gap-4">
       {variants.length > 1 && (
-        <div className="flex flex-wrap gap-2">
+        // Radiogroup de verdade: leitor de tela anuncia "1 de 3, marcado" e as setas trocam a opção.
+        <RadioGroup<string>
+          value={selectedId}
+          onValueChange={setSelectedId}
+          aria-label="Escolha uma opção"
+          className="flex flex-wrap gap-2"
+        >
           {variants.map((variant) => (
-            <button
+            <Radio.Root
               key={variant.id}
-              type="button"
-              onClick={() => setSelectedId(variant.id)}
-              className={cn(
-                "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
-                selectedId === variant.id
-                  ? "border-transparent bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:text-foreground",
-              )}
+              value={variant.id}
+              className="flex cursor-pointer flex-col items-start rounded-2xl border border-border px-4 py-1.5 text-left text-sm font-medium text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 data-checked:border-transparent data-checked:bg-primary data-checked:text-primary-foreground"
             >
               {variant.label}
-            </button>
+              <span className="text-xs font-normal opacity-80">
+                {formatCurrency(variant.price)}
+              </span>
+            </Radio.Root>
           ))}
-        </div>
+        </RadioGroup>
       )}
 
       <span className="text-2xl font-semibold text-link">

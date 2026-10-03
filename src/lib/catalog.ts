@@ -58,6 +58,34 @@ export function getLatestProducts(limit: number) {
   });
 }
 
+/**
+ * "Você também vai gostar": primeiro da mesma categoria, completando com o resto do
+ * cardápio se faltar. Disponíveis antes de esgotados, mais novos primeiro.
+ */
+export async function getRelatedProducts(
+  product: { id: string; categoryId: string },
+  limit: number,
+) {
+  const visible = { isActive: true, category: { isActive: true } };
+  const orderBy = [{ isAvailable: "desc" }, { createdAt: "desc" }] as const;
+
+  const sameCategory = await prisma.product.findMany({
+    where: { ...visible, categoryId: product.categoryId, id: { not: product.id } },
+    include: PRODUCT_LISTING_INCLUDE,
+    orderBy: [...orderBy],
+    take: limit,
+  });
+  if (sameCategory.length >= limit) return sameCategory;
+
+  const others = await prisma.product.findMany({
+    where: { ...visible, id: { notIn: [product.id, ...sameCategory.map((p) => p.id)] } },
+    include: PRODUCT_LISTING_INCLUDE,
+    orderBy: [...orderBy],
+    take: limit - sameCategory.length,
+  });
+  return [...sameCategory, ...others];
+}
+
 // `cache`: a página do produto e o `generateMetadata` dela buscam o mesmo produto
 // na mesma requisição — assim a consulta roda uma vez só.
 export const getProductBySlug = cache((slug: string) => {

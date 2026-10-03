@@ -13,6 +13,7 @@ import {
   getUnitsSoldByProduct,
   rankBestSellersFromUnits,
 } from "@/services/best-seller-service";
+import { getRatingSummaries } from "@/services/review-service";
 
 export const metadata: Metadata = {
   title: "Cardápio",
@@ -26,10 +27,11 @@ export default async function CardapioPage({
 }) {
   const { categoria, ordem, busca = "" } = await searchParams;
   const sort = parseCatalogSort(ordem);
-  const [categories, products, unitsSold] = await Promise.all([
+  const [categories, products, unitsSold, ratings] = await Promise.all([
     getCategories(),
     getProducts({ categorySlug: categoria }),
     getUnitsSoldByProduct(),
+    getRatingSummaries(),
   ]);
   const bestSellerIds = rankBestSellersFromUnits(unitsSold);
   const visibleProducts = sortProducts(filterProductsBySearch(products, busca), sort, unitsSold);
@@ -71,6 +73,7 @@ export default async function CardapioPage({
       <ProductGrid
         products={visibleProducts}
         bestSellerIds={bestSellerIds}
+        ratings={ratings}
         emptyState={
           busca ? (
             <EmptyState

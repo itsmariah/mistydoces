@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/catalog/product-card";
 import { getLatestProducts, getProductsByIds } from "@/lib/catalog";
 import { BEST_SELLER_LIMIT, getBestSellerProductIds } from "@/services/best-seller-service";
+import { getRatingSummaries } from "@/services/review-service";
 
 /**
  * Vitrine da home: os mais vendidos quando já há vendas suficientes; enquanto a
@@ -17,6 +18,7 @@ export async function FeaturedProducts() {
     : await getLatestProducts(BEST_SELLER_LIMIT);
 
   if (products.length === 0) return null;
+  const ratings = await getRatingSummaries(products.map((product) => product.id));
 
   return (
     <section className="mx-auto max-w-5xl space-y-6 px-4 pb-16 sm:pb-24">
@@ -48,7 +50,12 @@ export async function FeaturedProducts() {
       <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pt-2 pb-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0">
         {products.map((product, index) => (
           <div key={product.id} className="w-[70%] shrink-0 snap-start sm:w-auto">
-            <ProductCard product={product} index={index} isBestSeller={hasBestSellers} />
+            <ProductCard
+              product={product}
+              index={index}
+              isBestSeller={hasBestSellers}
+              rating={ratings.get(product.id)}
+            />
           </div>
         ))}
       </div>
