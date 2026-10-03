@@ -8,6 +8,8 @@ export function ProductPlaceholderImage({ className }: { className?: string }) {
       src="/branding/17_gatinha_chefe_de_pe.png"
       alt=""
       fill
+      // O arquivo tem 272px de largura: nunca vale a pena pedir uma versão maior que isso.
+      sizes="272px"
       className={cn("object-contain p-4", className)}
     />
   );

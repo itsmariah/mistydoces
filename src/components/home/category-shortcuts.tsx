@@ -23,10 +23,13 @@ export async function CategoryShortcuts() {
   if (categories.length === 0) return null;
 
   return (
-    <section aria-labelledby="categorias-titulo" className="mx-auto max-w-5xl space-y-6 px-4 pb-16 sm:pb-24">
-      <h2 id="categorias-titulo" className="text-center font-heading text-2xl font-semibold">
-        O que vai ser hoje?
-      </h2>
+    <section aria-labelledby="categorias-titulo" className="mx-auto max-w-5xl space-y-6 px-4 pb-12 sm:pb-16">
+      <div className="text-center">
+        <p className="font-display text-xl text-link">escolha por categoria</p>
+        <h2 id="categorias-titulo" className="font-heading text-2xl font-semibold">
+          O que vai ser hoje?
+        </h2>
+      </div>
 
       {/* No celular, faixa com rolagem lateral; a partir de `sm`, os atalhos quebram linha centralizados. */}
       <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">

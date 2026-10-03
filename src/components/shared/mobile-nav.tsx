@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,15 +13,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Logo } from "@/components/shared/logo";
-
-const NAV_LINKS = [
-  { href: "/cardapio", label: "Cardápio" },
-  { href: "/sobre", label: "Sobre" },
-  { href: "/contato", label: "Contato" },
-];
+import { NAV_LINKS, isActivePath } from "@/components/shared/nav-links";
+import { cn } from "@/lib/utils";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -37,17 +35,24 @@ export function MobileNav() {
             <Logo />
           </SheetTitle>
         </SheetHeader>
-        <nav className="flex flex-col gap-1 px-4">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
-            >
-              {link.label}
-            </Link>
-          ))}
+        <nav aria-label="Principal" className="flex flex-col gap-1 px-4">
+          {NAV_LINKS.map((link) => {
+            const active = isActivePath(pathname, link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "rounded-lg px-3 py-2.5 text-sm font-medium",
+                  active ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-muted",
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
       </SheetContent>
     </Sheet>

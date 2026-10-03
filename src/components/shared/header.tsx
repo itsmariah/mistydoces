@@ -6,14 +6,9 @@ import { CartSheet } from "@/components/cart/cart-sheet";
 import { AccountMenu } from "@/components/shared/account-menu";
 import { Logo } from "@/components/shared/logo";
 import { MobileNav } from "@/components/shared/mobile-nav";
+import { DesktopNavLinks } from "@/components/shared/nav-links";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Button } from "@/components/ui/button";
-
-const NAV_LINKS = [
-  { href: "/cardapio", label: "Cardápio" },
-  { href: "/sobre", label: "Sobre" },
-  { href: "/contato", label: "Contato" },
-];
 
 export async function Header() {
   const session = await auth();
@@ -47,17 +42,7 @@ export async function Header() {
             <Logo />
           </div>
 
-          <nav className="hidden items-center gap-6 md:flex">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          <DesktopNavLinks />
 
           <div className="flex items-center gap-1">
             <ThemeToggle />

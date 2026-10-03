@@ -39,6 +39,7 @@ export default async function CardapioPage({
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-12">
       <div className="space-y-2 text-center">
+        <p className="font-display text-2xl text-link">feito na hora, com carinho</p>
         <h1 className="font-heading text-3xl font-semibold sm:text-4xl">
           Cardápio
         </h1>

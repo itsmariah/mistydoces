@@ -26,6 +26,9 @@ export async function FeaturedProducts() {
         <div className="flex items-center gap-3">
           <Image src="/branding/10_coracao_patinha.png" alt="" width={40} height={40} />
           <div>
+            <p className="font-display text-xl text-link">
+              {hasBestSellers ? "aprovados pela chef" : "saindo do forno"}
+            </p>
             <h2 className="font-heading text-2xl font-semibold">
               {hasBestSellers ? "Os favoritos da Misty" : "Novidades da cozinha"}
             </h2>

@@ -53,6 +53,22 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Adesivos da marca flutuando devagar (hero, login). Cada um passa `--float-rotate`
+   para manter a inclinação própria durante o balanço. */
+@theme {
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0) rotate(var(--float-rotate, 0deg));
+    }
+    50% {
+      transform: translateY(-10px) rotate(calc(var(--float-rotate, 0deg) + 4deg));
+    }
+  }
+}
+
 :root {
   /* MistyDoces — tema claro (azul bebê como cor de identidade, lilás como apoio,
      fundo creme quente — ver Design System "MistyDoces" para a análise completa) */
