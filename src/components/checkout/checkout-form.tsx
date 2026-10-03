@@ -1,8 +1,27 @@
 "use client";
 
-import { useEffect, useState, useTransition, type FocusEvent } from "react";
+import {
+  useEffect,
+  useState,
+  useTransition,
+  type ComponentProps,
+  type FocusEvent,
+  type ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
+import {
+  Banknote,
+  CreditCard,
+  MapPin,
+  Plus,
+  QrCode,
+  Smartphone,
+  Store,
+  Truck,
+  type LucideIcon,
+} from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Address } from "@/generated/prisma/client";
@@ -18,22 +37,88 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { CheckoutSteps, type CheckoutStep } from "@/components/checkout/checkout-steps";
+import { OptionCard } from "@/components/checkout/option-card";
 import { PickupDetails } from "@/components/shared/pickup-details";
 import type { PickupInfo } from "@/lib/store-contact";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 const NEW_ADDRESS_VALUE = "new";
 
-const PAYMENT_LABELS: Record<CheckoutFormInput["paymentMethod"], string> = {
-  CASH: "Dinheiro na entrega/retirada",
-  PIX_MANUAL: "Pix (chave enviada após o pedido)",
-  CARD_ON_DELIVERY: "Cartão na entrega/retirada",
-  PIX_ONLINE: "Pix online (aprovação automática)",
-  CARD_ONLINE: "Cartão de crédito online",
-};
+type PaymentMethod = CheckoutFormInput["paymentMethod"];
+
+// Separados em dois grupos para deixar claro quando o dinheiro sai: agora (online) ou depois, com a loja.
+const PAYMENT_GROUPS: {
+  title: string;
+  options: { value: PaymentMethod; icon: LucideIcon; title: string; description: string }[];
+}[] = [
+  {
+    title: "Pague agora, online",
+    options: [
+      {
+        value: "PIX_ONLINE",
+        icon: QrCode,
+        title: "Pix online",
+        description: "QR Code na hora, aprovação automática",
+      },
+      {
+        value: "CARD_ONLINE",
+        icon: CreditCard,
+        title: "Cartão de crédito",
+        description: "Pagamento seguro pelo Mercado Pago",
+      },
+    ],
+  },
+  {
+    title: "Combine com a loja",
+    options: [
+      {
+        value: "PIX_MANUAL",
+        icon: Smartphone,
+        title: "Pix pela loja",
+        description: "A chave chega depois do pedido",
+      },
+      {
+        value: "CASH",
+        icon: Banknote,
+        title: "Dinheiro",
+        description: "Na entrega ou na retirada",
+      },
+      {
+        value: "CARD_ON_DELIVERY",
+        icon: CreditCard,
+        title: "Cartão na maquininha",
+        description: "Na entrega ou na retirada",
+      },
+    ],
+  },
+];
+
+// Ordem dos campos na tela: ao enviar com erro, o foco vai para o primeiro inválido de cima para baixo.
+const ADDRESS_FIELD_ORDER = [
+  "label",
+  "zipCode",
+  "number",
+  "street",
+  "complement",
+  "neighborhood",
+  "city",
+  "state",
+  "reference",
+] as const;
+
+type AddressFieldName = (typeof ADDRESS_FIELD_ORDER)[number];
+
+/** Rola até o campo (no meio da tela, longe do header e da barra de etapas) e dá foco nele. */
+function focusField(id: string) {
+  const field = document.getElementById(id);
+  if (!field) return;
+  field.scrollIntoView({ block: "center" });
+  field.focus({ preventScroll: true });
+}
 
 const ONLINE_PAYMENT_METHODS: CheckoutFormInput["paymentMethod"][] = [
   "PIX_ONLINE",
@@ -168,16 +253,21 @@ export function CheckoutForm({
       if (showNewAddressFields) {
         const parsedAddress = addressSchema.safeParse(data.newAddress);
         if (!parsedAddress.success) {
+          const invalidFields = new Set<string>();
           for (const issue of parsedAddress.error.issues) {
             const field = issue.path[0];
             if (typeof field === "string") {
-              setError(`newAddress.${field as keyof typeof addressSchema.shape}`, {
+              invalidFields.add(field);
+              setError(`newAddress.${field as AddressFieldName}`, {
                 type: "manual",
                 message: issue.message,
               });
             }
           }
           setFormError("Verifique os campos do endereço.");
+          // Estes erros são marcados à mão, então o react-hook-form não move o foco sozinho.
+          const firstInvalid = ADDRESS_FIELD_ORDER.find((field) => invalidFields.has(field));
+          if (firstInvalid) focusField(`newAddress.${firstInvalid}`);
           return;
         }
         newAddress = parsedAddress.data;
@@ -228,309 +318,404 @@ export function CheckoutForm({
             Ver cardápio
           </Button>
         }
-        className="rounded-lg border border-border"
+        className="mx-auto max-w-2xl rounded-lg border border-border"
       />
     );
   }
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" noValidate>
-      <CheckoutSteps steps={CHECKOUT_STEPS} />
+  const addressError = (field: AddressFieldName) => errors.newAddress?.[field]?.message;
 
-      {/* `scroll-mt-36` nos inícios de etapa compensa o header + a barra de etapas fixos. */}
-      <section id="etapa-itens" className="scroll-mt-36 space-y-3">
-        <h2 className="font-heading text-lg font-medium">Itens do pedido</h2>
-        <div className="space-y-2 rounded-lg border border-border p-4">
-          {items.map((item) =>
-            item.isAvailable ? (
-              <div key={item.variantId} className="flex justify-between text-sm">
-                <span>
-                  {item.quantity}x {item.productName} ({item.variantLabel})
-                </span>
-                <span className="text-muted-foreground">
-                  {formatCurrency(item.price * item.quantity)}
-                </span>
-              </div>
-            ) : (
-              <div key={item.variantId} className="flex items-center justify-between gap-2 text-sm">
-                <span className="text-muted-foreground line-through">
-                  {item.quantity}x {item.productName} ({item.variantLabel})
-                </span>
-                <span className="flex shrink-0 items-center gap-2">
-                  <span className="text-xs text-destructive">Indisponível</span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeItem(item.variantId)}
-                  >
-                    Remover
-                  </Button>
-                </span>
-              </div>
-            ),
-          )}
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-10"
+      noValidate
+    >
+      <div className="space-y-8">
+        <CheckoutSteps
+          steps={CHECKOUT_STEPS}
+          trailing={
+            // No desktop o resumo fica fixo ao lado; no celular o total viaja na barra de etapas.
+            <a
+              href="#resumo"
+              className="shrink-0 rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground lg:hidden"
+            >
+              <span className="sr-only">Total: </span>
+              {formatCurrency(total)}
+            </a>
+          }
+        />
+
+        {/* `scroll-mt-36` nos inícios de etapa compensa o header + a barra de etapas fixos. */}
+        <section id="etapa-itens" className="scroll-mt-36 space-y-3">
+          <h2 className="font-heading text-lg font-medium">Itens do pedido</h2>
+          <ul className="divide-y divide-border rounded-xl border border-border bg-card px-4">
+            {items.map((item) => (
+              <li key={item.variantId} className="flex items-center gap-3 py-3 text-sm">
+                <div
+                  className={cn(
+                    "relative size-11 shrink-0 overflow-hidden rounded-lg bg-muted",
+                    !item.isAvailable && "opacity-50 grayscale",
+                  )}
+                >
+                  {item.imageUrl ? (
+                    <Image src={item.imageUrl} alt="" fill sizes="44px" className="object-cover" />
+                  ) : (
+                    <ProductPlaceholderImage className="object-contain p-1" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className={cn("truncate font-medium", !item.isAvailable && "text-muted-foreground line-through")}>
+                    {item.quantity}x {item.productName}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">{item.variantLabel}</p>
+                </div>
+                {item.isAvailable ? (
+                  <span className="shrink-0 text-muted-foreground">
+                    {formatCurrency(item.price * item.quantity)}
+                  </span>
+                ) : (
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className="text-xs text-destructive">Indisponível</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeItem(item.variantId)}
+                    >
+                      Remover
+                    </Button>
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
           {isRefreshing && (
             <p className="text-xs text-muted-foreground">Conferindo preços e disponibilidade...</p>
           )}
-        </div>
-      </section>
+        </section>
 
-      <section id="etapa-entrega" className="scroll-mt-36 space-y-3">
-        <h2 className="font-heading text-lg font-medium">Entrega ou retirada</h2>
-        <Controller
-          control={control}
-          name="deliveryType"
-          render={({ field }) => (
-            <RadioGroup value={field.value} onValueChange={field.onChange}>
-              <Label className="flex items-center gap-2">
-                <RadioGroupItem value="DELIVERY" />
-                Entrega
-              </Label>
-              <Label className="flex items-center gap-2">
-                <RadioGroupItem value="PICKUP" />
-                Retirada no local
-              </Label>
-            </RadioGroup>
+        <section id="etapa-entrega" className="scroll-mt-36 space-y-3">
+          <h2 className="font-heading text-lg font-medium">Entrega ou retirada</h2>
+          <Controller
+            control={control}
+            name="deliveryType"
+            render={({ field }) => (
+              <RadioGroup
+                value={field.value}
+                onValueChange={field.onChange}
+                aria-label="Entrega ou retirada"
+                className="sm:grid-cols-2"
+              >
+                <OptionCard
+                  value="DELIVERY"
+                  icon={Truck}
+                  title="Entrega"
+                  description="Levamos até o seu endereço"
+                  aside={deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Grátis"}
+                />
+                <OptionCard
+                  value="PICKUP"
+                  icon={Store}
+                  title="Retirada"
+                  description="Você busca na loja"
+                  aside="Grátis"
+                />
+              </RadioGroup>
+            )}
+          />
+          {deliveryType === "PICKUP" && pickup && (
+            <PickupDetails pickup={pickup} className="rounded-xl border border-border p-4" />
           )}
-        />
-        {deliveryType === "PICKUP" && pickup && (
-          <PickupDetails pickup={pickup} className="rounded-lg border border-border p-4" />
-        )}
-      </section>
+        </section>
 
-      {deliveryType === "DELIVERY" && (
-        <section className="space-y-3">
-          <h2 className="font-heading text-lg font-medium">Endereço de entrega</h2>
+        {deliveryType === "DELIVERY" && (
+          <section className="space-y-3">
+            <h2 className="font-heading text-lg font-medium">Endereço de entrega</h2>
 
-          {addresses.length > 0 && (
-            <Controller
-              control={control}
-              name="addressId"
-              render={({ field }) => (
-                <RadioGroup value={field.value} onValueChange={field.onChange}>
-                  {addresses.map((address) => (
-                    <Label key={address.id} className="flex items-start gap-2">
-                      <RadioGroupItem value={address.id} className="mt-0.5" />
-                      <span className="text-sm">
-                        <span className="font-medium">{address.label}</span> —{" "}
-                        {address.street}, {address.number}
-                        {address.complement ? `, ${address.complement}` : ""} —{" "}
-                        {address.neighborhood}, {address.city}/{address.state}
-                      </span>
-                    </Label>
-                  ))}
-                  <Label className="flex items-center gap-2">
-                    <RadioGroupItem value={NEW_ADDRESS_VALUE} />
-                    Usar um novo endereço
-                  </Label>
-                </RadioGroup>
-              )}
-            />
-          )}
+            {addresses.length > 0 && (
+              <Controller
+                control={control}
+                name="addressId"
+                render={({ field }) => (
+                  <RadioGroup
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    aria-label="Endereço de entrega"
+                  >
+                    {addresses.map((address) => (
+                      <OptionCard
+                        key={address.id}
+                        value={address.id}
+                        icon={MapPin}
+                        title={address.label}
+                        description={
+                          <>
+                            {address.street}, {address.number}
+                            {address.complement ? `, ${address.complement}` : ""} —{" "}
+                            {address.neighborhood}, {address.city}/{address.state}
+                          </>
+                        }
+                      />
+                    ))}
+                    <OptionCard value={NEW_ADDRESS_VALUE} icon={Plus} title="Usar um novo endereço" />
+                  </RadioGroup>
+                )}
+              />
+            )}
 
-          {showNewAddressFields && (
-            <div className="grid grid-cols-2 gap-4 rounded-lg border border-border p-4">
-              <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="newAddress.label">Nome do endereço</Label>
-                <Input
+            {showNewAddressFields && (
+              <div className="grid grid-cols-2 gap-4 rounded-xl border border-border bg-card p-4">
+                <AddressInputField
                   id="newAddress.label"
+                  label="Nome do endereço"
                   placeholder="Casa, trabalho..."
+                  autoComplete="off"
+                  error={addressError("label")}
+                  className="col-span-2"
                   {...register("newAddress.label")}
                 />
-                {errors.newAddress?.label && (
-                  <p className="text-sm text-destructive">{errors.newAddress.label.message}</p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="newAddress.zipCode">CEP</Label>
-                <Input
+                <AddressInputField
                   id="newAddress.zipCode"
+                  label="CEP"
                   placeholder="00000-000"
                   inputMode="numeric"
+                  autoComplete="postal-code"
+                  error={addressError("zipCode")}
+                  hint={
+                    cepStatus === "loading" ? (
+                      <p className="text-sm text-muted-foreground">Buscando endereço...</p>
+                    ) : cepStatus === "not-found" ? (
+                      <p className="text-sm text-muted-foreground">
+                        CEP não encontrado — preencha o endereço manualmente.
+                      </p>
+                    ) : null
+                  }
                   {...newAddressZipCodeField}
                   onBlur={(event) => {
                     newAddressZipCodeField.onBlur(event);
                     handleCepBlur(event);
                   }}
                 />
-                {cepStatus === "loading" && (
-                  <p className="text-sm text-muted-foreground">Buscando endereço...</p>
-                )}
-                {cepStatus === "not-found" && (
-                  <p className="text-sm text-muted-foreground">
-                    CEP não encontrado — preencha o endereço manualmente.
-                  </p>
-                )}
-                {errors.newAddress?.zipCode && (
-                  <p className="text-sm text-destructive">
-                    {errors.newAddress.zipCode.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="newAddress.number">Número</Label>
-                <Input id="newAddress.number" {...register("newAddress.number")} />
-                {errors.newAddress?.number && (
-                  <p className="text-sm text-destructive">{errors.newAddress.number.message}</p>
-                )}
-              </div>
-              <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="newAddress.street">Rua</Label>
-                <Input id="newAddress.street" {...register("newAddress.street")} />
-                {errors.newAddress?.street && (
-                  <p className="text-sm text-destructive">{errors.newAddress.street.message}</p>
-                )}
-              </div>
-              <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="newAddress.complement">Complemento</Label>
-                <Input
+                <AddressInputField
+                  id="newAddress.number"
+                  label="Número"
+                  inputMode="numeric"
+                  error={addressError("number")}
+                  {...register("newAddress.number")}
+                />
+                <AddressInputField
+                  id="newAddress.street"
+                  label="Rua"
+                  autoComplete="address-line1"
+                  error={addressError("street")}
+                  className="col-span-2"
+                  {...register("newAddress.street")}
+                />
+                <AddressInputField
                   id="newAddress.complement"
+                  label="Complemento"
                   placeholder="Apto, bloco, quadra..."
+                  autoComplete="address-line2"
+                  error={addressError("complement")}
+                  className="col-span-2"
                   {...register("newAddress.complement")}
                 />
-                {errors.newAddress?.complement && (
-                  <p className="text-sm text-destructive">
-                    {errors.newAddress.complement.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="newAddress.neighborhood">Bairro</Label>
-                <Input id="newAddress.neighborhood" {...register("newAddress.neighborhood")} />
-                {errors.newAddress?.neighborhood && (
-                  <p className="text-sm text-destructive">
-                    {errors.newAddress.neighborhood.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="newAddress.city">Cidade</Label>
-                <Input id="newAddress.city" {...register("newAddress.city")} />
-                {errors.newAddress?.city && (
-                  <p className="text-sm text-destructive">{errors.newAddress.city.message}</p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="newAddress.state">UF</Label>
-                <Input id="newAddress.state" maxLength={2} {...register("newAddress.state")} />
-                {errors.newAddress?.state && (
-                  <p className="text-sm text-destructive">{errors.newAddress.state.message}</p>
-                )}
-              </div>
-              <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="newAddress.reference">Ponto de referência</Label>
-                <Input
+                <AddressInputField
+                  id="newAddress.neighborhood"
+                  label="Bairro"
+                  autoComplete="address-level3"
+                  error={addressError("neighborhood")}
+                  {...register("newAddress.neighborhood")}
+                />
+                <AddressInputField
+                  id="newAddress.city"
+                  label="Cidade"
+                  autoComplete="address-level2"
+                  error={addressError("city")}
+                  {...register("newAddress.city")}
+                />
+                <AddressInputField
+                  id="newAddress.state"
+                  label="UF"
+                  maxLength={2}
+                  autoComplete="address-level1"
+                  error={addressError("state")}
+                  {...register("newAddress.state")}
+                />
+                <AddressInputField
                   id="newAddress.reference"
+                  label="Ponto de referência"
                   placeholder="Nome do prédio, condomínio, estabelecimento próximo..."
+                  autoComplete="off"
+                  error={addressError("reference")}
+                  className="col-span-2"
                   {...register("newAddress.reference")}
                 />
-                {errors.newAddress?.reference && (
-                  <p className="text-sm text-destructive">
-                    {errors.newAddress.reference.message}
-                  </p>
-                )}
               </div>
+            )}
+          </section>
+        )}
+
+        <section id="etapa-pagamento" className="scroll-mt-36 space-y-3">
+          <h2 className="font-heading text-lg font-medium">Forma de pagamento</h2>
+          <Controller
+            control={control}
+            name="paymentMethod"
+            render={({ field }) => (
+              <RadioGroup
+                value={field.value}
+                onValueChange={field.onChange}
+                aria-label="Forma de pagamento"
+                className="gap-5"
+              >
+                {PAYMENT_GROUPS.map((group) => (
+                  <div key={group.title} className="space-y-2">
+                    <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                      {group.title}
+                    </p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {group.options.map((option) => (
+                        <OptionCard key={option.value} {...option} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </RadioGroup>
+            )}
+          />
+        </section>
+
+        {/* Início da última etapa: no desktop o resumo é fixo e não serve de marco de rolagem. */}
+        <section id="etapa-revisao" className="scroll-mt-36 space-y-1.5">
+          <Label htmlFor="notes">Observações (opcional)</Label>
+          <Textarea
+            id="notes"
+            placeholder="Ex.: retirar embalagem para presente, sem açúcar, etc."
+            {...register("notes")}
+          />
+        </section>
+      </div>
+
+      <aside
+        id="resumo"
+        aria-labelledby="resumo-titulo"
+        className="mt-8 scroll-mt-36 space-y-5 rounded-2xl border border-border bg-card p-5 lg:sticky lg:top-24 lg:mt-0"
+      >
+        <h2 id="resumo-titulo" className="font-heading text-lg font-medium">
+          Resumo do pedido
+        </h2>
+
+        <div className="space-y-2">
+          {appliedCoupon ? (
+            <div className="flex items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
+              <span>
+                Cupom <span className="font-mono font-medium">{appliedCoupon.code}</span> aplicado
+              </span>
+              <Button type="button" variant="ghost" size="sm" onClick={handleRemoveCoupon}>
+                Remover
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Input
+                aria-label="Código do cupom"
+                placeholder="Cupom de desconto"
+                autoComplete="off"
+                className="uppercase placeholder:normal-case"
+                value={couponCodeInput}
+                onChange={(event) => setCouponCodeInput(event.target.value)}
+                onKeyDown={(event) => {
+                  // Enter aplica o cupom em vez de enviar o pedido inteiro.
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    handleApplyCoupon();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isApplyingCoupon}
+                onClick={handleApplyCoupon}
+              >
+                {isApplyingCoupon ? "Aplicando..." : "Aplicar"}
+              </Button>
             </div>
           )}
-        </section>
-      )}
+          {couponError && <p className="text-sm text-destructive">{couponError}</p>}
+        </div>
 
-      <section id="etapa-pagamento" className="scroll-mt-36 space-y-3">
-        <h2 className="font-heading text-lg font-medium">Forma de pagamento</h2>
-        <Controller
-          control={control}
-          name="paymentMethod"
-          render={({ field }) => (
-            <RadioGroup value={field.value} onValueChange={field.onChange}>
-              {Object.entries(PAYMENT_LABELS).map(([value, label]) => (
-                <Label key={value} className="flex items-center gap-2">
-                  <RadioGroupItem value={value} />
-                  {label}
-                </Label>
-              ))}
-            </RadioGroup>
+        <dl className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <dt>Subtotal</dt>
+            <dd>{formatCurrency(subtotal)}</dd>
+          </div>
+          {discount > 0 && (
+            <div className="flex justify-between text-link">
+              <dt>Desconto</dt>
+              <dd>-{formatCurrency(discount)}</dd>
+            </div>
           )}
-        />
-      </section>
-
-      <section className="space-y-1.5">
-        <Label htmlFor="notes">Observações (opcional)</Label>
-        <Textarea
-          id="notes"
-          placeholder="Ex.: retirar embalagem para presente, sem açúcar, etc."
-          {...register("notes")}
-        />
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="font-heading text-lg font-medium">Cupom de desconto</h2>
-        {appliedCoupon ? (
-          <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
-            <span>
-              Cupom <span className="font-mono font-medium">{appliedCoupon.code}</span> aplicado
-              — {formatCurrency(appliedCoupon.discount)} de desconto
-            </span>
-            <Button type="button" variant="ghost" size="sm" onClick={handleRemoveCoupon}>
-              Remover
-            </Button>
+          <div className="flex justify-between">
+            <dt>{deliveryType === "DELIVERY" ? "Taxa de entrega" : "Retirada"}</dt>
+            <dd>{effectiveDeliveryFee > 0 ? formatCurrency(effectiveDeliveryFee) : "Grátis"}</dd>
           </div>
-        ) : (
-          <div className="flex gap-2">
-            <Input
-              placeholder="Código do cupom"
-              value={couponCodeInput}
-              onChange={(event) => setCouponCodeInput(event.target.value)}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isApplyingCoupon}
-              onClick={handleApplyCoupon}
-            >
-              {isApplyingCoupon ? "Aplicando..." : "Aplicar"}
-            </Button>
+          <div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
+            <dt>Total</dt>
+            <dd className="text-link">{formatCurrency(total)}</dd>
           </div>
+        </dl>
+
+        {formError && (
+          <p role="alert" className="text-sm text-destructive">
+            {formError}
+          </p>
         )}
-        {couponError && <p className="text-sm text-destructive">{couponError}</p>}
-      </section>
-
-      <section id="etapa-revisao" className="scroll-mt-36 space-y-2 rounded-lg border border-border p-4">
-        <div className="flex justify-between text-sm">
-          <span>Subtotal</span>
-          <span>{formatCurrency(subtotal)}</span>
-        </div>
-        {discount > 0 && (
-          <div className="flex justify-between text-sm text-link">
-            <span>Desconto</span>
-            <span>-{formatCurrency(discount)}</span>
-          </div>
+        {hasUnavailable && !formError && (
+          <p className="text-sm text-destructive">
+            Remova os itens indisponíveis (em &ldquo;Itens do pedido&rdquo;) para finalizar o pedido.
+          </p>
         )}
-        <div className="flex justify-between text-sm">
-          <span>Taxa de entrega</span>
-          <span>{effectiveDeliveryFee > 0 ? formatCurrency(effectiveDeliveryFee) : "Grátis"}</span>
-        </div>
-        <div className="flex justify-between border-t border-border pt-2 text-base font-semibold">
-          <span>Total</span>
-          <span className="text-link">{formatCurrency(total)}</span>
-        </div>
-      </section>
 
-      {formError && <p className="text-sm text-destructive">{formError}</p>}
-      {hasUnavailable && !formError && (
-        <p className="text-sm text-destructive">
-          Remova os itens indisponíveis (em &ldquo;Itens do pedido&rdquo;) para finalizar o pedido.
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          disabled={isPending || isRefreshing || hasUnavailable}
+        >
+          {isPending ? "Enviando pedido..." : "Confirmar pedido"}
+        </Button>
+      </aside>
+    </form>
+  );
+}
+
+/** Campo do endereço novo: rótulo, input e erro ligados por `aria-invalid`/`aria-describedby`. */
+function AddressInputField({
+  id,
+  label,
+  error,
+  hint,
+  className,
+  ...inputProps
+}: ComponentProps<"input"> & { id: string; label: string; error?: string; hint?: ReactNode }) {
+  const errorId = `${id}-erro`;
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        id={id}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        {...inputProps}
+      />
+      {hint}
+      {error && (
+        <p id={errorId} className="text-sm text-destructive">
+          {error}
         </p>
       )}
-
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        disabled={isPending || isRefreshing || hasUnavailable}
-      >
-        {isPending ? "Enviando pedido..." : "Confirmar pedido"}
-      </Button>
-    </form>
+    </div>
   );
 }

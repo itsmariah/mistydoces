@@ -80,7 +80,7 @@ export function AddressForm({
     >
       <div className="col-span-2 space-y-1.5">
         <Label htmlFor="label">Nome do endereço</Label>
-        <Input id="label" placeholder="Casa, trabalho..." {...register("label")} />
+        <Input id="label" placeholder="Casa, trabalho..." autoComplete="off" {...register("label")} />
         {errors.label && <p className="text-sm text-destructive">{errors.label.message}</p>}
       </div>
       <div className="space-y-1.5">
@@ -89,6 +89,7 @@ export function AddressForm({
           id="zipCode"
           placeholder="00000-000"
           inputMode="numeric"
+          autoComplete="postal-code"
           {...zipCodeField}
           onBlur={(event) => {
             zipCodeField.onBlur(event);
@@ -107,12 +108,12 @@ export function AddressForm({
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="number">Número</Label>
-        <Input id="number" {...register("number")} />
+        <Input id="number" inputMode="numeric" {...register("number")} />
         {errors.number && <p className="text-sm text-destructive">{errors.number.message}</p>}
       </div>
       <div className="col-span-2 space-y-1.5">
         <Label htmlFor="street">Rua</Label>
-        <Input id="street" {...register("street")} />
+        <Input id="street" autoComplete="address-line1" {...register("street")} />
         {errors.street && <p className="text-sm text-destructive">{errors.street.message}</p>}
       </div>
       <div className="col-span-2 space-y-1.5">
@@ -120,6 +121,7 @@ export function AddressForm({
         <Input
           id="complement"
           placeholder="Apto, bloco, quadra..."
+          autoComplete="address-line2"
           {...register("complement")}
         />
         {errors.complement && (
@@ -128,19 +130,19 @@ export function AddressForm({
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="neighborhood">Bairro</Label>
-        <Input id="neighborhood" {...register("neighborhood")} />
+        <Input id="neighborhood" autoComplete="address-level3" {...register("neighborhood")} />
         {errors.neighborhood && (
           <p className="text-sm text-destructive">{errors.neighborhood.message}</p>
         )}
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="city">Cidade</Label>
-        <Input id="city" {...register("city")} />
+        <Input id="city" autoComplete="address-level2" {...register("city")} />
         {errors.city && <p className="text-sm text-destructive">{errors.city.message}</p>}
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="state">UF</Label>
-        <Input id="state" maxLength={2} {...register("state")} />
+        <Input id="state" maxLength={2} autoComplete="address-level1" {...register("state")} />
         {errors.state && <p className="text-sm text-destructive">{errors.state.message}</p>}
       </div>
       <div className="col-span-2 space-y-1.5">
@@ -148,6 +150,7 @@ export function AddressForm({
         <Input
           id="reference"
           placeholder="Nome do prédio, condomínio, estabelecimento próximo..."
+          autoComplete="off"
           {...register("reference")}
         />
         {errors.reference && (

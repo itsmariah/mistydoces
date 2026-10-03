@@ -126,11 +126,12 @@ export function CartSheet() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end justify-between">
+                  {/* Área de toque de 44px (margem negativa mantém o ícone alinhado). */}
                   <button
                     type="button"
-                    aria-label="Remover item"
+                    aria-label={`Remover ${item.productName} (${item.variantLabel})`}
                     onClick={() => handleRemove(item, index)}
-                    className="text-muted-foreground hover:text-destructive"
+                    className="-m-3.5 flex size-11 items-center justify-center rounded-full text-muted-foreground hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -174,6 +175,12 @@ export function CartSheet() {
                 Finalizar pedido
               </Button>
             )}
+            <p className="text-center text-xs text-muted-foreground">
+              Entrega ou retirada e forma de pagamento você escolhe no próximo passo.
+            </p>
+            <Button variant="ghost" className="w-full" onClick={() => setOpen(false)}>
+              Continuar comprando
+            </Button>
           </SheetFooter>
         )}
       </SheetContent>

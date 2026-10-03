@@ -13,7 +13,7 @@ export default async function CheckoutPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
+    <div className="mx-auto max-w-2xl px-4 py-12 lg:max-w-5xl">
       <h1 className="mb-8 font-heading text-2xl font-semibold">Finalizar pedido</h1>
       <CheckoutForm addresses={addresses} deliveryFee={deliveryFee} pickup={contact.pickup} />
     </div>

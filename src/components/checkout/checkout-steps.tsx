@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -10,9 +10,9 @@ export type CheckoutStep = { id: string; label: string };
  * Indicador de etapas do checkout, fixo abaixo do header. O checkout é um formulário
  * de página única: cada `step.id` marca o início de uma etapa, a atual é a última cujo
  * início já passou do meio da tela, as anteriores aparecem como concluídas e cada
- * etapa é um atalho para a sua seção.
+ * etapa é um atalho para a sua seção. `trailing` aparece no fim da barra (ex.: o total).
  */
-export function CheckoutSteps({ steps }: { steps: CheckoutStep[] }) {
+export function CheckoutSteps({ steps, trailing }: { steps: CheckoutStep[]; trailing?: ReactNode }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -49,9 +49,9 @@ export function CheckoutSteps({ steps }: { steps: CheckoutStep[] }) {
   return (
     <nav
       aria-label="Etapas do pedido"
-      className="sticky top-16 z-30 -mx-4 bg-background/85 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/70"
+      className="sticky top-16 z-30 -mx-4 flex items-center gap-3 bg-background/85 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/70"
     >
-      <ol className="flex items-center">
+      <ol className="flex min-w-0 flex-1 items-center">
         {steps.map((step, index) => {
           const state = index < activeIndex ? "done" : index === activeIndex ? "current" : "upcoming";
           return (
@@ -94,6 +94,7 @@ export function CheckoutSteps({ steps }: { steps: CheckoutStep[] }) {
           );
         })}
       </ol>
+      {trailing}
     </nav>
   );
 }
