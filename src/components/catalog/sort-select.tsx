@@ -15,14 +15,15 @@ type SortSelectProps = {
   sort: CatalogSort;
   activeCategorySlug?: string;
   search?: string;
+  freeFrom: string[];
 };
 
-export function SortSelect({ sort, activeCategorySlug, search }: SortSelectProps) {
+export function SortSelect({ sort, activeCategorySlug, search, freeFrom }: SortSelectProps) {
   const router = useRouter();
 
   function handleChange(next: CatalogSort | null) {
     if (!next || next === sort) return;
-    router.push(cardapioHref({ categoria: activeCategorySlug, ordem: next, busca: search }), {
+    router.push(cardapioHref({ categoria: activeCategorySlug, ordem: next, busca: search, sem: freeFrom }), {
       scroll: false,
     });
   }

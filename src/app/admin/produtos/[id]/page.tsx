@@ -43,6 +43,9 @@ export default async function EditProductPage({
           isAvailable: product.isAvailable,
           isActive: product.isActive,
           leadTimeDays: product.leadTimeDays,
+          ingredients: product.ingredients ?? "",
+          allergens: product.allergens,
+          mayContainTraces: product.mayContainTraces,
           variants: product.variants.map((variant) => ({
             id: variant.id,
             label: variant.label,

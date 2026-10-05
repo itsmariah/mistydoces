@@ -58,6 +58,9 @@ export async function createProduct(input: ProductInput) {
       isAvailable: input.isAvailable,
       isActive: input.isActive,
       leadTimeDays: input.leadTimeDays,
+      ingredients: input.ingredients || null,
+      allergens: input.allergens,
+      mayContainTraces: input.mayContainTraces,
       variants: {
         create: input.variants.map((variant, index) => ({
           label: variant.label,
@@ -126,6 +129,9 @@ export async function updateProduct(productId: string, input: ProductInput) {
         isAvailable: input.isAvailable,
         isActive: input.isActive,
         leadTimeDays: input.leadTimeDays,
+        ingredients: input.ingredients || null,
+        allergens: input.allergens,
+        mayContainTraces: input.mayContainTraces,
       },
     }),
   ]);

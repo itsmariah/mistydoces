@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { CalendarClock, Clock, CreditCard, Store, Truck } from "lucide-react";
+import { CalendarClock, ChevronDown, Clock, CreditCard, Store, TriangleAlert, Truck } from "lucide-react";
+import { ALLERGEN_LABELS, hasAllergenInfo, sortAllergens } from "@/lib/allergens";
 import { formatLeadTimeLong } from "@/lib/scheduling";
 import { Badge } from "@/components/ui/badge";
 import { VariantSelector } from "@/components/catalog/variant-selector";
@@ -139,6 +140,47 @@ export default async function ProdutoPage({
           )}
 
           <p className="text-muted-foreground">{product.description}</p>
+
+          {(hasAllergenInfo(product) || product.allergens.length > 0 || product.mayContainTraces) && (
+            <div className="space-y-2 text-sm">
+              {product.allergens.length > 0 ? (
+                <p className="flex flex-wrap items-center gap-1.5">
+                  <span className="font-medium">Contém:</span>
+                  {sortAllergens(product.allergens).map((allergen) => (
+                    <Badge key={allergen} variant="outline">
+                      {ALLERGEN_LABELS[allergen]}
+                    </Badge>
+                  ))}
+                </p>
+              ) : (
+                hasAllergenInfo(product) && (
+                  <p className="text-muted-foreground">
+                    Não contém glúten, leite, ovos, amendoim, castanhas, soja, coco nem corantes.
+                  </p>
+                )
+              )}
+              {product.mayContainTraces && (
+                <p className="flex items-start gap-1.5 text-muted-foreground">
+                  <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                  Pode conter traços de outros alérgenos.
+                </p>
+              )}
+              {hasAllergenInfo(product) && (
+                <details className="group">
+                  <summary className="flex w-fit cursor-pointer list-none items-center gap-1 font-medium text-link [&::-webkit-details-marker]:hidden">
+                    Ver ingredientes
+                    <ChevronDown
+                      className="size-4 transition-transform group-open:rotate-180"
+                      aria-hidden="true"
+                    />
+                  </summary>
+                  <p className="mt-1.5 whitespace-pre-line text-muted-foreground">
+                    {product.ingredients}
+                  </p>
+                </details>
+              )}
+            </div>
+          )}
 
           <VariantSelector
             productSlug={product.slug}

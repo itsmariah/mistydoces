@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
 import { createProduct, updateProduct } from "@/actions/products";
 import { productSchema, type ProductInput } from "@/validations/product";
+import { ALLERGENS, ALLERGEN_LABELS } from "@/lib/allergens";
 import { ProductImagesField } from "@/components/admin/product-images-field";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -53,6 +54,9 @@ export function ProductForm({
       isAvailable: true,
       isActive: true,
       leadTimeDays: 0,
+      ingredients: "",
+      allergens: [],
+      mayContainTraces: false,
       variants: [{ label: "Único", price: 0 }],
     },
   });
@@ -176,6 +180,67 @@ export function ProductForm({
             </p>
           )}
         </div>
+
+        <fieldset className="space-y-3 rounded-lg border border-border p-4" disabled={readOnly}>
+          <legend className="px-1 text-sm font-medium">Ingredientes e alérgenos</legend>
+          <div className="space-y-1.5">
+            <Label htmlFor="ingredients">Ingredientes</Label>
+            <Textarea
+              id="ingredients"
+              rows={3}
+              placeholder="Leite condensado, chocolate 50% cacau, manteiga, granulado"
+              aria-invalid={Boolean(errors.ingredients)}
+              {...register("ingredients")}
+            />
+            {errors.ingredients ? (
+              <p className="text-sm text-destructive">{errors.ingredients.message}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Com os ingredientes preenchidos, o produto passa a aparecer nos filtros
+                &ldquo;Sem glúten&rdquo;, &ldquo;Sem lactose&rdquo; e &ldquo;Sem ovos&rdquo; quando
+                não tiver esses alérgenos marcados.
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Contém</p>
+            <Controller
+              control={control}
+              name="allergens"
+              render={({ field }) => (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {ALLERGENS.map((allergen) => (
+                    <Label key={allergen} className="flex items-center gap-2 font-normal">
+                      <Checkbox
+                        checked={field.value.includes(allergen)}
+                        onCheckedChange={(checked) =>
+                          field.onChange(
+                            checked
+                              ? [...field.value, allergen]
+                              : field.value.filter((item) => item !== allergen),
+                          )
+                        }
+                      />
+                      {ALLERGEN_LABELS[allergen]}
+                    </Label>
+                  ))}
+                </div>
+              )}
+            />
+          </div>
+
+          <Controller
+            control={control}
+            name="mayContainTraces"
+            render={({ field }) => (
+              <Label className="flex items-center gap-2 font-normal">
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                Pode conter traços de outros alérgenos (cozinha compartilhada)
+              </Label>
+            )}
+          />
+        </fieldset>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">

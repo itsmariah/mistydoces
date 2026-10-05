@@ -8,6 +8,7 @@ import { SearchInput } from "@/components/catalog/search-input";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { filterProductsBySearch } from "@/lib/catalog-search";
+import { FREE_FROM_FILTERS, filterFreeFrom, parseFreeFrom } from "@/lib/allergens";
 import { getCategories, getProducts } from "@/lib/catalog";
 import { cardapioHref, parseCatalogSort, sortProducts } from "@/lib/catalog-sort";
 import {
@@ -24,10 +25,11 @@ export const metadata: Metadata = {
 export default async function CardapioPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; ordem?: string; busca?: string }>;
+  searchParams: Promise<{ categoria?: string; ordem?: string; busca?: string; sem?: string }>;
 }) {
-  const { categoria, ordem, busca = "" } = await searchParams;
+  const { categoria, ordem, busca = "", sem } = await searchParams;
   const sort = parseCatalogSort(ordem);
+  const freeFrom = parseFreeFrom(sem);
   const [categories, products, unitsSold, ratings] = await Promise.all([
     getCategories(),
     getProducts({ categorySlug: categoria }),
@@ -35,7 +37,14 @@ export default async function CardapioPage({
     getRatingSummaries(),
   ]);
   const bestSellerIds = rankBestSellersFromUnits(unitsSold);
-  const visibleProducts = sortProducts(filterProductsBySearch(products, busca), sort, unitsSold);
+  const visibleProducts = sortProducts(
+    filterFreeFrom(filterProductsBySearch(products, busca), freeFrom),
+    sort,
+    unitsSold,
+  );
+  const freeFromLabels = FREE_FROM_FILTERS.filter((filter) => freeFrom.includes(filter.slug)).map(
+    (filter) => filter.label.toLowerCase(),
+  );
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-12">
@@ -48,7 +57,7 @@ export default async function CardapioPage({
           Escolha entre bolos, brigadeiros, cookies e kits feitos na hora.
         </p>
         <div className="flex justify-center pt-4">
-          <SearchInput query={busca} categoria={categoria} ordem={sort} />
+          <SearchInput query={busca} categoria={categoria} ordem={sort} freeFrom={freeFrom} />
         </div>
       </div>
 
@@ -60,10 +69,23 @@ export default async function CardapioPage({
             activeSlug={categoria}
             sort={sort}
             search={busca}
+            freeFrom={freeFrom}
           />
         </div>
-        <SortSelect sort={sort} activeCategorySlug={categoria} search={busca} />
+        <SortSelect
+          sort={sort}
+          activeCategorySlug={categoria}
+          search={busca}
+          freeFrom={freeFrom}
+        />
       </div>
+
+      {freeFrom.length > 0 && (
+        <p aria-live="polite" className="text-sm text-muted-foreground">
+          Mostrando só doces com ingredientes informados pela loja. Na dúvida, fale com a gente
+          antes de pedir.
+        </p>
+      )}
 
       {busca && visibleProducts.length > 0 && (
         <p aria-live="polite" className="text-sm text-muted-foreground">
@@ -77,7 +99,23 @@ export default async function CardapioPage({
         bestSellerIds={bestSellerIds}
         ratings={ratings}
         emptyState={
-          busca ? (
+          freeFrom.length > 0 && !busca ? (
+            <EmptyState
+              image={{ src: "/branding/21_gatinha_de_costas.png", width: 110, height: 169 }}
+              title="Nenhum doce encontrado"
+              description={`Ainda não temos doces ${freeFromLabels.join(" e ")}${categoria ? " nesta categoria" : ""} com ingredientes informados.`}
+              action={
+                <Button
+                  variant="outline"
+                  nativeButton={false}
+                  render={<Link href={cardapioHref({ categoria, ordem: sort })} />}
+                >
+                  Limpar filtros
+                </Button>
+              }
+              className="py-16"
+            />
+          ) : busca ? (
             <EmptyState
               image={{ src: "/branding/21_gatinha_de_costas.png", width: 110, height: 169 }}
               title="Nenhum doce encontrado"
@@ -86,7 +124,7 @@ export default async function CardapioPage({
                 <Button
                   variant="outline"
                   nativeButton={false}
-                  render={<Link href={cardapioHref({ categoria, ordem: sort })} />}
+                  render={<Link href={cardapioHref({ categoria, ordem: sort, sem: freeFrom })} />}
                 >
                   Limpar busca
                 </Button>

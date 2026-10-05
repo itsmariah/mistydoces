@@ -14,9 +14,10 @@ type SearchInputProps = {
   query: string;
   categoria?: string;
   ordem: CatalogSort;
+  freeFrom: string[];
 };
 
-export function SearchInput({ query, categoria, ordem }: SearchInputProps) {
+export function SearchInput({ query, categoria, ordem, freeFrom }: SearchInputProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [value, setValue] = useState(query);
@@ -38,10 +39,12 @@ export function SearchInput({ query, categoria, ordem }: SearchInputProps) {
       setLastSent(term);
       startTransition(() => {
         // `replace`: cada letra não deve virar uma entrada no histórico do "voltar".
-        router.replace(cardapioHref({ categoria, ordem, busca: term }), { scroll: false });
+        router.replace(cardapioHref({ categoria, ordem, busca: term, sem: freeFrom }), {
+          scroll: false,
+        });
       });
     },
-    [router, categoria, ordem],
+    [router, categoria, ordem, freeFrom],
   );
 
   useEffect(() => {

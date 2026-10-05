@@ -22,14 +22,17 @@ export type CardapioQuery = {
   categoria?: string;
   ordem: CatalogSort;
   busca?: string;
+  /** Filtros "Sem glúten" etc. (`?sem=gluten,ovos`). */
+  sem?: string[];
 };
 
 /** URL do cardápio para categoria + ordenação + busca — omite o que for padrão, para a URL ficar limpa. */
-export function cardapioHref({ categoria, ordem, busca }: CardapioQuery) {
+export function cardapioHref({ categoria, ordem, busca, sem }: CardapioQuery) {
   const params = new URLSearchParams();
   if (categoria) params.set("categoria", categoria);
   if (ordem !== DEFAULT_CATALOG_SORT) params.set("ordem", ordem);
   if (busca?.trim()) params.set("busca", busca.trim());
+  if (sem?.length) params.set("sem", sem.join(","));
   const query = params.toString();
   return query ? `/cardapio?${query}` : "/cardapio";
 }

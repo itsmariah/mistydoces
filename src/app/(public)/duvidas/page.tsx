@@ -190,10 +190,21 @@ export default async function DuvidasPage() {
         {
           question: "Tenho alergia ou restrição alimentar. Posso pedir?",
           answer: (
-            <p>
-              Antes de pedir, {talkToUs}: contamos os ingredientes de cada doce para você escolher
-              com tranquilidade.
-            </p>
+            <>
+              <p>
+                Na página de cada doce você encontra os ingredientes e os alérgenos (glúten,
+                leite, ovos, castanhas, coco, corantes e outros). No{" "}
+                <Link href="/cardapio" className={LINK_CLASS}>
+                  cardápio
+                </Link>
+                , os filtros &ldquo;Sem glúten&rdquo;, &ldquo;Sem lactose&rdquo; e &ldquo;Sem
+                ovos&rdquo; mostram só os doces com ingredientes informados.
+              </p>
+              <p>
+                Quando um doce pode conter traços de outros alérgenos, isso aparece na página
+                dele. Se a restrição for séria, {talkToUs} antes de pedir.
+              </p>
+            </>
           ),
         },
         {

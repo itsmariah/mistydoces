@@ -84,5 +84,9 @@ describe("cardapioHref", () => {
 
   it("inclui a busca sem espaços nas pontas", () => {
     expect(cardapioHref({ ordem: "nome", busca: " pistache " })).toBe("/cardapio?busca=pistache");
+    expect(cardapioHref({ ordem: "nome", sem: ["gluten", "ovos"] })).toBe(
+      "/cardapio?sem=gluten%2Covos",
+    );
+    expect(cardapioHref({ ordem: "nome", sem: [] })).toBe("/cardapio");
   });
 });

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ALLERGENS } from "@/lib/allergens";
 
 /** Capa + galeria. Mais que isso pesa a página sem ajudar a escolher. */
 export const MAX_PRODUCT_IMAGES = 6;
@@ -27,6 +28,9 @@ export const productSchema = z
       .int("Use dias inteiros.")
       .min(0, "A antecedência não pode ser negativa.")
       .max(60, "Use no máximo 60 dias."),
+    ingredients: z.string().trim().max(1000, "Use no máximo 1000 caracteres."),
+    allergens: z.array(z.enum(ALLERGENS)),
+    mayContainTraces: z.boolean(),
     variants: z.array(variantSchema).min(1, "Adicione pelo menos uma variante."),
   })
   .refine(
