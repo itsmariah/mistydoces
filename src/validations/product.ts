@@ -31,6 +31,8 @@ export const productSchema = z
     ingredients: z.string().trim().max(1000, "Use no máximo 1000 caracteres."),
     allergens: z.array(z.enum(ALLERGENS)),
     mayContainTraces: z.boolean(),
+    allowsNote: z.boolean(),
+    notePrompt: z.string().trim().max(80, "Use no máximo 80 caracteres."),
     variants: z.array(variantSchema).min(1, "Adicione pelo menos uma variante."),
   })
   .refine(

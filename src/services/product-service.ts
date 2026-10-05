@@ -61,6 +61,8 @@ export async function createProduct(input: ProductInput) {
       ingredients: input.ingredients || null,
       allergens: input.allergens,
       mayContainTraces: input.mayContainTraces,
+      allowsNote: input.allowsNote,
+      notePrompt: input.notePrompt || null,
       variants: {
         create: input.variants.map((variant, index) => ({
           label: variant.label,
@@ -132,6 +134,8 @@ export async function updateProduct(productId: string, input: ProductInput) {
         ingredients: input.ingredients || null,
         allergens: input.allergens,
         mayContainTraces: input.mayContainTraces,
+        allowsNote: input.allowsNote,
+        notePrompt: input.notePrompt || null,
       },
     }),
   ]);

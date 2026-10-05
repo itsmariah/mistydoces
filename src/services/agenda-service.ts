@@ -14,7 +14,12 @@ export type AgendaOrder = {
   customerName: string;
   deliveryNeighborhood: string | null;
   notes: string | null;
-  items: { quantity: number; productNameSnapshot: string; variantLabelSnapshot: string }[];
+  items: {
+    quantity: number;
+    productNameSnapshot: string;
+    variantLabelSnapshot: string;
+    note: string | null;
+  }[];
 };
 
 /** Quanto produzir de cada item no dia: "12x Brigadeiro (Caixa com 6)". */
@@ -75,7 +80,9 @@ export async function getAgenda(now: Date, days = AGENDA_DAYS): Promise<AgendaDa
       deliveryNeighborhood: true,
       notes: true,
       user: { select: { name: true } },
-      items: { select: { quantity: true, productNameSnapshot: true, variantLabelSnapshot: true } },
+      items: {
+        select: { quantity: true, productNameSnapshot: true, variantLabelSnapshot: true, note: true },
+      },
     },
   });
 

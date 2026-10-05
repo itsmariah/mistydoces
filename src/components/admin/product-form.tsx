@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
 import { createProduct, updateProduct } from "@/actions/products";
@@ -57,11 +57,14 @@ export function ProductForm({
       ingredients: "",
       allergens: [],
       mayContainTraces: false,
+      allowsNote: false,
+      notePrompt: "",
       variants: [{ label: "Único", price: 0 }],
     },
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: "variants" });
+  const allowsNote = useWatch({ control, name: "allowsNote" });
 
   function onSubmit(data: ProductInput) {
     setFormError(null);
@@ -240,6 +243,38 @@ export function ProductForm({
               </Label>
             )}
           />
+        </fieldset>
+
+        <fieldset className="space-y-3 rounded-lg border border-border p-4" disabled={readOnly}>
+          <legend className="px-1 text-sm font-medium">Personalização</legend>
+          <Controller
+            control={control}
+            name="allowsNote"
+            render={({ field }) => (
+              <Label className="flex items-center gap-2 font-normal">
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                Cliente pode escrever um texto para este item (grátis)
+              </Label>
+            )}
+          />
+          {allowsNote && (
+            <div className="space-y-1.5">
+              <Label htmlFor="notePrompt">Pergunta do campo</Label>
+              <Input
+                id="notePrompt"
+                placeholder="Nome ou frase para escrever no bolo"
+                aria-invalid={Boolean(errors.notePrompt)}
+                {...register("notePrompt")}
+              />
+              {errors.notePrompt ? (
+                <p className="text-sm text-destructive">{errors.notePrompt.message}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Aparece na página do produto. Em branco, fica &ldquo;Personalização&rdquo;.
+                </p>
+              )}
+            </div>
+          )}
         </fieldset>
 
         <div className="space-y-3">

@@ -39,8 +39,13 @@ export async function createOrder(userId: string, input: CheckoutInput) {
     const lineCents = unitPriceCents * item.quantity;
     subtotalCents += lineCents;
 
+    // Produto que não aceita personalização: o texto é ignorado (a loja pode ter desligado
+    // a opção depois que o item foi para o carrinho).
+    const note = variant.product.allowsNote ? item.note?.trim() || null : null;
+
     return {
       variantId: variant.id,
+      note,
       productNameSnapshot: variant.product.name,
       variantLabelSnapshot: variant.label,
       unitPriceSnapshot: fromCents(unitPriceCents),

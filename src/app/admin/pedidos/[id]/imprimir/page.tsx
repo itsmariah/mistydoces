@@ -143,6 +143,11 @@ export default async function PrintOrderPage({
                 <span className="flex-1">
                   <span className="font-bold">{item.quantity}x</span> {item.productNameSnapshot}
                   <span className="block text-xs">{item.variantLabelSnapshot}</span>
+                  {item.note && (
+                    <span className="mt-0.5 block border-l-4 border-current pl-2 font-bold">
+                      Escrever: &ldquo;{item.note}&rdquo;
+                    </span>
+                  )}
                 </span>
               </li>
             ))}

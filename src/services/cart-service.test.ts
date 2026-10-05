@@ -21,6 +21,7 @@ const variant = (product: Partial<{ isActive: boolean; isAvailable: boolean }> =
     isActive: true,
     isAvailable: true,
     leadTimeDays: 0,
+    allowsNote: false,
     category: { isActive: categoryActive },
     ...product,
   },
@@ -49,6 +50,7 @@ describe("getCartSnapshot", () => {
         imageUrl: null,
         isAvailable: true,
         leadTimeDays: 0,
+        allowsNote: false,
       },
     ]);
   });

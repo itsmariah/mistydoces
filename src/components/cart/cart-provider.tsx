@@ -12,6 +12,8 @@ import {
 import { toast } from "sonner";
 import { refreshCart } from "@/actions/cart";
 import {
+  cartLineKey,
+  normalizeNote,
   parseStoredCart,
   reconcileCart,
   serializeCart,
@@ -32,12 +34,13 @@ type CartContextValue = {
   hasUnavailable: boolean;
   /** Por padrão abre a gaveta do carrinho; `openCart: false` é para adicionar sem tirar a pessoa da página. */
   addItem: (
-    item: Omit<CartItem, "quantity" | "isAvailable">,
+    item: Omit<CartItem, "quantity" | "isAvailable" | "note"> & { note?: string },
     quantity?: number,
     options?: { openCart?: boolean },
   ) => void;
-  updateQuantity: (variantId: string, quantity: number) => void;
-  removeItem: (variantId: string) => void;
+  /** `lineKey` vem de `cartLineKey(item)`: variação + personalização. */
+  updateQuantity: (lineKey: string, quantity: number) => void;
+  removeItem: (lineKey: string) => void;
   /** Recoloca um item removido na mesma posição — usado pelo "Desfazer" do toast. */
   restoreItem: (item: CartItem, index: number) => void;
   clear: () => void;
@@ -129,48 +132,53 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   function addItem(
-    item: Omit<CartItem, "quantity" | "isAvailable">,
+    item: Omit<CartItem, "quantity" | "isAvailable" | "note"> & { note?: string },
     quantity = 1,
     { openCart = true }: { openCart?: boolean } = {},
   ) {
+    const line: Omit<CartItem, "quantity" | "isAvailable"> = {
+      ...item,
+      note: normalizeNote(item.note ?? ""),
+    };
+    const key = cartLineKey(line);
     setItems((current) => {
-      const existing = current.find((line) => line.variantId === item.variantId);
+      const existing = current.find((entry) => cartLineKey(entry) === key);
       if (existing) {
-        return current.map((line) =>
-          line.variantId === item.variantId
-            ? { ...line, quantity: Math.min(line.quantity + quantity, MAX_ITEM_QUANTITY) }
-            : line,
+        return current.map((entry) =>
+          cartLineKey(entry) === key
+            ? { ...entry, quantity: Math.min(entry.quantity + quantity, MAX_ITEM_QUANTITY) }
+            : entry,
         );
       }
       // Quem adiciona está vendo o produto à venda agora, então entra como disponível.
       return [
         ...current,
-        { ...item, isAvailable: true, quantity: Math.min(quantity, MAX_ITEM_QUANTITY) },
+        { ...line, isAvailable: true, quantity: Math.min(quantity, MAX_ITEM_QUANTITY) },
       ];
     });
     if (openCart) setOpen(true);
   }
 
-  function updateQuantity(variantId: string, quantity: number) {
+  function updateQuantity(lineKey: string, quantity: number) {
     setItems((current) => {
       if (quantity <= 0) {
-        return current.filter((line) => line.variantId !== variantId);
+        return current.filter((line) => cartLineKey(line) !== lineKey);
       }
       return current.map((line) =>
-        line.variantId === variantId
+        cartLineKey(line) === lineKey
           ? { ...line, quantity: Math.min(quantity, MAX_ITEM_QUANTITY) }
           : line,
       );
     });
   }
 
-  function removeItem(variantId: string) {
-    setItems((current) => current.filter((line) => line.variantId !== variantId));
+  function removeItem(lineKey: string) {
+    setItems((current) => current.filter((line) => cartLineKey(line) !== lineKey));
   }
 
   function restoreItem(item: CartItem, index: number) {
     setItems((current) => {
-      if (current.some((line) => line.variantId === item.variantId)) return current;
+      if (current.some((line) => cartLineKey(line) === cartLineKey(item))) return current;
       const next = [...current];
       next.splice(Math.min(index, next.length), 0, item);
       return next;

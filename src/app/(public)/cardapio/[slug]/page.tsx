@@ -187,6 +187,7 @@ export default async function ProdutoPage({
             productName={product.name}
             imageUrl={product.imageUrl}
             leadTimeDays={product.leadTimeDays}
+            notePrompt={product.allowsNote ? product.notePrompt || "Personalização" : null}
             variants={product.variants.map((variant) => ({
               id: variant.id,
               label: variant.label,

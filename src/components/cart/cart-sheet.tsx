@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/sheet";
 import { useCart, type CartItem } from "@/components/cart/cart-provider";
 import { useMounted } from "@/lib/use-mounted";
+import { cartLineKey } from "@/lib/cart";
+import { ItemNote } from "@/components/orders/item-note";
 import { formatLeadTimeLong, maxLeadTimeDays } from "@/lib/scheduling";
 import { cn, formatCurrency } from "@/lib/utils";
 import { MAX_ITEM_QUANTITY } from "@/validations/order";
@@ -60,7 +62,7 @@ export function CartSheet() {
 
   // Remover (pela lixeira ou diminuindo até 0) sempre oferece desfazer — é fácil tocar sem querer no celular.
   function handleRemove(item: CartItem, index: number) {
-    removeItem(item.variantId);
+    removeItem(cartLineKey(item));
     toast(`${item.productName} removido do carrinho`, {
       description: item.variantLabel,
       action: { label: "Desfazer", onClick: () => restoreItem(item, index) },
@@ -104,7 +106,7 @@ export function CartSheet() {
           <div className="flex-1 space-y-4 overflow-y-auto px-4">
             {items.map((item, index) => (
               <div
-                key={item.variantId}
+                key={cartLineKey(item)}
                 className="flex gap-3 border-b border-border pb-4 last:border-0"
               >
                 <div
@@ -130,13 +132,14 @@ export function CartSheet() {
                   <span className="text-xs text-muted-foreground">
                     {item.variantLabel}
                   </span>
+                  <ItemNote note={item.note} />
                   <div className="mt-1">
                     <QuantityStepper
                       value={item.quantity}
                       onChange={(quantity) =>
                         quantity === 0
                           ? handleRemove(item, index)
-                          : updateQuantity(item.variantId, quantity)
+                          : updateQuantity(cartLineKey(item), quantity)
                       }
                       min={0}
                       max={MAX_ITEM_QUANTITY}

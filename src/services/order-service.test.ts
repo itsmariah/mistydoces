@@ -52,6 +52,7 @@ function buildVariant(overrides: {
   isAvailable?: boolean;
   categoryActive?: boolean;
   leadTimeDays?: number;
+  allowsNote?: boolean;
 } = {}) {
   return {
     id: "variant-1",
@@ -62,6 +63,7 @@ function buildVariant(overrides: {
       isActive: overrides.isActive ?? true,
       isAvailable: overrides.isAvailable ?? true,
       leadTimeDays: overrides.leadTimeDays ?? 0,
+      allowsNote: overrides.allowsNote ?? false,
       category: { isActive: overrides.categoryActive ?? true },
     },
   };
@@ -288,6 +290,25 @@ describe("createOrder", () => {
     ).rejects.toMatchObject({ code: "SLOT_UNAVAILABLE" });
     expect(prismaMock.address.create).not.toHaveBeenCalled();
     expect(prismaMock.order.create).not.toHaveBeenCalled();
+  });
+
+  it("grava a personalização só quando o produto aceita", async () => {
+    const input = {
+      items: [{ variantId: "variant-1", quantity: 1, note: "  Parabéns, Ana!  " }],
+      deliveryType: "PICKUP" as const,
+      scheduledFor: SLOT,
+      paymentMethod: "CASH" as const,
+    };
+    const savedNote = () =>
+      prismaMock.order.create.mock.calls.at(-1)![0].data.items.create[0].note;
+
+    prismaMock.productVariant.findMany.mockResolvedValue([buildVariant({ allowsNote: true })]);
+    await createOrder("user-1", input);
+    expect(savedNote()).toBe("Parabéns, Ana!");
+
+    prismaMock.productVariant.findMany.mockResolvedValue([buildVariant({ allowsNote: false })]);
+    await createOrder("user-1", input);
+    expect(savedNote()).toBeNull();
   });
 
   it("aplica o prazo do item sob encomenda mais demorado", async () => {

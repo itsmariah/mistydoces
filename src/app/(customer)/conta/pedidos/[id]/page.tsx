@@ -13,6 +13,7 @@ import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { OrderThanks } from "@/components/orders/order-thanks";
 import { OrderTimeline } from "@/components/orders/order-timeline";
 import { ScheduledFor } from "@/components/orders/scheduled-for";
+import { ItemNote } from "@/components/orders/item-note";
 import { OrderStatusWatcher } from "@/components/orders/order-status-watcher";
 import { ReorderButton } from "@/components/orders/reorder-button";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
@@ -127,6 +128,7 @@ export default async function OrderDetailPage({
                 <span className="block truncate text-xs text-muted-foreground">
                   {item.variantLabelSnapshot}
                 </span>
+                <ItemNote note={item.note} />
               </span>
               <span className="shrink-0 text-muted-foreground">
                 {formatCurrency(item.subtotal.toString())}
@@ -206,6 +208,7 @@ export default async function OrderDetailPage({
                 variantId: item.variantId,
                 quantity: item.quantity,
                 productName: item.productNameSnapshot,
+                    note: item.note,
               }))}
             />
           )}

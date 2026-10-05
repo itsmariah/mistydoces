@@ -45,6 +45,8 @@ import { ProductPlaceholderImage } from "@/components/catalog/product-placeholde
 import { CheckoutSteps, type CheckoutStep } from "@/components/checkout/checkout-steps";
 import { OptionCard } from "@/components/checkout/option-card";
 import { SchedulePicker } from "@/components/checkout/schedule-picker";
+import { ItemNote } from "@/components/orders/item-note";
+import { cartLineKey } from "@/lib/cart";
 import { formatScheduledFor, maxLeadTimeDays, type SchedulingRules } from "@/lib/scheduling";
 import { PickupDetails } from "@/components/shared/pickup-details";
 import type { PickupInfo } from "@/lib/store-contact";
@@ -300,6 +302,7 @@ export function CheckoutForm({
         items: items.map((item) => ({
           variantId: item.variantId,
           quantity: item.quantity,
+          note: item.note || undefined,
         })),
         deliveryType: data.deliveryType,
         addressId,
@@ -377,7 +380,7 @@ export function CheckoutForm({
           <h2 className="font-heading text-lg font-medium">Itens do pedido</h2>
           <ul className="divide-y divide-border rounded-xl border border-border bg-card px-4">
             {items.map((item) => (
-              <li key={item.variantId} className="flex items-center gap-3 py-3 text-sm">
+              <li key={cartLineKey(item)} className="flex items-center gap-3 py-3 text-sm">
                 <div
                   className={cn(
                     "relative size-11 shrink-0 overflow-hidden rounded-lg bg-muted",
@@ -395,6 +398,7 @@ export function CheckoutForm({
                     {item.quantity}x {item.productName}
                   </p>
                   <p className="truncate text-xs text-muted-foreground">{item.variantLabel}</p>
+                  <ItemNote note={item.note} />
                 </div>
                 {item.isAvailable ? (
                   <span className="shrink-0 text-muted-foreground">
@@ -407,7 +411,7 @@ export function CheckoutForm({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => removeItem(item.variantId)}
+                      onClick={() => removeItem(cartLineKey(item))}
                     >
                       Remover
                     </Button>

@@ -46,6 +46,8 @@ export default async function EditProductPage({
           ingredients: product.ingredients ?? "",
           allergens: product.allergens,
           mayContainTraces: product.mayContainTraces,
+          allowsNote: product.allowsNote,
+          notePrompt: product.notePrompt ?? "",
           variants: product.variants.map((variant) => ({
             id: variant.id,
             label: variant.label,

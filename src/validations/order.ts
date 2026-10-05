@@ -17,9 +17,17 @@ export type AddressInput = z.infer<typeof addressSchema>;
 /** Limite por item do carrinho — o client usa o mesmo valor para não deixar passar do que o checkout aceita. */
 export const MAX_ITEM_QUANTITY = 50;
 
+/** Tamanho máximo da personalização de um item (ex.: texto escrito no bolo). */
+export const MAX_ITEM_NOTE_LENGTH = 120;
+
 const cartItemSchema = z.object({
   variantId: z.string().min(1),
   quantity: z.number().int().min(1).max(MAX_ITEM_QUANTITY),
+  note: z
+    .string()
+    .trim()
+    .max(MAX_ITEM_NOTE_LENGTH, `A personalização pode ter até ${MAX_ITEM_NOTE_LENGTH} caracteres.`)
+    .optional(),
 });
 
 const checkoutBaseSchema = z.object({

@@ -45,8 +45,8 @@ export function ReorderButton({
       }
 
       // Uma gaveta aberta no fim, não uma por item.
-      for (const { snapshot, quantity } of toAdd) {
-        addItem(snapshot, quantity, { openCart: false });
+      for (const { snapshot, quantity, note } of toAdd) {
+        addItem({ ...snapshot, note }, quantity, { openCart: false });
       }
       setOpen(true);
 

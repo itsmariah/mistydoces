@@ -112,6 +112,13 @@ export default async function AgendaPage() {
                           3,
                         )}
                       </p>
+                      {order.items
+                        .filter((item) => item.note)
+                        .map((item, index) => (
+                          <p key={index} className="text-xs font-medium text-secondary-foreground">
+                            ✎ {item.productNameSnapshot}: &ldquo;{item.note}&rdquo;
+                          </p>
+                        ))}
                       {order.notes && (
                         <p className="text-xs text-muted-foreground">Obs.: {order.notes}</p>
                       )}

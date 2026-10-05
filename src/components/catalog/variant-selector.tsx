@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check } from "lucide-react";
+import { Check, PenLine } from "lucide-react";
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useCart } from "@/components/cart/cart-provider";
 import { QuantityStepper } from "@/components/cart/quantity-stepper";
 import { cn, formatCurrency } from "@/lib/utils";
-import { MAX_ITEM_QUANTITY } from "@/validations/order";
+import { MAX_ITEM_NOTE_LENGTH, MAX_ITEM_QUANTITY } from "@/validations/order";
 
 /** Quanto tempo o botão fica em "Adicionado" antes de voltar ao normal. */
 const ADDED_FEEDBACK_MS = 1500;
@@ -22,6 +24,8 @@ type VariantSelectorProps = {
   productName: string;
   imageUrl: string | null;
   leadTimeDays: number;
+  /** Personalização grátis: `notePrompt` é a pergunta; `null` = produto não aceita. */
+  notePrompt: string | null;
   variants: Variant[];
   disabled?: boolean;
 };
@@ -31,9 +35,11 @@ export function VariantSelector({
   productName,
   imageUrl,
   leadTimeDays,
+  notePrompt,
   variants,
   disabled,
 }: VariantSelectorProps) {
+  const [note, setNote] = useState("");
   const [selectedId, setSelectedId] = useState(variants[0]?.id);
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
@@ -82,10 +88,13 @@ export function VariantSelector({
         price: selected.price,
         imageUrl,
         leadTimeDays,
+        note,
       },
       quantity,
     );
     setQuantity(1);
+    // Cada bolo pode ter um texto diferente: limpa para o próximo.
+    setNote("");
     setJustAdded(true);
     if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
     feedbackTimer.current = setTimeout(() => setJustAdded(false), ADDED_FEEDBACK_MS);
@@ -114,6 +123,28 @@ export function VariantSelector({
             </Radio.Root>
           ))}
         </RadioGroup>
+      )}
+
+      {notePrompt && (
+        <div className="space-y-1.5">
+          <Label htmlFor="item-note" className="gap-1.5">
+            <PenLine className="size-4 text-link" aria-hidden="true" />
+            {notePrompt}
+            <span className="font-normal text-muted-foreground">(opcional, grátis)</span>
+          </Label>
+          <Input
+            id="item-note"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            maxLength={MAX_ITEM_NOTE_LENGTH}
+            placeholder="Ex.: Feliz aniversário, Ana!"
+            disabled={disabled}
+            aria-describedby="item-note-count"
+          />
+          <p id="item-note-count" className="text-right text-xs text-muted-foreground">
+            {note.length}/{MAX_ITEM_NOTE_LENGTH}
+          </p>
+        </div>
       )}
 
       <span className="text-2xl font-semibold text-link">

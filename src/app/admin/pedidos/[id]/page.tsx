@@ -7,6 +7,7 @@ import { adminGetOrderById } from "@/services/order-service";
 import { AppError } from "@/lib/errors";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { ScheduledFor } from "@/components/orders/scheduled-for";
+import { ItemNote } from "@/components/orders/item-note";
 import { OrderStatusActions } from "@/components/admin/order-status-actions";
 import { PAYMENT_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payment-labels";
 import { formatCurrency } from "@/lib/utils";
@@ -95,9 +96,12 @@ export default async function AdminOrderDetailPage({
         <h2 className="font-heading text-lg font-medium">Itens</h2>
         <div className="space-y-2 rounded-lg border border-border p-4">
           {order.items.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm">
-              <span>
-                {item.quantity}x {item.productNameSnapshot} ({item.variantLabelSnapshot})
+            <div key={item.id} className="flex justify-between gap-3 text-sm">
+              <span className="min-w-0 space-y-0.5">
+                <span className="block">
+                  {item.quantity}x {item.productNameSnapshot} ({item.variantLabelSnapshot})
+                </span>
+                <ItemNote note={item.note} />
               </span>
               <span className="text-muted-foreground">
                 {formatCurrency(item.subtotal.toString())}

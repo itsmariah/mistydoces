@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  cartLineKey,
+  normalizeNote,
   parseStoredCart,
   planReorder,
   reconcileCart,
@@ -18,6 +20,7 @@ const item = (overrides: Partial<CartItem> = {}): CartItem => ({
   quantity: 2,
   isAvailable: true,
   leadTimeDays: 0,
+  note: "",
   ...overrides,
 });
 
@@ -30,6 +33,7 @@ const snapshot = (overrides: Partial<CartVariantSnapshot> = {}): CartVariantSnap
   imageUrl: null,
   isAvailable: true,
   leadTimeDays: 0,
+  allowsNote: false,
   ...overrides,
 });
 
@@ -113,6 +117,7 @@ describe("planReorder", () => {
     imageUrl: null,
     isAvailable: true,
     leadTimeDays: 0,
+    allowsNote: false,
     ...overrides,
   });
 
@@ -121,7 +126,7 @@ describe("planReorder", () => {
       [{ variantId: "v1", quantity: 3, productName: "Brigadeiro" }],
       [snapshot()],
     );
-    expect(toAdd).toEqual([{ snapshot: snapshot(), quantity: 3 }]);
+    expect(toAdd).toEqual([{ snapshot: snapshot(), quantity: 3, note: "" }]);
     expect(skipped).toEqual([]);
   });
 
@@ -152,5 +157,40 @@ describe("prazo de encomenda no carrinho", () => {
   it("a conferência traz o prazo atual do produto", () => {
     const { items } = reconcileCart([item()], [snapshot({ leadTimeDays: 2 })], ["v1"]);
     expect(items[0].leadTimeDays).toBe(2);
+  });
+});
+
+describe("personalização por item", () => {
+  it("normaliza espaços e corta no limite", () => {
+    expect(normalizeNote("  Parabéns,   Ana!  ")).toBe("Parabéns, Ana!");
+    expect(normalizeNote("x".repeat(200))).toHaveLength(120);
+  });
+
+  it("mesma variação com textos diferentes são linhas diferentes", () => {
+    expect(cartLineKey(item({ note: "Ana" }))).not.toBe(cartLineKey(item({ note: "João" })));
+    expect(cartLineKey(item())).toBe(cartLineKey(item({ note: "" })));
+  });
+
+  it("carrinho antigo, sem o campo, vira sem personalização", () => {
+    const { note, ...legacy } = item();
+    expect(note).toBe("");
+    expect(parseStoredCart(JSON.stringify([legacy]))[0].note).toBe("");
+  });
+
+  it("mantém o texto enquanto o produto aceita; se deixar de aceitar, tira e junta as linhas", () => {
+    const lines = [item({ note: "Ana", quantity: 1 }), item({ note: "João", quantity: 2 })];
+
+    const kept = reconcileCart(lines, [snapshot({ allowsNote: true })], ["v1"]);
+    expect(kept.items.map((line) => line.note)).toEqual(["Ana", "João"]);
+
+    const dropped = reconcileCart(lines, [snapshot({ allowsNote: false })], ["v1"]);
+    expect(dropped.items).toHaveLength(1);
+    expect(dropped.items[0]).toMatchObject({ note: "", quantity: 3 });
+  });
+
+  it("pedir de novo repete o texto só se o produto ainda aceitar", () => {
+    const line = { variantId: "v1", quantity: 1, productName: "Bolo", note: " Ana " };
+    expect(planReorder([line], [snapshot({ allowsNote: true })]).toAdd[0].note).toBe("Ana");
+    expect(planReorder([line], [snapshot({ allowsNote: false })]).toAdd[0].note).toBe("");
   });
 });

@@ -44,15 +44,15 @@ describe("groupAgenda", () => {
       [
         order({
           items: [
-            { quantity: 2, productNameSnapshot: "Brigadeiro", variantLabelSnapshot: "Caixa com 6" },
-            { quantity: 1, productNameSnapshot: "Bolo de pote", variantLabelSnapshot: "Único" },
+            { quantity: 2, productNameSnapshot: "Brigadeiro", variantLabelSnapshot: "Caixa com 6", note: null },
+            { quantity: 1, productNameSnapshot: "Bolo de pote", variantLabelSnapshot: "Único", note: null },
           ],
         }),
         order({
           id: "o2",
           items: [
-            { quantity: 3, productNameSnapshot: "Brigadeiro", variantLabelSnapshot: "Caixa com 6" },
-            { quantity: 1, productNameSnapshot: "Brigadeiro", variantLabelSnapshot: "Unidade" },
+            { quantity: 3, productNameSnapshot: "Brigadeiro", variantLabelSnapshot: "Caixa com 6", note: null },
+            { quantity: 1, productNameSnapshot: "Brigadeiro", variantLabelSnapshot: "Unidade", note: null },
           ],
         }),
       ],

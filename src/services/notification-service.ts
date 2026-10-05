@@ -27,6 +27,7 @@ type NotifiableOrder = {
     productNameSnapshot: string;
     variantLabelSnapshot: string;
     subtotal: unknown;
+    note?: string | null;
   }[];
 };
 
@@ -105,7 +106,7 @@ async function sendSafely(to: string, subject: string, content: Omit<EmailConten
 export function sendOrderConfirmationEmail(order: NotifiableOrder, user: NotifiableUser) {
   const lines: EmailLine[] = [
     ...(order.items ?? []).map((item) => ({
-      label: `${item.quantity}x ${item.productNameSnapshot} (${item.variantLabelSnapshot})`,
+      label: `${item.quantity}x ${item.productNameSnapshot} (${item.variantLabelSnapshot})${item.note ? ` — "${item.note}"` : ""}`,
       value: formatCurrency(String(item.subtotal)),
     })),
     { label: "Total", value: totalLabel(order.total), strong: true },

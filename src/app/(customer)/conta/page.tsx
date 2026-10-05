@@ -112,6 +112,7 @@ export default async function AccountPage() {
                     variantId: item.variantId,
                     quantity: item.quantity,
                     productName: item.productNameSnapshot,
+                    note: item.note,
                   }))}
                 />
               )}
