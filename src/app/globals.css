@@ -255,3 +255,10 @@ html[data-nav="pop"] [data-enter-animation] {
     animation-delay: 0s !important;
   }
 }
+/* Barra de abas do celular (MobileTabBar): reserva a altura dela no fim da página, no botão
+   de voltar ao topo e nos avisos. Puro CSS, então já vale no HTML do servidor, sem "pulo". */
+@media (width < 40rem) {
+  :root:has([data-tab-bar]) {
+    --tab-bar-height: calc(4rem + env(safe-area-inset-bottom));
+  }
+}

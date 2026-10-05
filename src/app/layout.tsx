@@ -61,7 +61,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </Script>
         <ThemeProvider>
           <CartProvider>{children}</CartProvider>
-          <Toaster position="bottom-center" containerAriaLabel="Notificações" />
+          <Toaster
+            position="bottom-center"
+            containerAriaLabel="Notificações"
+            // No celular, os avisos sobem acima das barras fixas (abas e "Adicionar").
+            mobileOffset={{
+              bottom: "calc(16px + var(--tab-bar-height, 0px) + var(--sticky-bar-height, 0px))",
+            }}
+            // Entre 600px e 640px o sonner já usa o `offset` de desktop, mas a barra ainda aparece.
+            offset={{ bottom: "calc(24px + var(--tab-bar-height, 0px))" }}
+          />
           <NavigationTracker />
         </ThemeProvider>
       </body>

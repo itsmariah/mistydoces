@@ -47,7 +47,9 @@ export async function Header() {
 
           <div className="flex items-center gap-1">
             <ThemeToggle />
-            <FavoritesLink />
+            <span className="hidden sm:inline-flex">
+              <FavoritesLink />
+            </span>
             <CartSheet />
             {user ? (
               <AccountMenu

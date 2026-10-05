@@ -4,6 +4,7 @@ import { Footer } from "@/components/shared/footer";
 import { BackToTop } from "@/components/shared/back-to-top";
 import { FavoritesProvider } from "@/components/favorites/favorites-provider";
 import { getCurrentFavorites } from "@/services/favorite-service";
+import { MobileTabBar } from "@/components/shared/mobile-tab-bar";
 
 export async function SiteLayout({ children }: { children: ReactNode }) {
   const favorites = await getCurrentFavorites();
@@ -22,9 +23,13 @@ export async function SiteLayout({ children }: { children: ReactNode }) {
         {children}
       </main>
       <Footer />
-      {/* Reserva espaço para a barra fixa de "Adicionar" do celular não cobrir o fim do rodapé. */}
-      <div aria-hidden="true" className="h-[var(--sticky-bar-height,0px)] sm:hidden" />
+      {/* Reserva espaço para as barras fixas do celular ("Adicionar" e abas) não cobrirem o rodapé. */}
+      <div
+        aria-hidden="true"
+        className="h-[calc(var(--sticky-bar-height,0px)+var(--tab-bar-height,0px))] sm:hidden"
+      />
       <BackToTop />
+      <MobileTabBar isLoggedIn={favorites.isLoggedIn} />
     </FavoritesProvider>
   );
 }
