@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Printer } from "lucide-react";
 import { can } from "@/lib/permissions";
 import { requirePagePermission } from "@/lib/require-permission";
 import { adminGetOrderById } from "@/services/order-service";
@@ -33,10 +33,18 @@ export default async function AdminOrderDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-4 py-12">
-      <div>
+      <div className="flex items-center justify-between gap-3">
         <Link href="/admin/pedidos" className="text-sm text-muted-foreground hover:text-foreground">
           ← Pedidos
         </Link>
+        <Button
+          variant="outline"
+          size="sm"
+          nativeButton={false}
+          render={<Link href={`/admin/pedidos/${order.id}/imprimir`} />}
+        >
+          <Printer /> Imprimir
+        </Button>
       </div>
 
       <div className="flex items-start justify-between">

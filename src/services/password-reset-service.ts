@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { AppError } from "@/lib/errors";
+import { renderEmail } from "@/lib/email-template";
 import { EMAIL_FROM, getResendClient } from "@/lib/resend";
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hora
@@ -28,16 +29,23 @@ export async function requestPasswordReset(email: string) {
 
   const resetUrl = `${process.env.NEXTAUTH_URL}/redefinir-senha?token=${token}`;
 
+  const { html, text } = renderEmail({
+    preheader: "Use o link para criar uma nova senha. Ele vale por 1 hora.",
+    title: "Redefinir sua senha",
+    paragraphs: [
+      `Olá, ${user.name.trim().split(/\s+/)[0]}!`,
+      "Recebemos um pedido para redefinir a senha da sua conta. O botão abaixo é válido por 1 hora.",
+      "Se você não pediu isso, pode ignorar este e-mail — sua senha continua a mesma.",
+    ],
+    cta: { label: "Criar nova senha", href: resetUrl },
+  });
+
   await getResendClient().emails.send({
     from: EMAIL_FROM,
     to: user.email,
     subject: "Redefinir sua senha — MistyDoces",
-    html: `
-      <p>Olá, ${user.name}!</p>
-      <p>Recebemos um pedido para redefinir sua senha. O link abaixo é válido por 1 hora:</p>
-      <p><a href="${resetUrl}">${resetUrl}</a></p>
-      <p>Se você não pediu isso, pode ignorar este e-mail — sua senha continua a mesma.</p>
-    `,
+    html,
+    text,
   });
 }
 

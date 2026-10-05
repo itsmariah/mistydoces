@@ -160,7 +160,7 @@ function SidebarContent({ role, name, onNavigate }: SidebarProps & { onNavigate?
 /** Barra lateral fixa do desktop. */
 export function AdminSidebar(props: SidebarProps) {
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:block">
+    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:block print:hidden">
       <SidebarContent {...props} />
     </aside>
   );
@@ -172,7 +172,7 @@ export function AdminMobileHeader(props: SidebarProps) {
   const pendingCount = usePendingOrdersCount();
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border bg-background/80 px-2 backdrop-blur supports-backdrop-filter:bg-background/60 md:hidden">
+    <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border bg-background/80 px-2 backdrop-blur supports-backdrop-filter:bg-background/60 md:hidden print:hidden">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger
           render={

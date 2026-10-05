@@ -1,6 +1,8 @@
-import type { OrderStatus } from "@/generated/prisma/client";
+import type { DeliveryType, OrderStatus } from "@/generated/prisma/client";
+import { renderEmail, type EmailContent, type EmailLine } from "@/lib/email-template";
 import { EMAIL_FROM, getResendClient } from "@/lib/resend";
 import { formatCurrency } from "@/lib/utils";
+import { getStoreContact } from "@/services/store-settings-service";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   PENDING: "Aguardando confirmação",
@@ -16,6 +18,13 @@ type NotifiableOrder = {
   id: string;
   orderNumber: number;
   total: unknown;
+  deliveryType: DeliveryType;
+  items?: {
+    quantity: number;
+    productNameSnapshot: string;
+    variantLabelSnapshot: string;
+    subtotal: unknown;
+  }[];
 };
 
 type NotifiableUser = {
@@ -31,30 +40,73 @@ function totalLabel(total: unknown): string {
   return formatCurrency(String(total));
 }
 
+function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] || name;
+}
+
+/** Na retirada, "Entregue" vira "Retirado" — é o que aconteceu de fato. */
+export function statusLabelFor(status: OrderStatus, deliveryType: DeliveryType): string {
+  if (status === "DELIVERED" && deliveryType === "PICKUP") return "Retirado";
+  return STATUS_LABELS[status];
+}
+
+/** O texto principal de cada status, já pensando em entrega x retirada. */
+function statusMessage(status: OrderStatus, deliveryType: DeliveryType): string {
+  const pickup = deliveryType === "PICKUP";
+  switch (status) {
+    case "PENDING":
+      return "Seu pedido está aguardando a confirmação da loja.";
+    case "CONFIRMED":
+      return "A loja confirmou seu pedido, e ele já está na fila da cozinha.";
+    case "PREPARING":
+      return "Seus doces estão sendo preparados agora, com todo o carinho.";
+    case "READY":
+      return pickup
+        ? "Seu pedido está pronto! Já pode vir retirar."
+        : "Seu pedido está pronto e logo sai para entrega.";
+    case "OUT_FOR_DELIVERY":
+      return "Seu pedido saiu para entrega e chega em breve.";
+    case "DELIVERED":
+      return pickup
+        ? "Pedido retirado. Bom apetite e obrigada pela preferência!"
+        : "Pedido entregue. Bom apetite e obrigada pela preferência!";
+    case "CANCELLED":
+      return "Seu pedido foi cancelado. Se não foi você quem pediu o cancelamento, fale com a gente.";
+  }
+}
+
 /**
  * Notificações por e-mail nunca podem derrubar o fluxo principal (criar
  * pedido, mudar status): qualquer falha aqui só é logada, nunca propagada.
  */
-async function sendSafely(payload: Parameters<
-  ReturnType<typeof getResendClient>["emails"]["send"]
->[0]) {
+async function sendSafely(to: string, subject: string, content: Omit<EmailContent, "whatsappHref">) {
   try {
-    await getResendClient().emails.send(payload);
+    const { whatsappHref } = await getStoreContact();
+    const { html, text } = renderEmail({ ...content, whatsappHref });
+    await getResendClient().emails.send({ from: EMAIL_FROM, to, subject, html, text });
   } catch (error) {
     console.error("Falha ao enviar e-mail de notificação:", error);
   }
 }
 
 export function sendOrderConfirmationEmail(order: NotifiableOrder, user: NotifiableUser) {
-  return sendSafely({
-    from: EMAIL_FROM,
-    to: user.email,
-    subject: `Pedido #${order.orderNumber} recebido — MistyDoces`,
-    html: `
-      <p>Olá, ${user.name}!</p>
-      <p>Recebemos seu pedido <strong>#${order.orderNumber}</strong>, no valor de ${totalLabel(order.total)}.</p>
-      <p>Acompanhe o status por aqui: <a href="${orderUrl(order.id)}">${orderUrl(order.id)}</a></p>
-    `,
+  const lines: EmailLine[] = [
+    ...(order.items ?? []).map((item) => ({
+      label: `${item.quantity}x ${item.productNameSnapshot} (${item.variantLabelSnapshot})`,
+      value: formatCurrency(String(item.subtotal)),
+    })),
+    { label: "Total", value: totalLabel(order.total), strong: true },
+  ];
+
+  return sendSafely(user.email, `Pedido #${order.orderNumber} recebido — MistyDoces`, {
+    preheader: `Recebemos seu pedido #${order.orderNumber}. Acompanhe cada etapa pelo site.`,
+    title: "Recebemos seu pedido!",
+    paragraphs: [
+      `Olá, ${firstName(user.name)}! Seu pedido #${order.orderNumber} chegou na nossa cozinha.`,
+      "Avisamos por aqui a cada etapa, e você também pode acompanhar pelo site.",
+    ],
+    lines,
+    cta: { label: "Acompanhar pedido", href: orderUrl(order.id) },
   });
 }
 
@@ -63,15 +115,21 @@ export function sendOrderStatusUpdateEmail(
   user: NotifiableUser,
   status: OrderStatus,
 ) {
-  return sendSafely({
-    from: EMAIL_FROM,
-    to: user.email,
-    subject: `Pedido #${order.orderNumber}: ${STATUS_LABELS[status]} — MistyDoces`,
-    html: `
-      <p>Olá, ${user.name}!</p>
-      <p>O status do seu pedido <strong>#${order.orderNumber}</strong> foi atualizado para:
-      <strong>${STATUS_LABELS[status]}</strong>.</p>
-      <p>Acompanhe os detalhes: <a href="${orderUrl(order.id)}">${orderUrl(order.id)}</a></p>
-    `,
+  const label = statusLabelFor(status, order.deliveryType);
+  // Depois de entregue, o próximo passo útil é avaliar — a conta lista o que falta avaliar.
+  const cta =
+    status === "DELIVERED"
+      ? { label: "Avaliar meus doces", href: `${process.env.NEXTAUTH_URL}/conta` }
+      : { label: "Ver pedido", href: orderUrl(order.id) };
+
+  return sendSafely(user.email, `Pedido #${order.orderNumber}: ${label} — MistyDoces`, {
+    preheader: statusMessage(status, order.deliveryType),
+    title: `Pedido #${order.orderNumber}: ${label}`,
+    paragraphs: [
+      `Olá, ${firstName(user.name)}!`,
+      statusMessage(status, order.deliveryType),
+      ...(status === "DELIVERED" ? ["Conta pra gente o que achou? Sua avaliação ajuda muito."] : []),
+    ],
+    cta,
   });
 }
