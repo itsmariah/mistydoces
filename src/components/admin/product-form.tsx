@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
 import { createProduct, updateProduct } from "@/actions/products";
 import { productSchema, type ProductInput } from "@/validations/product";
-import { ImageUploadField } from "@/components/admin/image-upload-field";
+import { ProductImagesField } from "@/components/admin/product-images-field";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -49,7 +49,7 @@ export function ProductForm({
       name: "",
       description: "",
       categoryId: categories[0]?.id ?? "",
-      imageUrl: "",
+      images: [],
       isAvailable: true,
       isActive: true,
       leadTimeDays: 0,
@@ -121,9 +121,9 @@ export function ProductForm({
 
         <Controller
           control={control}
-          name="imageUrl"
+          name="images"
           render={({ field }) => (
-            <ImageUploadField value={field.value} onChange={field.onChange} />
+            <ProductImagesField value={field.value} onChange={field.onChange} disabled={readOnly} />
           )}
         />
 

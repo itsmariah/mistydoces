@@ -26,6 +26,19 @@ enum OrderStatus {
   CANCELLED
 }
 
+/// Alérgenos e ingredientes sensíveis que a loja informa por produto ("Contém: …").
+/// Rótulos em `src/lib/allergens.ts`.
+enum Allergen {
+  GLUTEN
+  LACTOSE
+  EGGS
+  PEANUTS
+  TREE_NUTS
+  SOY
+  COCONUT
+  ARTIFICIAL_COLORS
+}
+
 enum DeliveryType {
   DELIVERY
   PICKUP
@@ -120,12 +133,33 @@ model Product {
   isActive    Boolean          @default(true)
   /// Antecedência mínima em dias: 0 = pronta-entrega; 2 = encomenda com 2 dias.
   leadTimeDays Int             @default(0)
+  /// Lista de ingredientes em texto livre. Preenchida = a loja revisou os alérgenos
+  /// (só esses produtos entram nos filtros "Sem glúten" etc.).
+  ingredients      String?
+  allergens        Allergen[]  @default([])
+  mayContainTraces Boolean     @default(false)
+  /// Personalização grátis por item (ex.: nome no bolo). `notePrompt` é a pergunta do campo.
+  allowsNote  Boolean          @default(false)
+  notePrompt  String?
+  /// Fotos extras da galeria. A capa continua sendo `imageUrl`.
+  images      ProductImage[]
   variants    ProductVariant[]
   reviews     Review[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
   @@index([categoryId])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
 }
 
 /// Só quem tem um pedido DELIVERED com esse produto pode avaliar (checado no
@@ -241,6 +275,8 @@ model OrderItem {
   unitPriceSnapshot    Decimal        @db.Decimal(10, 2)
   quantity             Int
   subtotal             Decimal        @db.Decimal(10, 2)
+  /// Personalização escrita pelo cliente (ex.: "Parabéns, Ana!"), quando o produto permite.
+  note                 String?
 
   @@index([orderId])
   @@index([variantId])

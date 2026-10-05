@@ -104,6 +104,7 @@ export const getProductBySlug = cache((slug: string) => {
     include: {
       category: true,
       variants: { orderBy: { sortOrder: "asc" } },
+      images: { orderBy: { sortOrder: "asc" } },
     },
   });
 });

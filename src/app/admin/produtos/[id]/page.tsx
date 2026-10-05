@@ -36,7 +36,10 @@ export default async function EditProductPage({
           name: product.name,
           description: product.description,
           categoryId: product.categoryId,
-          imageUrl: product.imageUrl ?? "",
+          images: [
+            ...(product.imageUrl ? [product.imageUrl] : []),
+            ...product.images.map((image) => image.url),
+          ],
           isAvailable: product.isAvailable,
           isActive: product.isActive,
           leadTimeDays: product.leadTimeDays,

@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+/** Capa + galeria. Mais que isso pesa a página sem ajudar a escolher. */
+export const MAX_PRODUCT_IMAGES = 6;
+
 const variantSchema = z.object({
   // Presente = variante já existente (edição); ausente = variante nova.
   id: z.string().optional(),
@@ -12,7 +15,11 @@ export const productSchema = z
     name: z.string().trim().min(2, "Informe o nome do produto."),
     description: z.string().trim().min(5, "Informe uma descrição."),
     categoryId: z.string().min(1, "Selecione uma categoria."),
-    imageUrl: z.string().trim().optional(),
+    /** Em ordem: a primeira é a capa (`Product.imageUrl`), as outras viram `ProductImage`. */
+    images: z
+      .array(z.string().trim().min(1))
+      .max(MAX_PRODUCT_IMAGES, `Use no máximo ${MAX_PRODUCT_IMAGES} fotos.`)
+      .refine((urls) => new Set(urls).size === urls.length, "A mesma foto foi adicionada duas vezes."),
     isAvailable: z.boolean(),
     isActive: z.boolean(),
     leadTimeDays: z

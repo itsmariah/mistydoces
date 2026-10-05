@@ -1,4 +1,3 @@
-import { ViewTransition } from "react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { CalendarClock, Clock, CreditCard, Store, Truck } from "lucide-react";
@@ -7,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { VariantSelector } from "@/components/catalog/variant-selector";
 import { StarRating } from "@/components/catalog/star-rating";
 import { ReviewForm } from "@/components/catalog/review-form";
-import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
+import { ProductGallery } from "@/components/catalog/product-gallery";
 import { BackToCardapioLink } from "@/components/catalog/back-to-cardapio-link";
 import { ProductCard } from "@/components/catalog/product-card";
 import { RatingBreakdown } from "@/components/catalog/rating-breakdown";
@@ -17,7 +16,6 @@ import { EmptyState } from "@/components/shared/empty-state";
 import type { Metadata } from "next";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
 import { formatRating } from "@/lib/rating";
-import { productImageTransitionName } from "@/lib/view-transitions";
 import { BASE_OPEN_GRAPH } from "@/lib/site-metadata";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
 import { auth } from "@/lib/auth";
@@ -98,25 +96,14 @@ export default async function ProdutoPage({
       <BackToCardapioLink />
 
       <div className="grid gap-8 sm:grid-cols-2">
-        <ViewTransition
-          name={productImageTransitionName(product.slug)}
-          share="product-image"
-          default="none"
-        >
-          <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-muted">
-            {product.imageUrl ? (
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(min-width: 640px) 50vw, 100vw"
-              />
-            ) : (
-              <ProductPlaceholderImage className="object-contain p-10" />
-            )}
-          </div>
-        </ViewTransition>
+        <ProductGallery
+          images={[
+            ...(product.imageUrl ? [product.imageUrl] : []),
+            ...product.images.map((image) => image.url),
+          ]}
+          productName={product.name}
+          productSlug={product.slug}
+        />
 
         <div className="flex flex-col gap-4">
           <div className="space-y-1">

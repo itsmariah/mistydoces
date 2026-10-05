@@ -13,10 +13,22 @@ export function listProductsAdmin() {
 export async function getProductByIdAdmin(productId: string) {
   const product = await prisma.product.findUnique({
     where: { id: productId },
-    include: { variants: { orderBy: { sortOrder: "asc" } } },
+    include: {
+      variants: { orderBy: { sortOrder: "asc" } },
+      images: { orderBy: { sortOrder: "asc" } },
+    },
   });
   if (!product) throw new NotFoundError("Produto não encontrado.");
   return product;
+}
+
+/** A primeira foto é a capa; as demais, na ordem, viram a galeria. */
+function splitImages(images: string[]) {
+  const [cover, ...gallery] = images;
+  return {
+    imageUrl: cover ?? null,
+    gallery: gallery.map((url, index) => ({ url, sortOrder: index })),
+  };
 }
 
 async function uniqueSlug(name: string, ignoreId?: string): Promise<string> {
@@ -34,12 +46,14 @@ async function uniqueSlug(name: string, ignoreId?: string): Promise<string> {
 
 export async function createProduct(input: ProductInput) {
   const slug = await uniqueSlug(input.name);
+  const { imageUrl, gallery } = splitImages(input.images);
   return prisma.product.create({
     data: {
       name: input.name,
       slug,
       description: input.description,
-      imageUrl: input.imageUrl || null,
+      imageUrl,
+      images: { create: gallery },
       categoryId: input.categoryId,
       isAvailable: input.isAvailable,
       isActive: input.isActive,
@@ -70,6 +84,7 @@ export async function updateProduct(productId: string, input: ProductInput) {
     input.variants.map((v) => v.id).filter((id): id is string => Boolean(id)),
   );
   const toDeleteIds = [...existingVariantIds].filter((id) => !submittedIds.has(id));
+  const { imageUrl, gallery } = splitImages(input.images);
 
   if (toDeleteIds.length > 0) {
     const orderedCount = await prisma.orderItem.count({
@@ -104,7 +119,9 @@ export async function updateProduct(productId: string, input: ProductInput) {
         name: input.name,
         slug,
         description: input.description,
-        imageUrl: input.imageUrl || null,
+        imageUrl,
+        // A galeria é pequena: regravar inteira é mais simples que calcular a diferença.
+        images: { deleteMany: {}, create: gallery },
         categoryId: input.categoryId,
         isAvailable: input.isAvailable,
         isActive: input.isActive,
