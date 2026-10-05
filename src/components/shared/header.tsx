@@ -3,6 +3,7 @@ import { ArrowRight, User } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { ROLE_LABELS, adminHomePath, isStaff } from "@/lib/permissions";
 import { CartSheet } from "@/components/cart/cart-sheet";
+import { FavoritesLink } from "@/components/favorites/favorite-button";
 import { AccountMenu } from "@/components/shared/account-menu";
 import { Logo } from "@/components/shared/logo";
 import { MobileNav } from "@/components/shared/mobile-nav";
@@ -46,6 +47,7 @@ export async function Header() {
 
           <div className="flex items-center gap-1">
             <ThemeToggle />
+            <FavoritesLink />
             <CartSheet />
             {user ? (
               <AccountMenu

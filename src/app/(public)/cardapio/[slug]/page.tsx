@@ -13,6 +13,7 @@ import { ProductCard } from "@/components/catalog/product-card";
 import { RatingBreakdown } from "@/components/catalog/rating-breakdown";
 import { ShareButton } from "@/components/catalog/share-button";
 import { RecentlyViewed } from "@/components/catalog/recently-viewed";
+import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import type { Metadata } from "next";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
@@ -224,7 +225,8 @@ export default async function ProdutoPage({
             </li>
           </ul>
 
-          <div>
+          <div className="flex flex-wrap gap-2">
+            <FavoriteButton productId={product.id} productName={product.name} variant="inline" />
             <ShareButton
               title={product.name}
               text={`${product.name} · ${getPriceLabel(product.variants)} na MistyDoces`}

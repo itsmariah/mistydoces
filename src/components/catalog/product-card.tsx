@@ -6,6 +6,7 @@ import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { QuickAddButton } from "@/components/catalog/quick-add-button";
+import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { productImageTransitionName } from "@/lib/view-transitions";
 import { formatRating, type RatingSummary } from "@/lib/rating";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
@@ -88,6 +89,11 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
             Esgotado
           </Badge>
         )}
+        <FavoriteButton
+          productId={product.id}
+          productName={product.name}
+          className="absolute right-2 bottom-2"
+        />
         {product.leadTimeDays > 0 && (
           <Badge variant="secondary" className="absolute bottom-2 left-2 gap-1 bg-background/90 shadow-sm">
             <CalendarClock aria-hidden="true" />

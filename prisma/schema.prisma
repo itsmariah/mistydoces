@@ -71,6 +71,7 @@ model User {
   orders              Order[]
   passwordResetTokens PasswordResetToken[]
   reviews             Review[]
+  favorites     Favorite[]
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 }
@@ -145,10 +146,24 @@ model Product {
   images      ProductImage[]
   variants    ProductVariant[]
   reviews     Review[]
+  favoritedBy Favorite[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
   @@index([categoryId])
+}
+
+/// Produto salvo por um cliente logado. Visitantes guardam favoritos num cookie
+/// (`lib/favorites.ts`), que é juntado aqui quando a pessoa entra na conta.
+model Favorite {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, productId])
+  @@index([productId])
 }
 
 model ProductImage {
