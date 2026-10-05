@@ -17,6 +17,7 @@ const item = (overrides: Partial<CartItem> = {}): CartItem => ({
   imageUrl: null,
   quantity: 2,
   isAvailable: true,
+  leadTimeDays: 0,
   ...overrides,
 });
 
@@ -28,6 +29,7 @@ const snapshot = (overrides: Partial<CartVariantSnapshot> = {}): CartVariantSnap
   price: 100,
   imageUrl: null,
   isAvailable: true,
+  leadTimeDays: 0,
   ...overrides,
 });
 
@@ -110,6 +112,7 @@ describe("planReorder", () => {
     price: 120,
     imageUrl: null,
     isAvailable: true,
+    leadTimeDays: 0,
     ...overrides,
   });
 
@@ -136,5 +139,18 @@ describe("planReorder", () => {
     );
     expect(toAdd.map((line) => line.snapshot.variantId)).toEqual(["v1"]);
     expect(skipped).toEqual(["Bolo antigo", "Cookie"]);
+  });
+});
+
+describe("prazo de encomenda no carrinho", () => {
+  it("carrinho salvo antes do prazo existir vira pronta-entrega", () => {
+    const { leadTimeDays, ...legacy } = item();
+    expect(leadTimeDays).toBe(0);
+    expect(parseStoredCart(JSON.stringify([legacy]))[0].leadTimeDays).toBe(0);
+  });
+
+  it("a conferência traz o prazo atual do produto", () => {
+    const { items } = reconcileCart([item()], [snapshot({ leadTimeDays: 2 })], ["v1"]);
+    expect(items[0].leadTimeDays).toBe(2);
   });
 });

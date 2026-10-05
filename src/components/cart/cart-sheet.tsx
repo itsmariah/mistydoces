@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Trash2 } from "lucide-react";
+import { CalendarClock, ShoppingBag, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sheet";
 import { useCart, type CartItem } from "@/components/cart/cart-provider";
 import { useMounted } from "@/lib/use-mounted";
+import { formatLeadTimeLong, maxLeadTimeDays } from "@/lib/scheduling";
 import { cn, formatCurrency } from "@/lib/utils";
 import { MAX_ITEM_QUANTITY } from "@/validations/order";
 
@@ -167,6 +168,12 @@ export function CartSheet() {
 
         {items.length > 0 && (
           <SheetFooter>
+            {maxLeadTimeDays(items) > 0 && (
+              <p className="flex items-start gap-2 rounded-lg bg-secondary/60 p-2.5 text-xs text-secondary-foreground">
+                <CalendarClock className="mt-px size-4 shrink-0" aria-hidden="true" />
+                {formatLeadTimeLong(maxLeadTimeDays(items))}. Você escolhe a data no próximo passo.
+              </p>
+            )}
             <div className="flex items-center justify-between text-sm font-medium">
               <span>Subtotal</span>
               <span className="text-lg font-semibold text-link">
@@ -193,7 +200,7 @@ export function CartSheet() {
               </Button>
             )}
             <p className="text-center text-xs text-muted-foreground">
-              Entrega ou retirada e forma de pagamento você escolhe no próximo passo.
+              Entrega ou retirada, dia e horário e forma de pagamento você escolhe no próximo passo.
             </p>
             <Button variant="ghost" className="w-full" onClick={() => setOpen(false)}>
               Continuar comprando

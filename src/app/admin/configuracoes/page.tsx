@@ -4,6 +4,7 @@ import { StoreSettingsForm } from "@/components/admin/store-settings-form";
 import { DEFAULT_STORE_NAME } from "@/lib/store-contact";
 import { parseBlockedDates, parseWeeklyHours } from "@/lib/store-hours";
 import { weeklyHoursToForm } from "@/validations/store-settings";
+import { DEFAULT_MAX_ADVANCE_DAYS, DEFAULT_PREP_MINUTES } from "@/lib/scheduling";
 
 export default async function AdminSettingsPage() {
   await requirePagePermission("settings:manage");
@@ -27,8 +28,8 @@ export default async function AdminSettingsPage() {
           // Sem nada salvo, o form já vem com o padrão (seg a sáb, 13h às 21h).
           weeklyHours: weeklyHoursToForm(parseWeeklyHours(settings?.weeklyHours ?? null)),
           hoursNote: settings?.hoursNote ?? "",
-          prepMinutes: settings?.prepMinutes ?? 60,
-          maxAdvanceDays: settings?.maxAdvanceDays ?? 30,
+          prepMinutes: settings?.prepMinutes ?? DEFAULT_PREP_MINUTES,
+          maxAdvanceDays: settings?.maxAdvanceDays ?? DEFAULT_MAX_ADVANCE_DAYS,
           blockedDates: parseBlockedDates(settings?.blockedDates ?? []),
           deliveryFee: settings ? Number(settings.deliveryFee) : 0,
         }}

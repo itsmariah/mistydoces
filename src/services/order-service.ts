@@ -10,40 +10,13 @@ import {
 import { canCustomerCancel, canTransition } from "@/lib/order-status";
 import { isPurchasable } from "@/lib/product-availability";
 import { toCents, fromCents } from "@/lib/money";
-import { getDeliveryFee } from "@/services/store-settings-service";
+import { isSlotAvailable, maxLeadTimeDays } from "@/lib/scheduling";
+import { getDeliveryFee, getSchedulingRules } from "@/services/store-settings-service";
 import * as couponService from "@/services/coupon-service";
 import * as notificationService from "@/services/notification-service";
 import type { CheckoutInput } from "@/validations/order";
 
 export async function createOrder(userId: string, input: CheckoutInput) {
-  // Endereço: usa um já salvo (validando posse) ou cadastra um novo antes do pedido.
-  let addressId: string | null = null;
-  if (input.deliveryType === "DELIVERY") {
-    if (input.addressId) {
-      const address = await prisma.address.findUnique({
-        where: { id: input.addressId },
-      });
-      if (!address || address.userId !== userId) {
-        throw new NotFoundError("Endereço não encontrado.");
-      }
-      addressId = address.id;
-    } else if (input.newAddress) {
-      const hasAddress = await prisma.address.findFirst({ where: { userId } });
-      const created = await prisma.address.create({
-        data: {
-          ...input.newAddress,
-          userId,
-          isDefault: !hasAddress,
-        },
-      });
-      addressId = created.id;
-    }
-  }
-
-  const address = addressId
-    ? await prisma.address.findUniqueOrThrow({ where: { id: addressId } })
-    : null;
-
   // Revalida cada item no backend: preço e disponibilidade nunca vêm do client.
   const variantIds = input.items.map((item) => item.variantId);
   const variants = await prisma.productVariant.findMany({
@@ -74,6 +47,46 @@ export async function createOrder(userId: string, input: CheckoutInput) {
       subtotal: fromCents(lineCents),
     };
   });
+
+  // A janela também é conferida aqui: entre abrir o checkout e confirmar, ela pode ter
+  // passado, e o prazo de encomenda vale pelo item mais demorado do carrinho.
+  const scheduledFor = new Date(input.scheduledFor);
+  const leadTimeDays = maxLeadTimeDays(variants.map((variant) => variant.product));
+  if (!isSlotAvailable(await getSchedulingRules(), scheduledFor, new Date(), leadTimeDays)) {
+    throw new AppError(
+      "SLOT_UNAVAILABLE",
+      "Esse horário não está mais disponível. Escolha outro dia ou horário.",
+      409,
+    );
+  }
+
+  // Endereço: usa um já salvo (validando posse) ou cadastra um novo antes do pedido.
+  let addressId: string | null = null;
+  if (input.deliveryType === "DELIVERY") {
+    if (input.addressId) {
+      const address = await prisma.address.findUnique({
+        where: { id: input.addressId },
+      });
+      if (!address || address.userId !== userId) {
+        throw new NotFoundError("Endereço não encontrado.");
+      }
+      addressId = address.id;
+    } else if (input.newAddress) {
+      const hasAddress = await prisma.address.findFirst({ where: { userId } });
+      const created = await prisma.address.create({
+        data: {
+          ...input.newAddress,
+          userId,
+          isDefault: !hasAddress,
+        },
+      });
+      addressId = created.id;
+    }
+  }
+
+  const address = addressId
+    ? await prisma.address.findUniqueOrThrow({ where: { id: addressId } })
+    : null;
 
   const deliveryFeeCents =
     input.deliveryType === "DELIVERY" ? toCents(await getDeliveryFee()) : 0;
@@ -121,6 +134,7 @@ export async function createOrder(userId: string, input: CheckoutInput) {
         couponCodeSnapshot: coupon?.code,
         discountAmount: fromCents(discountCents),
         notes: input.notes || null,
+        scheduledFor,
         subtotal: fromCents(subtotalCents),
         deliveryFee: fromCents(deliveryFeeCents),
         total: fromCents(totalCents),

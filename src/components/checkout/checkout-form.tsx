@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Banknote,
+  CalendarClock,
   CreditCard,
   MapPin,
   Plus,
@@ -43,6 +44,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { CheckoutSteps, type CheckoutStep } from "@/components/checkout/checkout-steps";
 import { OptionCard } from "@/components/checkout/option-card";
+import { SchedulePicker } from "@/components/checkout/schedule-picker";
+import { formatScheduledFor, maxLeadTimeDays, type SchedulingRules } from "@/lib/scheduling";
 import { PickupDetails } from "@/components/shared/pickup-details";
 import type { PickupInfo } from "@/lib/store-contact";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -130,6 +133,7 @@ const ONLINE_PAYMENT_METHODS: CheckoutFormInput["paymentMethod"][] = [
 const CHECKOUT_STEPS: CheckoutStep[] = [
   { id: "etapa-itens", label: "Itens" },
   { id: "etapa-entrega", label: "Entrega" },
+  { id: "etapa-quando", label: "Quando" },
   { id: "etapa-pagamento", label: "Pagamento" },
   { id: "etapa-revisao", label: "Revisão" },
 ];
@@ -138,11 +142,14 @@ export function CheckoutForm({
   addresses,
   deliveryFee,
   pickup,
+  schedulingRules,
 }: {
   addresses: Address[];
   deliveryFee: number;
   /** Endereço e horário da loja; `null` se ainda não foram preenchidos no painel. */
   pickup: PickupInfo | null;
+  /** Horário, folgas e preparo: de onde saem as janelas da etapa "Quando". */
+  schedulingRules: SchedulingRules;
 }) {
   const router = useRouter();
   const { items, subtotal, hasUnavailable, clear, refresh, isRefreshing, removeItem } = useCart();
@@ -155,6 +162,8 @@ export function CheckoutForm({
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(
     null,
   );
+  // Trocar a `key` remonta a escolha de horário com o relógio de agora (ver SLOT_UNAVAILABLE).
+  const [schedulePickerKey, setSchedulePickerKey] = useState(0);
 
   // Confere preços e disponibilidade ao chegar no checkout: o carrinho pode ter
   // sido montado há dias, e o total mostrado aqui precisa ser o que será cobrado.
@@ -184,6 +193,14 @@ export function CheckoutForm({
   const deliveryType = useWatch({ control, name: "deliveryType" });
   const addressChoice = useWatch({ control, name: "addressId" });
   const paymentMethod = useWatch({ control, name: "paymentMethod" });
+  const scheduledFor = useWatch({ control, name: "scheduledFor" });
+
+  // O item mais demorado define o primeiro dia possível para o pedido inteiro.
+  const leadTimeDays = maxLeadTimeDays(items);
+  const leadProductNames =
+    leadTimeDays > 0
+      ? [...new Set(items.filter((item) => item.leadTimeDays === leadTimeDays).map((item) => item.productName))]
+      : [];
   const showNewAddressFields =
     deliveryType === "DELIVERY" && (addressChoice === NEW_ADDRESS_VALUE || addresses.length === 0);
 
@@ -288,6 +305,7 @@ export function CheckoutForm({
         addressId,
         newAddress,
         paymentMethod: data.paymentMethod,
+        scheduledFor: data.scheduledFor,
         notes: data.notes,
         couponCode: appliedCoupon?.code,
       });
@@ -297,6 +315,12 @@ export function CheckoutForm({
         // Algo saiu do cardápio entre a conferência e o envio: atualiza para mostrar o quê.
         if (result.error.code === "PRODUCT_UNAVAILABLE" || result.error.code === "NOT_FOUND") {
           void refresh();
+        }
+        // A janela passou enquanto a pessoa preenchia: remontar o seletor recalcula as janelas
+        // com o relógio de agora, e ele mesmo troca a marcada pela próxima livre.
+        if (result.error.code === "SLOT_UNAVAILABLE") {
+          setSchedulePickerKey((key) => key + 1);
+          focusField("etapa-quando");
         }
         return;
       }
@@ -559,6 +583,28 @@ export function CheckoutForm({
           </section>
         )}
 
+        <section id="etapa-quando" tabIndex={-1} className="scroll-mt-36 space-y-3 outline-none">
+          <h2 className="font-heading text-lg font-medium">
+            {deliveryType === "DELIVERY" ? "Quando entregar" : "Quando retirar"}
+          </h2>
+          <Controller
+            control={control}
+            name="scheduledFor"
+            render={({ field }) => (
+              <SchedulePicker
+                key={schedulePickerKey}
+                rules={schedulingRules}
+                leadTimeDays={leadTimeDays}
+                leadProductNames={leadProductNames}
+                deliveryType={deliveryType}
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.scheduledFor?.message}
+              />
+            )}
+          />
+        </section>
+
         <section id="etapa-pagamento" className="scroll-mt-36 space-y-3">
           <h2 className="font-heading text-lg font-medium">Forma de pagamento</h2>
           <Controller
@@ -647,6 +693,18 @@ export function CheckoutForm({
           )}
           {couponError && <p className="text-sm text-destructive">{couponError}</p>}
         </div>
+
+        {scheduledFor && (
+          <p className="flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-sm">
+            <CalendarClock className="mt-0.5 size-4 shrink-0 text-link" aria-hidden="true" />
+            <span>
+              <span className="block text-xs text-muted-foreground">
+                {deliveryType === "DELIVERY" ? "Entrega" : "Retirada"}
+              </span>
+              <span className="first-letter:uppercase">{formatScheduledFor(new Date(scheduledFor))}</span>
+            </span>
+          </p>
+        )}
 
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">

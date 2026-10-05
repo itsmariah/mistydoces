@@ -22,5 +22,6 @@ export async function getCartSnapshot(variantIds: string[]): Promise<CartVariant
     price: Number(variant.price),
     imageUrl: variant.product.imageUrl,
     isAvailable: isPurchasable(variant.product),
+    leadTimeDays: variant.product.leadTimeDays,
   }));
 }

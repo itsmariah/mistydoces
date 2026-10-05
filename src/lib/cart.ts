@@ -11,6 +11,8 @@ const cartItemSchema = z.object({
   quantity: z.number().int().min(1).max(MAX_ITEM_QUANTITY),
   // Carrinhos salvos antes deste campo existir contam como disponíveis até a próxima conferência.
   isAvailable: z.boolean().default(true),
+  // Idem: pronta-entrega até a conferência trazer o prazo real (o servidor confere de novo).
+  leadTimeDays: z.number().int().min(0).default(0),
 });
 
 export type CartItem = z.output<typeof cartItemSchema>;
@@ -48,6 +50,8 @@ export type CartVariantSnapshot = {
   price: number;
   imageUrl: string | null;
   isAvailable: boolean;
+  /** Antecedência mínima do produto em dias (0 = pronta-entrega). */
+  leadTimeDays: number;
 };
 
 export type CartReconciliation = {

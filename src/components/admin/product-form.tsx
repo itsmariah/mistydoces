@@ -52,6 +52,7 @@ export function ProductForm({
       imageUrl: "",
       isAvailable: true,
       isActive: true,
+      leadTimeDays: 0,
       variants: [{ label: "Único", price: 0 }],
     },
   });
@@ -155,6 +156,25 @@ export function ProductForm({
               </Label>
             )}
           />
+        </div>
+
+        <div className="max-w-60 space-y-1.5">
+          <Label htmlFor="leadTimeDays">Antecedência mínima (dias)</Label>
+          <Input
+            id="leadTimeDays"
+            type="number"
+            min="0"
+            disabled={readOnly}
+            aria-invalid={Boolean(errors.leadTimeDays)}
+            {...register("leadTimeDays", { valueAsNumber: true })}
+          />
+          {errors.leadTimeDays ? (
+            <p className="text-sm text-destructive">{errors.leadTimeDays.message}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              0 = pronta-entrega. Com 2, o cliente só agenda a partir de depois de amanhã.
+            </p>
+          )}
         </div>
 
         <div className="space-y-3">

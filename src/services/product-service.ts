@@ -43,6 +43,7 @@ export async function createProduct(input: ProductInput) {
       categoryId: input.categoryId,
       isAvailable: input.isAvailable,
       isActive: input.isActive,
+      leadTimeDays: input.leadTimeDays,
       variants: {
         create: input.variants.map((variant, index) => ({
           label: variant.label,
@@ -107,6 +108,7 @@ export async function updateProduct(productId: string, input: ProductInput) {
         categoryId: input.categoryId,
         isAvailable: input.isAvailable,
         isActive: input.isActive,
+        leadTimeDays: input.leadTimeDays,
       },
     }),
   ]);

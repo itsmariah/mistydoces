@@ -21,6 +21,7 @@ type VariantSelectorProps = {
   productSlug: string;
   productName: string;
   imageUrl: string | null;
+  leadTimeDays: number;
   variants: Variant[];
   disabled?: boolean;
 };
@@ -29,6 +30,7 @@ export function VariantSelector({
   productSlug,
   productName,
   imageUrl,
+  leadTimeDays,
   variants,
   disabled,
 }: VariantSelectorProps) {
@@ -79,6 +81,7 @@ export function VariantSelector({
         variantLabel: selected.label,
         price: selected.price,
         imageUrl,
+        leadTimeDays,
       },
       quantity,
     );

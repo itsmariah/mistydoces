@@ -15,6 +15,11 @@ export const productSchema = z
     imageUrl: z.string().trim().optional(),
     isAvailable: z.boolean(),
     isActive: z.boolean(),
+    leadTimeDays: z
+      .number({ error: "Informe a antecedência (0 para pronta-entrega)." })
+      .int("Use dias inteiros.")
+      .min(0, "A antecedência não pode ser negativa.")
+      .max(60, "Use no máximo 60 dias."),
     variants: z.array(variantSchema).min(1, "Adicione pelo menos uma variante."),
   })
   .refine(

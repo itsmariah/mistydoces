@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const prismaMock = {
   address: {
@@ -44,10 +44,14 @@ const { createOrder, applyGatewayPaymentUpdate, adminMarkPaymentPaid } = await i
 const { ProductUnavailableError, NotFoundError } = await import("@/lib/errors");
 const notificationService = await import("@/services/notification-service");
 
+/** Segunda, 05/10/2026, 14h na loja: uma janela livre com o "agora" fixo dos testes. */
+const SLOT = "2026-10-05T17:00:00.000Z";
+
 function buildVariant(overrides: {
   isActive?: boolean;
   isAvailable?: boolean;
   categoryActive?: boolean;
+  leadTimeDays?: number;
 } = {}) {
   return {
     id: "variant-1",
@@ -57,14 +61,24 @@ function buildVariant(overrides: {
       name: "Brigadeiro Tradicional",
       isActive: overrides.isActive ?? true,
       isAvailable: overrides.isAvailable ?? true,
+      leadTimeDays: overrides.leadTimeDays ?? 0,
       category: { isActive: overrides.categoryActive ?? true },
     },
   };
 }
 
 describe("createOrder", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
+    // "Agora" fixo: segunda, 05/10/2026, 10h na loja (UTC-3). Sem configurações salvas,
+    // vale o horário padrão (seg a sáb, 13h às 21h) e 60 min de preparo.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-05T13:00:00.000Z"));
+    prismaMock.storeSettings.findUnique.mockResolvedValue(null);
     prismaMock.order.create.mockImplementation(({ data }: { data: Record<string, unknown> }) =>
       Promise.resolve({ id: "order-1", ...data }),
     );
@@ -76,6 +90,7 @@ describe("createOrder", () => {
     await createOrder("user-1", {
       items: [{ variantId: "variant-1", quantity: 3 }],
       deliveryType: "PICKUP",
+      scheduledFor: SLOT,
       paymentMethod: "CASH",
     });
 
@@ -105,6 +120,7 @@ describe("createOrder", () => {
     await createOrder("user-1", {
       items: [{ variantId: "variant-1", quantity: 1 }],
       deliveryType: "DELIVERY",
+      scheduledFor: SLOT,
       addressId: "addr-1",
       paymentMethod: "PIX_MANUAL",
     });
@@ -123,6 +139,7 @@ describe("createOrder", () => {
       createOrder("user-1", {
         items: [{ variantId: "variant-1", quantity: 1 }],
         deliveryType: "PICKUP",
+        scheduledFor: SLOT,
         paymentMethod: "CASH",
       }),
     ).rejects.toBeInstanceOf(ProductUnavailableError);
@@ -135,6 +152,7 @@ describe("createOrder", () => {
       createOrder("user-1", {
         items: [{ variantId: "variant-1", quantity: 1 }],
         deliveryType: "PICKUP",
+        scheduledFor: SLOT,
         paymentMethod: "CASH",
       }),
     ).rejects.toBeInstanceOf(ProductUnavailableError);
@@ -149,6 +167,7 @@ describe("createOrder", () => {
       createOrder("user-1", {
         items: [{ variantId: "variant-1", quantity: 1 }],
         deliveryType: "PICKUP",
+        scheduledFor: SLOT,
         paymentMethod: "CASH",
       }),
     ).rejects.toBeInstanceOf(ProductUnavailableError);
@@ -161,6 +180,7 @@ describe("createOrder", () => {
       createOrder("user-1", {
         items: [{ variantId: "variant-inexistente", quantity: 1 }],
         deliveryType: "PICKUP",
+        scheduledFor: SLOT,
         paymentMethod: "CASH",
       }),
     ).rejects.toBeInstanceOf(NotFoundError);
@@ -174,6 +194,7 @@ describe("createOrder", () => {
       createOrder("user-1", {
         items: [{ variantId: "variant-1", quantity: 1 }],
         deliveryType: "DELIVERY",
+        scheduledFor: SLOT,
         addressId: "addr-1",
         paymentMethod: "CASH",
       }),
@@ -198,6 +219,7 @@ describe("createOrder", () => {
     await createOrder("user-1", {
       items: [{ variantId: "variant-1", quantity: 1 }],
       deliveryType: "PICKUP",
+      scheduledFor: SLOT,
       paymentMethod: "CASH",
       couponCode: "promo10",
     });
@@ -234,10 +256,59 @@ describe("createOrder", () => {
       createOrder("user-1", {
         items: [{ variantId: "variant-1", quantity: 1 }],
         deliveryType: "PICKUP",
+        scheduledFor: SLOT,
         paymentMethod: "CASH",
         couponCode: "ESGOTADO",
       }),
     ).rejects.toThrow(/limite de usos/);
+  });
+
+  it("recusa uma janela que não está mais livre, sem cadastrar endereço", async () => {
+    prismaMock.productVariant.findMany.mockResolvedValue([buildVariant()]);
+
+    await expect(
+      createOrder("user-1", {
+        items: [{ variantId: "variant-1", quantity: 1 }],
+        deliveryType: "DELIVERY",
+        newAddress: {
+          label: "Casa",
+          zipCode: "58000-000",
+          street: "Rua A",
+          number: "1",
+          complement: "Casa",
+          neighborhood: "Centro",
+          city: "João Pessoa",
+          state: "PB",
+          reference: "Praça",
+        },
+        // Domingo: a loja não abre.
+        scheduledFor: "2026-10-11T17:00:00.000Z",
+        paymentMethod: "CASH",
+      }),
+    ).rejects.toMatchObject({ code: "SLOT_UNAVAILABLE" });
+    expect(prismaMock.address.create).not.toHaveBeenCalled();
+    expect(prismaMock.order.create).not.toHaveBeenCalled();
+  });
+
+  it("aplica o prazo do item sob encomenda mais demorado", async () => {
+    prismaMock.productVariant.findMany.mockResolvedValue([buildVariant({ leadTimeDays: 2 })]);
+    const input = {
+      items: [{ variantId: "variant-1", quantity: 1 }],
+      deliveryType: "PICKUP" as const,
+      paymentMethod: "CASH" as const,
+    };
+
+    await expect(createOrder("user-1", { ...input, scheduledFor: SLOT })).rejects.toMatchObject({
+      code: "SLOT_UNAVAILABLE",
+    });
+
+    // Quarta, 07/10, 14h: dois dias depois.
+    await createOrder("user-1", { ...input, scheduledFor: "2026-10-07T17:00:00.000Z" });
+    expect(prismaMock.order.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ scheduledFor: new Date("2026-10-07T17:00:00.000Z") }),
+      }),
+    );
   });
 });
 

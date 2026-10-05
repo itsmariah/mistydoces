@@ -9,6 +9,8 @@ import { QuickAddButton } from "@/components/catalog/quick-add-button";
 import { productImageTransitionName } from "@/lib/view-transitions";
 import { formatRating, type RatingSummary } from "@/lib/rating";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
+import { formatLeadTimeShort } from "@/lib/scheduling";
+import { CalendarClock } from "lucide-react";
 
 type ProductCardProps = {
   product: Product & {
@@ -86,6 +88,12 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
             Esgotado
           </Badge>
         )}
+        {product.leadTimeDays > 0 && (
+          <Badge variant="secondary" className="absolute bottom-2 left-2 gap-1 bg-background/90 shadow-sm">
+            <CalendarClock aria-hidden="true" />
+            {formatLeadTimeShort(product.leadTimeDays)}
+          </Badge>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-1 p-4">
         <span className="text-xs font-medium text-muted-foreground">
@@ -122,6 +130,7 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
               productSlug={product.slug}
               productName={product.name}
               imageUrl={product.imageUrl}
+              leadTimeDays={product.leadTimeDays}
             />
           )}
         </div>

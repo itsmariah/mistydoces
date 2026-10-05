@@ -1,7 +1,8 @@
 import { ViewTransition } from "react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Clock, CreditCard, Store, Truck } from "lucide-react";
+import { CalendarClock, Clock, CreditCard, Store, Truck } from "lucide-react";
+import { formatLeadTimeLong } from "@/lib/scheduling";
 import { Badge } from "@/components/ui/badge";
 import { VariantSelector } from "@/components/catalog/variant-selector";
 import { StarRating } from "@/components/catalog/star-rating";
@@ -156,6 +157,7 @@ export default async function ProdutoPage({
             productSlug={product.slug}
             productName={product.name}
             imageUrl={product.imageUrl}
+            leadTimeDays={product.leadTimeDays}
             variants={product.variants.map((variant) => ({
               id: variant.id,
               label: variant.label,
@@ -166,6 +168,12 @@ export default async function ProdutoPage({
 
           {/* Responde as dúvidas de entrega e pagamento antes do checkout. */}
           <ul className="space-y-2 rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground">
+            {product.leadTimeDays > 0 && (
+              <li className="flex items-center gap-2 font-medium text-foreground">
+                <CalendarClock className="size-4 shrink-0 text-link" aria-hidden="true" />
+                {formatLeadTimeLong(product.leadTimeDays)}
+              </li>
+            )}
             <li className="flex items-center gap-2">
               <Truck className="size-4 shrink-0 text-link" aria-hidden="true" />
               {deliveryFee > 0

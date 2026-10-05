@@ -29,6 +29,8 @@ const checkoutBaseSchema = z.object({
   newAddress: addressSchema.optional(),
   paymentMethod: z.enum(["CASH", "PIX_MANUAL", "CARD_ON_DELIVERY", "PIX_ONLINE", "CARD_ONLINE"]),
   notes: z.string().trim().max(500).optional(),
+  /** Início da janela escolhida (ISO). O servidor confere se ela ainda está livre. */
+  scheduledFor: z.iso.datetime({ error: "Escolha o dia e o horário do pedido." }),
   couponCode: z.string().trim().min(1).optional(),
 });
 

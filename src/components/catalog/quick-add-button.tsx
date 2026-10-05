@@ -16,6 +16,7 @@ type QuickAddButtonProps = {
   productSlug: string;
   productName: string;
   imageUrl: string | null;
+  leadTimeDays: number;
 };
 
 /**
@@ -30,6 +31,7 @@ export function QuickAddButton({
   productSlug,
   productName,
   imageUrl,
+  leadTimeDays,
 }: QuickAddButtonProps) {
   const { addItem, setOpen } = useCart();
   const [justAdded, setJustAdded] = useState(false);
@@ -43,7 +45,7 @@ export function QuickAddButton({
 
   function handleClick() {
     addItem(
-      { variantId, productSlug, productName, variantLabel, price, imageUrl },
+      { variantId, productSlug, productName, variantLabel, price, imageUrl, leadTimeDays },
       1,
       { openCart: false },
     );
