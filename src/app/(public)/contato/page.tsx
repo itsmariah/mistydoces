@@ -73,6 +73,13 @@ export default async function ContatoPage() {
           <p className="text-muted-foreground">
             Dúvidas, encomendas especiais ou só um oi — fale com a gente pelo canal que preferir.
           </p>
+          <p className="text-sm text-muted-foreground">
+            Talvez a resposta já esteja nas{" "}
+            <Link href="/duvidas" className="text-link underline-offset-4 hover:underline">
+              dúvidas frequentes
+            </Link>
+            .
+          </p>
         </div>
         {contact.whatsappHref && (
           <Button

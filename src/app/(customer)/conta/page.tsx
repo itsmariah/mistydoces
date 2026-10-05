@@ -4,6 +4,8 @@ import { ChevronRight, MapPin, Package, UserCog, type LucideIcon } from "lucide-
 import { auth } from "@/lib/auth";
 import { getUserOrders } from "@/services/order-service";
 import { getUserAddresses } from "@/services/address-service";
+import { getPendingReviewProducts } from "@/services/review-service";
+import { PendingReviews } from "@/components/account/pending-reviews";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import {
   OrderItemThumbnails,
@@ -17,10 +19,16 @@ import { formatCurrency } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Minha conta" };
 
+const PENDING_REVIEWS_LIMIT = 3;
+
 export default async function AccountPage() {
   const session = await auth();
   const userId = session!.user.id;
-  const [orders, addresses] = await Promise.all([getUserOrders(userId), getUserAddresses(userId)]);
+  const [orders, addresses, pendingReviews] = await Promise.all([
+    getUserOrders(userId),
+    getUserAddresses(userId),
+    getPendingReviewProducts(userId, PENDING_REVIEWS_LIMIT),
+  ]);
   const latest = orders[0];
 
   const shortcuts: { href: string; icon: LucideIcon; title: string; description: string }[] = [
@@ -113,6 +121,8 @@ export default async function AccountPage() {
           />
         )}
       </section>
+
+      <PendingReviews products={pendingReviews.products} total={pendingReviews.total} />
 
       <ul className="grid gap-3 sm:grid-cols-3">
         {shortcuts.map(({ href, icon: Icon, title, description }) => (

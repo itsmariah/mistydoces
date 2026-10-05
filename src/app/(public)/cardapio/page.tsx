@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CategoryFilter } from "@/components/catalog/category-filter";
+import { RecentlyViewed } from "@/components/catalog/recently-viewed";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import Link from "next/link";
 import { SortSelect } from "@/components/catalog/sort-select";
@@ -95,6 +96,8 @@ export default async function CardapioPage({
           ) : undefined
         }
       />
+
+      <RecentlyViewed className="mt-4" />
     </div>
   );
 }

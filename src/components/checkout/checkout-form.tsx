@@ -17,6 +17,7 @@ import {
   MapPin,
   Plus,
   QrCode,
+  ShieldCheck,
   Smartphone,
   Store,
   Truck,
@@ -182,6 +183,7 @@ export function CheckoutForm({
 
   const deliveryType = useWatch({ control, name: "deliveryType" });
   const addressChoice = useWatch({ control, name: "addressId" });
+  const paymentMethod = useWatch({ control, name: "paymentMethod" });
   const showNewAddressFields =
     deliveryType === "DELIVERY" && (addressChoice === NEW_ADDRESS_VALUE || addresses.length === 0);
 
@@ -686,6 +688,14 @@ export function CheckoutForm({
         >
           {isPending ? "Enviando pedido..." : "Confirmar pedido"}
         </Button>
+
+        {ONLINE_PAYMENT_METHODS.includes(paymentMethod) && (
+          <p className="flex items-start gap-2 text-xs text-muted-foreground">
+            <ShieldCheck className="mt-px size-4 shrink-0 text-link" aria-hidden="true" />
+            Pagamento processado com segurança pelo Mercado Pago. Os dados do seu cartão não passam
+            pela nossa loja.
+          </p>
+        )}
       </aside>
     </form>
   );

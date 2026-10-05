@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const prismaMock = {
+  product: {
+    findMany: vi.fn(),
+    count: vi.fn(),
+  },
   orderItem: {
     count: vi.fn(),
   },
@@ -14,7 +18,8 @@ const prismaMock = {
 
 vi.mock("@/lib/prisma", () => ({ prisma: prismaMock }));
 
-const { adminListReviews, createReview, getFeaturedReviews } = await import("@/services/review-service");
+const { adminListReviews, createReview, getFeaturedReviews, getPendingReviewProducts } =
+  await import("@/services/review-service");
 const { AppError, ForbiddenError } = await import("@/lib/errors");
 
 describe("createReview", () => {
@@ -124,5 +129,31 @@ describe("adminListReviews", () => {
 
     expect(prismaMock.review.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
     expect(result).toMatchObject({ visibleCount: 0, hiddenCount: 0 });
+  });
+});
+
+describe("getPendingReviewProducts", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("busca só produtos ativos, de pedidos entregues do cliente e ainda sem avaliação dele", async () => {
+    prismaMock.product.findMany.mockResolvedValue([{ id: "product-1" }]);
+    prismaMock.product.count.mockResolvedValue(5);
+
+    const result = await getPendingReviewProducts("user-1", 3);
+
+    const expectedWhere = {
+      isActive: true,
+      variants: {
+        some: { orderItems: { some: { order: { userId: "user-1", status: "DELIVERED" } } } },
+      },
+      reviews: { none: { userId: "user-1" } },
+    };
+    expect(prismaMock.product.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expectedWhere, take: 3 }),
+    );
+    expect(prismaMock.product.count).toHaveBeenCalledWith({ where: expectedWhere });
+    expect(result).toEqual({ products: [{ id: "product-1" }], total: 5 });
   });
 });

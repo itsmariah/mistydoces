@@ -30,6 +30,9 @@ export async function Footer() {
           <Link href="/contato" className="text-muted-foreground hover:text-foreground">
             Contato
           </Link>
+          <Link href="/duvidas" className="text-muted-foreground hover:text-foreground">
+            Dúvidas frequentes
+          </Link>
         </nav>
 
         {/* Só mostra os canais preenchidos no painel — nada de link apontando para "#". */}

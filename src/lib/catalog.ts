@@ -49,6 +49,16 @@ export async function getProductsByIds(ids: string[]) {
   return products.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
 }
 
+/** Produtos visíveis na ordem dos slugs recebidos (ex.: "Vistos recentemente"). */
+export async function getProductsBySlugs(slugs: string[]) {
+  if (slugs.length === 0) return [];
+  const products = await prisma.product.findMany({
+    where: { slug: { in: slugs }, isActive: true, category: { isActive: true } },
+    include: PRODUCT_LISTING_INCLUDE,
+  });
+  return products.sort((a, b) => slugs.indexOf(a.slug) - slugs.indexOf(b.slug));
+}
+
 export function getLatestProducts(limit: number) {
   return prisma.product.findMany({
     where: { isActive: true, category: { isActive: true } },

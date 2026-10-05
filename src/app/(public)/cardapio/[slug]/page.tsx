@@ -1,6 +1,7 @@
 import { ViewTransition } from "react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { CreditCard, Store, Truck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VariantSelector } from "@/components/catalog/variant-selector";
 import { StarRating } from "@/components/catalog/star-rating";
@@ -10,6 +11,7 @@ import { BackToCardapioLink } from "@/components/catalog/back-to-cardapio-link";
 import { ProductCard } from "@/components/catalog/product-card";
 import { RatingBreakdown } from "@/components/catalog/rating-breakdown";
 import { ShareButton } from "@/components/catalog/share-button";
+import { RecentlyViewed } from "@/components/catalog/recently-viewed";
 import { EmptyState } from "@/components/shared/empty-state";
 import type { Metadata } from "next";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
@@ -19,6 +21,7 @@ import { BASE_OPEN_GRAPH } from "@/lib/site-metadata";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
 import { auth } from "@/lib/auth";
 import { getBestSellerProductIds } from "@/services/best-seller-service";
+import { getDeliveryFee } from "@/services/store-settings-service";
 import {
   getProductRatingSummary,
   getProductReviews,
@@ -74,7 +77,8 @@ export default async function ProdutoPage({
   }
 
   const session = await auth();
-  const [ratingSummary, reviews, eligibility, bestSellerIds, related] = await Promise.all([
+  const [ratingSummary, reviews, eligibility, bestSellerIds, related, deliveryFee] =
+    await Promise.all([
     getProductRatingSummary(product.id),
     getProductReviews(product.id),
     session?.user
@@ -82,6 +86,7 @@ export default async function ProdutoPage({
       : Promise.resolve(null),
     getBestSellerProductIds(),
     getRelatedProducts(product, RELATED_PRODUCTS_LIMIT),
+    getDeliveryFee(),
   ]);
   const relatedRatings = await getRatingSummaries(related.map((item) => item.id));
 
@@ -157,6 +162,24 @@ export default async function ProdutoPage({
             disabled={!product.isAvailable}
           />
 
+          {/* Responde as dúvidas de entrega e pagamento antes do checkout. */}
+          <ul className="space-y-2 rounded-xl bg-muted/50 p-4 text-sm text-muted-foreground">
+            <li className="flex items-center gap-2">
+              <Truck className="size-4 shrink-0 text-link" aria-hidden="true" />
+              {deliveryFee > 0
+                ? `Entrega em casa por ${formatCurrency(deliveryFee)}`
+                : "Entrega em casa grátis"}
+            </li>
+            <li className="flex items-center gap-2">
+              <Store className="size-4 shrink-0 text-link" aria-hidden="true" />
+              Ou retire na loja sem custo
+            </li>
+            <li className="flex items-center gap-2">
+              <CreditCard className="size-4 shrink-0 text-link" aria-hidden="true" />
+              Pix, cartão ou dinheiro, online ou na entrega
+            </li>
+          </ul>
+
           <div>
             <ShareButton
               title={product.name}
@@ -220,6 +243,8 @@ export default async function ProdutoPage({
           </div>
         </section>
       )}
+
+      <RecentlyViewed currentSlug={product.slug} />
     </div>
   );
 }

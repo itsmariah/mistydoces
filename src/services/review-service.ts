@@ -95,6 +95,28 @@ export async function getReviewEligibility(userId: string, productId: string) {
   };
 }
 
+/**
+ * Produtos que o cliente já recebeu (pedido DELIVERED) e ainda não avaliou — para o
+ * lembrete "Avalie seus doces" da conta. Mesma regra de elegibilidade do `createReview`.
+ */
+export async function getPendingReviewProducts(userId: string, limit: number) {
+  const where = {
+    isActive: true,
+    variants: { some: { orderItems: { some: { order: { userId, status: "DELIVERED" as const } } } } },
+    reviews: { none: { userId } },
+  };
+  const [products, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      select: { id: true, name: true, slug: true, imageUrl: true },
+      orderBy: { name: "asc" },
+      take: limit,
+    }),
+    prisma.product.count({ where }),
+  ]);
+  return { products, total };
+}
+
 export async function createReview(userId: string, productId: string, input: ReviewInput) {
   // Revalida a elegibilidade no backend — nunca confia no botão estar
   // visível/escondido no client.
