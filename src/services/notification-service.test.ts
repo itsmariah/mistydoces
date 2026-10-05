@@ -54,6 +54,20 @@ describe("notification-service", () => {
     expect(payload.text).toContain("Acompanhar pedido");
   });
 
+  it("lembra a data agendada na confirmação e enquanto o pedido não saiu, mas não depois", async () => {
+    sendMock.mockResolvedValue({ id: "email-3" });
+    const scheduled = { ...order, scheduledFor: new Date("2026-10-10T15:00:00-03:00") };
+
+    await sendOrderConfirmationEmail(scheduled, user);
+    await sendOrderStatusUpdateEmail(scheduled, user, "READY");
+    await sendOrderStatusUpdateEmail(scheduled, user, "DELIVERED");
+
+    const [confirmation, ready, delivered] = sendMock.mock.calls.map((call) => call[0].text);
+    expect(confirmation).toContain("Entrega agendada para sábado, 10 de outubro · 15h–16h.");
+    expect(ready).toContain("Entrega agendada para");
+    expect(delivered).not.toContain("agendada");
+  });
+
   it("chama de \"Retirado\" o pedido de retirada entregue", () => {
     expect(statusLabelFor("DELIVERED", "PICKUP")).toBe("Retirado");
     expect(statusLabelFor("DELIVERED", "DELIVERY")).toBe("Entregue");

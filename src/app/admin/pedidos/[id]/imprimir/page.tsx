@@ -6,6 +6,7 @@ import { requirePagePermission } from "@/lib/require-permission";
 import { AppError } from "@/lib/errors";
 import { PAYMENT_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payment-labels";
 import { SITE_URL } from "@/lib/site-metadata";
+import { formatScheduledFor } from "@/lib/scheduling";
 import { cn, formatCurrency } from "@/lib/utils";
 import { adminGetOrderById } from "@/services/order-service";
 import { getStoreContact } from "@/services/store-settings-service";
@@ -108,6 +109,12 @@ export default async function PrintOrderPage({
               {isDelivery ? "Entrega" : "Retirada"}
             </p>
           </header>
+
+          {order.scheduledFor && (
+            <p className="rounded border-2 border-current p-2 text-center text-base font-bold first-letter:uppercase">
+              {formatScheduledFor(order.scheduledFor)}
+            </p>
+          )}
 
           <div className="space-y-1">
             <p className="font-bold">{order.user.name}</p>

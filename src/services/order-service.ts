@@ -11,6 +11,7 @@ import { canCustomerCancel, canTransition } from "@/lib/order-status";
 import { isPurchasable } from "@/lib/product-availability";
 import { toCents, fromCents } from "@/lib/money";
 import { isSlotAvailable, maxLeadTimeDays } from "@/lib/scheduling";
+import { addDays, startOfDayInStoreTime } from "@/lib/store-time";
 import { getDeliveryFee, getSchedulingRules } from "@/services/store-settings-service";
 import * as couponService from "@/services/coupon-service";
 import * as notificationService from "@/services/notification-service";
@@ -230,24 +231,38 @@ export async function adminListOrders({
   status,
   search,
   customerId,
+  scheduledDay,
   page,
 }: {
   status?: OrderStatus;
   search?: string;
   /** "Ver pedidos" a partir da lista de clientes. */
   customerId?: string;
+  /** Só pedidos agendados para esse dia (YYYY-MM-DD, fuso da loja), em ordem de horário. */
+  scheduledDay?: string;
   page: number;
 }) {
   const baseWhere = adminOrderSearchWhere(search);
-  const searchWhere: Prisma.OrderWhereInput = customerId
-    ? { ...baseWhere, userId: customerId }
-    : baseWhere;
+  const scheduledWhere: Prisma.OrderWhereInput = scheduledDay
+    ? {
+        scheduledFor: {
+          gte: startOfDayInStoreTime(scheduledDay),
+          lt: startOfDayInStoreTime(addDays(scheduledDay, 1)),
+        },
+      }
+    : {};
+  const searchWhere: Prisma.OrderWhereInput = {
+    ...baseWhere,
+    ...scheduledWhere,
+    ...(customerId ? { userId: customerId } : {}),
+  };
   const where: Prisma.OrderWhereInput = status ? { ...searchWhere, status } : searchWhere;
 
   const [orders, total, byStatus] = await Promise.all([
     prisma.order.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      // Olhando um dia, o que importa é a ordem da cozinha; no geral, o mais novo primeiro.
+      orderBy: scheduledDay ? { scheduledFor: "asc" } : { createdAt: "desc" },
       skip: (page - 1) * ADMIN_ORDERS_PAGE_SIZE,
       take: ADMIN_ORDERS_PAGE_SIZE,
       include: {

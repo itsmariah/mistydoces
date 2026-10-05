@@ -9,6 +9,7 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
+import { formatScheduledShort } from "@/lib/scheduling";
 
 export default async function OrdersPage() {
   const session = await auth();
@@ -46,10 +47,12 @@ export default async function OrdersPage() {
                   {summarizeOrderItems(order.items.map((item) => item.productNameSnapshot))}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {new Intl.DateTimeFormat("pt-BR", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  }).format(order.createdAt)}
+                  {order.scheduledFor && order.status !== "CANCELLED"
+                    ? `${order.deliveryType === "DELIVERY" ? "Entrega" : "Retirada"}: ${formatScheduledShort(order.scheduledFor)}`
+                    : new Intl.DateTimeFormat("pt-BR", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      }).format(order.createdAt)}
                 </p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">

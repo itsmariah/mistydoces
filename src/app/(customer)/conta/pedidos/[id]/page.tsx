@@ -12,6 +12,7 @@ import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { CancelOrderButton } from "@/components/orders/cancel-order-button";
 import { OrderThanks } from "@/components/orders/order-thanks";
 import { OrderTimeline } from "@/components/orders/order-timeline";
+import { ScheduledFor } from "@/components/orders/scheduled-for";
 import { OrderStatusWatcher } from "@/components/orders/order-status-watcher";
 import { ReorderButton } from "@/components/orders/reorder-button";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
@@ -79,6 +80,10 @@ export default async function OrderDetailPage({
         </div>
         <OrderStatusBadge status={order.status} />
       </div>
+
+      {order.status !== "CANCELLED" && (
+        <ScheduledFor scheduledFor={order.scheduledFor} deliveryType={order.deliveryType} />
+      )}
 
       <section className="space-y-3 rounded-lg border border-border p-4 sm:p-6">
         <OrderTimeline status={order.status} deliveryType={order.deliveryType} />

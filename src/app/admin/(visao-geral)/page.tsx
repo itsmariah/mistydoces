@@ -10,6 +10,8 @@ import { OpenOrders } from "@/components/admin/dashboard/open-orders";
 import { SalesChart } from "@/components/admin/dashboard/sales-chart";
 import { TopProducts } from "@/components/admin/dashboard/top-products";
 import { RecentReviews } from "@/components/admin/dashboard/recent-reviews";
+import { TodayAgenda } from "@/components/admin/dashboard/today-agenda";
+import { getAgenda } from "@/services/agenda-service";
 
 const todayFormatter = new Intl.DateTimeFormat("pt-BR", {
   timeZone: STORE_TIME_ZONE,
@@ -23,7 +25,7 @@ export default async function AdminDashboardPage() {
   // "Hoje" depende do momento da requisição — nunca pode sair do prerender.
   await connection();
   const now = new Date();
-  const data = await getDashboardData(now);
+  const [data, [today]] = await Promise.all([getDashboardData(now), getAgenda(now, 1)]);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-12">
@@ -38,6 +40,8 @@ export default async function AdminDashboardPage() {
         <SalesSummaryCard title="Hoje" summary={data.today} />
         <SalesSummaryCard title={`Últimos ${DASHBOARD_WINDOW_DAYS} dias`} summary={data.period} />
       </div>
+
+      <TodayAgenda day={today} now={now} />
 
       <OpenOrders counts={data.openOrders} />
 

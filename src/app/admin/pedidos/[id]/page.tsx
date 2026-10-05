@@ -6,6 +6,7 @@ import { requirePagePermission } from "@/lib/require-permission";
 import { adminGetOrderById } from "@/services/order-service";
 import { AppError } from "@/lib/errors";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
+import { ScheduledFor } from "@/components/orders/scheduled-for";
 import { OrderStatusActions } from "@/components/admin/order-status-actions";
 import { PAYMENT_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payment-labels";
 import { formatCurrency } from "@/lib/utils";
@@ -59,6 +60,8 @@ export default async function AdminOrderDetailPage({
         </div>
         <OrderStatusBadge status={order.status} />
       </div>
+
+      <ScheduledFor scheduledFor={order.scheduledFor} deliveryType={order.deliveryType} />
 
       <OrderStatusActions
         orderId={order.id}

@@ -15,6 +15,7 @@ import { ReorderButton } from "@/components/orders/reorder-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { isFinalStatus } from "@/lib/order-status";
+import { ScheduledFor } from "@/components/orders/scheduled-for";
 import { formatCurrency } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Minha conta" };
@@ -78,6 +79,15 @@ export default async function AccountPage() {
               </div>
               <OrderStatusBadge status={latest.status} />
             </div>
+
+            {/* A data só ajuda enquanto o pedido ainda vai acontecer. */}
+            {!isFinalStatus(latest.status) && (
+              <ScheduledFor
+                scheduledFor={latest.scheduledFor}
+                deliveryType={latest.deliveryType}
+                className="p-3"
+              />
+            )}
 
             <div className="flex items-center gap-3">
               <OrderItemThumbnails

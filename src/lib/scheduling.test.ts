@@ -3,6 +3,7 @@ import {
   availableDays,
   dayChipLabel,
   formatScheduledFor,
+  formatScheduledShort,
   formatSlotRange,
   isSlotAvailable,
   maxLeadTimeDays,
@@ -99,5 +100,6 @@ describe("rótulos", () => {
 
   it("data completa no fuso da loja", () => {
     expect(formatScheduledFor(at("2026-10-10", "15:00"))).toBe("sábado, 10 de outubro · 15h–16h");
+    expect(formatScheduledShort(at("2026-10-10", "15:00"))).toBe("sáb, 10/10 · 15h–16h");
   });
 });

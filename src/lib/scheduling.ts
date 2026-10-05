@@ -124,3 +124,9 @@ export function formatScheduledFor(scheduledFor: Date): string {
   const date = longDateFormatter.format(new Date(`${dayKey}T12:00:00Z`));
   return `${date} · ${formatSlotRange(minutesOfDay(scheduledFor))}`;
 }
+
+/** "sáb, 10/10 · 15h–16h" — versão curta para listas. */
+export function formatScheduledShort(scheduledFor: Date): string {
+  const dayKey = toDayKey(scheduledFor);
+  return `${WEEKDAY_NAMES[weekdayOf(dayKey)]}, ${shortDate(dayKey)} · ${formatSlotRange(minutesOfDay(scheduledFor))}`;
+}

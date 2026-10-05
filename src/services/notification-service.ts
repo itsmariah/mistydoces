@@ -1,5 +1,6 @@
 import type { DeliveryType, OrderStatus } from "@/generated/prisma/client";
 import { renderEmail, type EmailContent, type EmailLine } from "@/lib/email-template";
+import { formatScheduledFor } from "@/lib/scheduling";
 import { EMAIL_FROM, getResendClient } from "@/lib/resend";
 import { formatCurrency } from "@/lib/utils";
 import { getStoreContact } from "@/services/store-settings-service";
@@ -19,6 +20,8 @@ type NotifiableOrder = {
   orderNumber: number;
   total: unknown;
   deliveryType: DeliveryType;
+  /** Janela agendada (pedidos antigos não têm). */
+  scheduledFor?: Date | null;
   items?: {
     quantity: number;
     productNameSnapshot: string;
@@ -39,6 +42,16 @@ function orderUrl(orderId: string): string {
 function totalLabel(total: unknown): string {
   return formatCurrency(String(total));
 }
+
+/** "Entrega agendada para sábado, 10 de outubro · 15h–16h." */
+function scheduleSentence(order: NotifiableOrder): string | null {
+  if (!order.scheduledFor) return null;
+  const kind = order.deliveryType === "DELIVERY" ? "Entrega" : "Retirada";
+  return `${kind} agendada para ${formatScheduledFor(order.scheduledFor)}.`;
+}
+
+/** Status em que a data ainda vai acontecer — vale lembrar no e-mail. */
+const UPCOMING_STATUSES: OrderStatus[] = ["PENDING", "CONFIRMED", "PREPARING", "READY"];
 
 function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] || name;
@@ -98,11 +111,14 @@ export function sendOrderConfirmationEmail(order: NotifiableOrder, user: Notifia
     { label: "Total", value: totalLabel(order.total), strong: true },
   ];
 
+  const schedule = scheduleSentence(order);
+
   return sendSafely(user.email, `Pedido #${order.orderNumber} recebido — MistyDoces`, {
     preheader: `Recebemos seu pedido #${order.orderNumber}. Acompanhe cada etapa pelo site.`,
     title: "Recebemos seu pedido!",
     paragraphs: [
       `Olá, ${firstName(user.name)}! Seu pedido #${order.orderNumber} chegou na nossa cozinha.`,
+      ...(schedule ? [schedule] : []),
       "Avisamos por aqui a cada etapa, e você também pode acompanhar pelo site.",
     ],
     lines,
@@ -116,6 +132,7 @@ export function sendOrderStatusUpdateEmail(
   status: OrderStatus,
 ) {
   const label = statusLabelFor(status, order.deliveryType);
+  const schedule = UPCOMING_STATUSES.includes(status) ? scheduleSentence(order) : null;
   // Depois de entregue, o próximo passo útil é avaliar — a conta lista o que falta avaliar.
   const cta =
     status === "DELIVERED"
@@ -128,6 +145,7 @@ export function sendOrderStatusUpdateEmail(
     paragraphs: [
       `Olá, ${firstName(user.name)}!`,
       statusMessage(status, order.deliveryType),
+      ...(schedule ? [schedule] : []),
       ...(status === "DELIVERED" ? ["Conta pra gente o que achou? Sua avaliação ajuda muito."] : []),
     ],
     cta,

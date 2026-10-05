@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   CakeSlice,
+  CalendarDays,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -37,6 +38,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { href: "/admin", label: "Visão geral", icon: LayoutDashboard, permission: "dashboard:view" },
       { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingBag, permission: "orders:view" },
+      { href: "/admin/agenda", label: "Agenda", icon: CalendarDays, permission: "orders:view" },
       { href: "/admin/avaliacoes", label: "Avaliações", icon: Star, permission: "reviews:view" },
       { href: "/admin/clientes", label: "Clientes", icon: Users, permission: "customers:view" },
     ],

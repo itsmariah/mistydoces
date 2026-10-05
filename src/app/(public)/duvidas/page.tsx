@@ -89,6 +89,25 @@ export default async function DuvidasPage() {
           ),
         },
         {
+          question: "Posso escolher o dia e o horário?",
+          answer: (
+            <p>
+              Pode. No checkout você escolhe o dia e uma janela de 1 hora para receber ou retirar.
+              A primeira janela livre já vem marcada, para quem tem pressa.
+            </p>
+          ),
+        },
+        {
+          question: "O que são os doces sob encomenda?",
+          answer: (
+            <p>
+              Alguns doces são feitos só por encomenda e precisam de alguns dias de preparo — eles
+              têm o selo &ldquo;Encomenda&rdquo; no cardápio, com o prazo. Se o carrinho tiver um
+              deles, as datas do checkout já começam depois desse prazo.
+            </p>
+          ),
+        },
+        {
           question: "Vocês fazem encomendas para festas e datas especiais?",
           answer: (
             <p>
