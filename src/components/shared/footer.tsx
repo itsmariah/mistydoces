@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { InstagramIcon } from "@/components/shared/instagram-icon";
 import { Logo } from "@/components/shared/logo";
+import { OpenStatus } from "@/components/shared/open-status";
 import { getStoreContact } from "@/services/store-settings-service";
 
 const SOCIAL_LINK_CLASS =
@@ -18,6 +19,7 @@ export async function Footer() {
           <p className="max-w-xs text-sm text-muted-foreground">
             {contact.description ?? "Doces artesanais feitos com carinho, do pedido à entrega."}
           </p>
+          <OpenStatus schedule={contact.schedule} className="text-muted-foreground" />
         </div>
 
         <nav className="flex flex-col gap-2 text-sm">

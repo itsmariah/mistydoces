@@ -1,4 +1,5 @@
 import { Clock, MapPin } from "lucide-react";
+import { HoursList } from "@/components/shared/hours-list";
 import type { PickupInfo } from "@/lib/store-contact";
 import { cn } from "@/lib/utils";
 
@@ -22,13 +23,10 @@ export function PickupDetails({ pickup, className }: { pickup: PickupInfo; class
           </a>
         </div>
       </div>
-      {pickup.openingHours && (
-        <div className="flex gap-2">
-          <Clock className="mt-0.5 h-4 w-4 shrink-0 text-link" aria-hidden="true" />
-          {/* Texto livre do painel: uma linha por período, exibido como foi digitado. */}
-          <p className="whitespace-pre-line">{pickup.openingHours}</p>
-        </div>
-      )}
+      <div className="flex gap-2">
+        <Clock className="mt-0.5 h-4 w-4 shrink-0 text-link" aria-hidden="true" />
+        <HoursList hours={pickup.hours} />
+      </div>
     </div>
   );
 }

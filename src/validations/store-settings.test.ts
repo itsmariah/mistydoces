@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { normalizeInstagram, storeSettingsSchema } from "@/validations/store-settings";
+import { DEFAULT_WEEKLY_HOURS } from "@/lib/store-hours";
+import {
+  normalizeInstagram,
+  storeSettingsSchema,
+  weeklyHoursToForm,
+} from "@/validations/store-settings";
 
 const blank = {
   storeName: "MistyDoces",
@@ -12,7 +17,11 @@ const blank = {
   city: "",
   state: "",
   zipCode: "",
-  openingHours: "",
+  weeklyHours: weeklyHoursToForm(DEFAULT_WEEKLY_HOURS),
+  hoursNote: "",
+  prepMinutes: 60,
+  maxAdvanceDays: 30,
+  blockedDates: [] as string[],
   deliveryFee: 8,
 };
 
@@ -25,7 +34,7 @@ describe("storeSettingsSchema", () => {
       email: null,
       instagram: null,
       state: null,
-      openingHours: null,
+      hoursNote: null,
     });
   });
 
@@ -37,10 +46,14 @@ describe("storeSettingsSchema", () => {
       instagram: "https://www.instagram.com/mistydoces/",
       state: "pb",
       zipCode: "58000-000",
-      openingHours: "Ter a sex: 9h às 18h\nSáb: 9h às 13h",
+      hoursNote: "Feriados sob consulta",
     });
-    expect(parsed).toMatchObject({ instagram: "mistydoces", state: "PB", zipCode: "58000-000" });
-    expect(parsed.openingHours).toContain("\n");
+    expect(parsed).toMatchObject({
+      instagram: "mistydoces",
+      state: "PB",
+      zipCode: "58000-000",
+      hoursNote: "Feriados sob consulta",
+    });
   });
 
   it("recusa WhatsApp que não vira link válido", () => {
@@ -59,6 +72,37 @@ describe("storeSettingsSchema", () => {
       const result = storeSettingsSchema.safeParse({ ...blank, [field]: value });
       expect(result.success, field).toBe(false);
     }
+  });
+});
+
+describe("horário e agendamento", () => {
+  it("guarda só os dias ligados, com o número do dia", () => {
+    const form = weeklyHoursToForm(DEFAULT_WEEKLY_HOURS);
+    expect(form[0]).toEqual({ enabled: false, open: "13:00", close: "21:00" });
+    const parsed = storeSettingsSchema.parse({ ...blank, weeklyHours: form });
+    expect(parsed.weeklyHours).toEqual(DEFAULT_WEEKLY_HOURS);
+  });
+
+  it("aponta o erro no fechamento do dia que fecha antes de abrir", () => {
+    const form = weeklyHoursToForm(DEFAULT_WEEKLY_HOURS);
+    form[3] = { enabled: true, open: "21:00", close: "13:00" };
+    const result = storeSettingsSchema.safeParse({ ...blank, weeklyHours: form });
+    expect(result.error?.issues[0].path).toEqual(["weeklyHours", 3, "close"]);
+  });
+
+  it("ignora horário inválido de um dia desligado", () => {
+    const form = weeklyHoursToForm(DEFAULT_WEEKLY_HOURS);
+    form[0] = { enabled: false, open: "", close: "" };
+    expect(storeSettingsSchema.safeParse({ ...blank, weeklyHours: form }).success).toBe(true);
+  });
+
+  it("ordena e tira datas bloqueadas repetidas; recusa formato inválido", () => {
+    const parsed = storeSettingsSchema.parse({
+      ...blank,
+      blockedDates: ["2026-12-25", "2026-10-12", "2026-12-25"],
+    });
+    expect(parsed.blockedDates).toEqual(["2026-10-12", "2026-12-25"]);
+    expect(storeSettingsSchema.safeParse({ ...blank, blockedDates: ["25/12"] }).success).toBe(false);
   });
 });
 

@@ -12,7 +12,9 @@ const settings = {
   city: null,
   state: null,
   zipCode: null,
-  openingHours: null,
+  hoursNote: null,
+  weeklyHours: null,
+  blockedDates: [],
 };
 
 describe("buildStoreContact", () => {
@@ -51,13 +53,24 @@ describe("buildStoreContact", () => {
       city: "João Pessoa",
       state: "PB",
       zipCode: "58000-000",
-      openingHours: "Ter a sex: 9h às 18h",
+      hoursNote: "Feriados sob consulta",
+      weeklyHours: [{ day: 2, open: "09:00", close: "18:00" }],
     });
     expect(pickup?.addressLines).toEqual([
       "Rua das Flores, 123",
       "João Pessoa/PB — CEP 58000-000",
     ]);
     expect(pickup?.mapsHref).toContain(encodeURIComponent("Rua das Flores, 123, João Pessoa, PB"));
-    expect(pickup?.openingHours).toBe("Ter a sex: 9h às 18h");
+    expect(pickup?.hours.note).toBe("Feriados sob consulta");
+    expect(pickup?.hours.lines[0]).toBe("Seg · fechado");
+    expect(pickup?.hours.lines).toContain("Ter · 9h às 18h");
+  });
+
+  it("sem horário configurado, usa o padrão de seg a sáb", () => {
+    expect(buildStoreContact(settings).hours.lines).toEqual([
+      "Seg a sáb · 13h às 21h",
+      "Dom · fechado",
+    ]);
+    expect(buildStoreContact(null).schedule.weeklyHours).toHaveLength(6);
   });
 });

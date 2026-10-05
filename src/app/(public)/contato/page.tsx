@@ -6,6 +6,8 @@ import { Mail, MessageCircle, Phone } from "lucide-react";
 import { getStoreContact } from "@/services/store-settings-service";
 import { InstagramIcon } from "@/components/shared/instagram-icon";
 import { PickupDetails } from "@/components/shared/pickup-details";
+import { HoursList } from "@/components/shared/hours-list";
+import { OpenStatus } from "@/components/shared/open-status";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
@@ -81,6 +83,7 @@ export default async function ContatoPage() {
             .
           </p>
         </div>
+        <OpenStatus schedule={contact.schedule} className="rounded-full bg-muted px-3 py-1" />
         {contact.whatsappHref && (
           <Button
             size="lg"
@@ -132,10 +135,11 @@ export default async function ContatoPage() {
         </section>
       )}
 
-      {!contact.pickup && contact.openingHours && (
+      {/* Com endereço de retirada, o horário já aparece junto dele. */}
+      {!contact.pickup && (
         <section className="space-y-3">
           <h2 className="font-heading text-lg font-medium">Horário de funcionamento</h2>
-          <p className="whitespace-pre-line text-sm">{contact.openingHours}</p>
+          <HoursList hours={contact.hours} className="text-sm" />
         </section>
       )}
     </div>

@@ -1,7 +1,7 @@
 import { ViewTransition } from "react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { CreditCard, Store, Truck } from "lucide-react";
+import { Clock, CreditCard, Store, Truck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VariantSelector } from "@/components/catalog/variant-selector";
 import { StarRating } from "@/components/catalog/star-rating";
@@ -21,7 +21,8 @@ import { BASE_OPEN_GRAPH } from "@/lib/site-metadata";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
 import { auth } from "@/lib/auth";
 import { getBestSellerProductIds } from "@/services/best-seller-service";
-import { getDeliveryFee } from "@/services/store-settings-service";
+import { getDeliveryFee, getStoreContact } from "@/services/store-settings-service";
+import { OpenStatus } from "@/components/shared/open-status";
 import {
   getProductRatingSummary,
   getProductReviews,
@@ -77,7 +78,7 @@ export default async function ProdutoPage({
   }
 
   const session = await auth();
-  const [ratingSummary, reviews, eligibility, bestSellerIds, related, deliveryFee] =
+  const [ratingSummary, reviews, eligibility, bestSellerIds, related, deliveryFee, contact] =
     await Promise.all([
     getProductRatingSummary(product.id),
     getProductReviews(product.id),
@@ -87,6 +88,7 @@ export default async function ProdutoPage({
     getBestSellerProductIds(),
     getRelatedProducts(product, RELATED_PRODUCTS_LIMIT),
     getDeliveryFee(),
+    getStoreContact(),
   ]);
   const relatedRatings = await getRatingSummaries(related.map((item) => item.id));
 
@@ -177,6 +179,10 @@ export default async function ProdutoPage({
             <li className="flex items-center gap-2">
               <CreditCard className="size-4 shrink-0 text-link" aria-hidden="true" />
               Pix, cartão ou dinheiro, online ou na entrega
+            </li>
+            <li className="flex items-center gap-2">
+              <Clock className="size-4 shrink-0 text-link" aria-hidden="true" />
+              <OpenStatus schedule={contact.schedule} />
             </li>
           </ul>
 

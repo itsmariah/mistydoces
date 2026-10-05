@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import type { OrderStatus } from "@/generated/prisma/client";
 import { COUNTED_STATUSES } from "@/services/best-seller-service";
+import { STORE_TIME_ZONE, startOfDayInStoreTime, toDayKey } from "@/lib/store-time";
 
-/** Fuso da loja — o servidor roda em UTC, mas "hoje" é o dia de quem está na cozinha. */
-export const STORE_TIME_ZONE = "America/Sao_Paulo";
+// Reexportados: o painel já importava daqui antes de as funções irem para `lib/store-time`.
+export { STORE_TIME_ZONE, startOfDayInStoreTime, toDayKey };
+
 /** Janela do gráfico, do resumo do período e dos mais vendidos. */
 export const DASHBOARD_WINDOW_DAYS = 30;
 export const TOP_PRODUCTS_LIMIT = 5;
@@ -19,38 +21,6 @@ export const OPEN_STATUSES: OrderStatus[] = [
 ];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-// en-CA formata como YYYY-MM-DD, que serve de chave e ordena como texto.
-const dayKeyFormatter = new Intl.DateTimeFormat("en-CA", {
-  timeZone: STORE_TIME_ZONE,
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
-
-const offsetFormatter = new Intl.DateTimeFormat("en-US", {
-  timeZone: STORE_TIME_ZONE,
-  timeZoneName: "longOffset",
-});
-
-/** Dia (YYYY-MM-DD) em que o instante cai no fuso da loja. */
-export function toDayKey(date: Date): string {
-  return dayKeyFormatter.format(date);
-}
-
-function timeZoneOffsetMinutes(date: Date): number {
-  const name = offsetFormatter.formatToParts(date).find((part) => part.type === "timeZoneName");
-  const match = /GMT([+-])(\d{2}):(\d{2})/.exec(name?.value ?? "");
-  if (!match) return 0;
-  const sign = match[1] === "-" ? -1 : 1;
-  return sign * (Number(match[2]) * 60 + Number(match[3]));
-}
-
-/** Instante (UTC) da meia-noite desse dia no fuso da loja. */
-export function startOfDayInStoreTime(dayKey: string): Date {
-  const utcMidnight = new Date(`${dayKey}T00:00:00Z`);
-  return new Date(utcMidnight.getTime() - timeZoneOffsetMinutes(utcMidnight) * 60 * 1000);
-}
 
 /** Os últimos `days` dias, do mais antigo até hoje (inclusive), no fuso da loja. */
 export function recentDayKeys(now: Date, days: number): string[] {

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, MessageCircle } from "lucide-react";
 import { PickupDetails } from "@/components/shared/pickup-details";
+import { HoursList } from "@/components/shared/hours-list";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { getDeliveryFee, getStoreContact } from "@/services/store-settings-service";
@@ -158,15 +159,10 @@ export default async function DuvidasPage() {
             </>
           ),
         },
-        // Com endereço de retirada, o horário já aparece junto dele na resposta acima.
-        ...(contact.openingHours && !contact.pickup
-          ? [
-              {
-                question: "Qual o horário de funcionamento?",
-                answer: <p className="whitespace-pre-line">{contact.openingHours}</p>,
-              },
-            ]
-          : []),
+        {
+          question: "Qual o horário de funcionamento?",
+          answer: <HoursList hours={contact.hours} />,
+        },
       ],
     },
     {

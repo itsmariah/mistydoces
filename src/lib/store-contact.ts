@@ -1,3 +1,10 @@
+import {
+  DEFAULT_WEEKLY_HOURS,
+  formatWeeklyHours,
+  parseBlockedDates,
+  parseWeeklyHours,
+  type StoreSchedule,
+} from "@/lib/store-hours";
 import { whatsappUrl } from "@/lib/whatsapp";
 
 /** Nome usado enquanto a loja não salvou as configurações pela primeira vez. */
@@ -14,14 +21,19 @@ type StoreSettingsLike = {
   city: string | null;
   state: string | null;
   zipCode: string | null;
-  openingHours: string | null;
+  hoursNote: string | null;
+  weeklyHours: unknown;
+  blockedDates: unknown;
 };
+
+/** Horário pronto para exibir: linhas agrupadas ("Seg a sáb · 13h às 21h") + observação. */
+export type HoursInfo = { lines: string[]; note: string | null };
 
 export type PickupInfo = {
   /** Endereço em até duas linhas: rua / cidade-UF e CEP. */
   addressLines: string[];
   mapsHref: string;
-  openingHours: string | null;
+  hours: HoursInfo;
 };
 
 export type StoreContact = {
@@ -32,7 +44,9 @@ export type StoreContact = {
   email: { display: string; href: string } | null;
   instagram: { handle: string; href: string } | null;
   pickup: PickupInfo | null;
-  openingHours: string | null;
+  hours: HoursInfo;
+  /** Para calcular "Aberto agora" no navegador, no relógio de quem está vendo. */
+  schedule: StoreSchedule;
   /** Algum canal para falar com a loja (WhatsApp, telefone, e-mail ou Instagram). */
   hasChannels: boolean;
 };
@@ -47,7 +61,7 @@ function telHref(phone: string): string | null {
   return digits.length >= 8 ? `tel:${digits}` : null;
 }
 
-function buildPickup(settings: StoreSettingsLike): PickupInfo | null {
+function buildPickup(settings: StoreSettingsLike, hours: HoursInfo): PickupInfo | null {
   if (!settings.street) return null;
 
   const cityLine = [
@@ -64,7 +78,7 @@ function buildPickup(settings: StoreSettingsLike): PickupInfo | null {
   return {
     addressLines,
     mapsHref: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
-    openingHours: settings.openingHours,
+    hours,
   };
 }
 
@@ -79,7 +93,8 @@ export function buildStoreContact(settings: StoreSettingsLike | null): StoreCont
       email: null,
       instagram: null,
       pickup: null,
-      openingHours: null,
+      hours: { lines: formatWeeklyHours(DEFAULT_WEEKLY_HOURS), note: null },
+      schedule: { weeklyHours: DEFAULT_WEEKLY_HOURS, blockedDates: [] },
       hasChannels: false,
     };
   }
@@ -96,6 +111,12 @@ export function buildStoreContact(settings: StoreSettingsLike | null): StoreCont
     ? { handle: settings.instagram, href: `https://instagram.com/${settings.instagram}` }
     : null;
 
+  const schedule: StoreSchedule = {
+    weeklyHours: parseWeeklyHours(settings.weeklyHours),
+    blockedDates: parseBlockedDates(settings.blockedDates),
+  };
+  const hours: HoursInfo = { lines: formatWeeklyHours(schedule.weeklyHours), note: settings.hoursNote };
+
   return {
     storeName: settings.storeName,
     description: settings.description,
@@ -103,8 +124,9 @@ export function buildStoreContact(settings: StoreSettingsLike | null): StoreCont
     phone,
     email,
     instagram,
-    pickup: buildPickup(settings),
-    openingHours: settings.openingHours,
+    pickup: buildPickup(settings, hours),
+    hours,
+    schedule,
     hasChannels: Boolean(whatsappHref || phone || email || instagram),
   };
 }

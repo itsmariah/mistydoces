@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { blockedDatesSchema, dayHoursSchema, type WeeklyHours } from "@/lib/store-hours";
 import { whatsappUrl } from "@/lib/whatsapp";
 
 /** Usuário do Instagram: letras, números, ponto e sublinhado, até 30 caracteres. */
@@ -29,6 +30,41 @@ function optionalText(
     .transform((value) => (value === "" ? null : value));
 }
 
+/**
+ * No formulário, a semana é sempre 7 linhas (índice = dia, 0 = domingo) com liga/desliga;
+ * no banco, só os dias abertos. O horário de um dia desligado fica guardado no form,
+ * para não sumir se a pessoa religar o dia.
+ */
+const weekDayFormSchema = z.object({ enabled: z.boolean(), open: z.string(), close: z.string() });
+
+const weeklyHoursFormSchema = z
+  .array(weekDayFormSchema)
+  .length(7)
+  .superRefine((days, ctx) => {
+    days.forEach((item, day) => {
+      if (!item.enabled) return;
+      const parsed = dayHoursSchema.safeParse({ day, open: item.open, close: item.close });
+      if (!parsed.success) {
+        ctx.addIssue({ code: "custom", path: [day, "close"], message: parsed.error.issues[0].message });
+      }
+    });
+  })
+  .transform((days): WeeklyHours =>
+    days.flatMap((item, day) => (item.enabled ? [{ day, open: item.open, close: item.close }] : [])),
+  );
+
+const DEFAULT_FORM_DAY = { open: "13:00", close: "21:00" };
+
+/** Do banco para as 7 linhas do formulário. */
+export function weeklyHoursToForm(hours: WeeklyHours): z.input<typeof weeklyHoursFormSchema> {
+  return Array.from({ length: 7 }, (_, day) => {
+    const item = hours.find((entry) => entry.day === day);
+    return item
+      ? { enabled: true, open: item.open, close: item.close }
+      : { enabled: false, ...DEFAULT_FORM_DAY };
+  });
+}
+
 export const storeSettingsSchema = z.object({
   storeName: z.string().trim().min(2, "Informe o nome da loja.").max(60),
   description: optionalText(200),
@@ -56,7 +92,19 @@ export const storeSettingsSchema = z.object({
     test: (value) => /^\d{5}-?\d{3}$/.test(value),
     message: "Informe um CEP válido (ex.: 58000-000).",
   }),
-  openingHours: optionalText(300),
+  weeklyHours: weeklyHoursFormSchema,
+  hoursNote: optionalText(200),
+  prepMinutes: z
+    .number({ error: "Informe o tempo de preparo." })
+    .int("Use minutos inteiros.")
+    .min(0, "O tempo não pode ser negativo.")
+    .max(24 * 60, "Use no máximo 1440 minutos (24h)."),
+  maxAdvanceDays: z
+    .number({ error: "Informe quantos dias." })
+    .int("Use dias inteiros.")
+    .min(1, "Permita agendar pelo menos 1 dia à frente.")
+    .max(180, "Use no máximo 180 dias."),
+  blockedDates: blockedDatesSchema.transform((dates) => [...new Set(dates)].sort()),
   deliveryFee: z.number().min(0, "A taxa não pode ser negativa."),
 });
 

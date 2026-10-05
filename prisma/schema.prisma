@@ -118,6 +118,8 @@ model Product {
   category    Category         @relation(fields: [categoryId], references: [id])
   isAvailable Boolean          @default(true)
   isActive    Boolean          @default(true)
+  /// Antecedência mínima em dias: 0 = pronta-entrega; 2 = encomenda com 2 dias.
+  leadTimeDays Int             @default(0)
   variants    ProductVariant[]
   reviews     Review[]
   createdAt   DateTime         @default(now())
@@ -189,6 +191,9 @@ model Order {
   couponCodeSnapshot String?
   discountAmount     Decimal @default(0) @db.Decimal(10, 2)
 
+  /// Início da janela (1h) de entrega/retirada. Só pedidos anteriores ao agendamento ficam sem.
+  scheduledFor DateTime?
+
   notes       String?
   subtotal    Decimal @db.Decimal(10, 2)
   deliveryFee Decimal @db.Decimal(10, 2)
@@ -199,6 +204,7 @@ model Order {
 
   @@index([userId])
   @@index([status])
+  @@index([scheduledFor])
 }
 
 enum CouponType {
@@ -273,7 +279,18 @@ model StoreSettings {
   city         String?
   state        String?
   zipCode      String?
-  openingHours String?
+  /// Observação livre sobre o horário (ex.: "Feriados sob consulta"). Era o antigo
+  /// `openingHours` em texto livre — renomeado na migration, sem perder o conteúdo.
+  hoursNote    String?
+  /// Horário por dia da semana: [{ day: 0-6 (0 = domingo), open: "13:00", close: "21:00" }].
+  /// Dia ausente = fechado; `null` = nunca configurado (vale o padrão de `lib/store-hours`).
+  weeklyHours  Json?
+  /// Tempo mínimo (min) entre fazer o pedido e a primeira janela de entrega/retirada.
+  prepMinutes    Int  @default(60)
+  /// Até quantos dias à frente o cliente pode agendar.
+  maxAdvanceDays Int  @default(30)
+  /// Feriados e folgas, como "YYYY-MM-DD" no fuso da loja.
+  blockedDates   Json @default("[]")
   deliveryFee  Decimal  @default(0) @db.Decimal(10, 2)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
