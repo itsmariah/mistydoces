@@ -10,7 +10,11 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const user = { role: session.user.role, name: session.user.name ?? "Equipe" };
+  const user = {
+    role: session.user.role,
+    name: session.user.name ?? "Equipe",
+    avatarUrl: session.user.avatarUrl,
+  };
   // Toda a equipe vê pedidos (orders:view), então todos recebem o aviso de pedido novo.
   const orderAlerts = await adminGetOrderAlerts();
 

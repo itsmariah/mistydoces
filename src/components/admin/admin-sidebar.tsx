@@ -27,6 +27,7 @@ import { usePendingOrdersCount } from "@/components/admin/order-alerts";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -73,9 +74,9 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-type SidebarProps = { role: Role; name: string };
+type SidebarProps = { role: Role; name: string; avatarUrl: string | null };
 
-function SidebarContent({ role, name, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
+function SidebarContent({ role, name, avatarUrl, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
   const pathname = usePathname();
   const pendingCount = usePendingOrdersCount();
   const groups = NAV_GROUPS.map((group) => ({
@@ -131,12 +132,7 @@ function SidebarContent({ role, name, onNavigate }: SidebarProps & { onNavigate?
 
       <div className="space-y-3 border-t border-sidebar-border p-3">
         <div className="flex items-center gap-3 px-1">
-          <span
-            aria-hidden="true"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary font-heading font-semibold text-primary-foreground"
-          >
-            {name.charAt(0).toUpperCase()}
-          </span>
+          <UserAvatar name={name} avatarUrl={avatarUrl} size={36} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">{name}</p>
             <p className="text-xs text-muted-foreground">{ROLE_LABELS[role]}</p>

@@ -10,6 +10,7 @@ import { ReviewForm } from "@/components/catalog/review-form";
 import { ProductGallery } from "@/components/catalog/product-gallery";
 import { BackToCardapioLink } from "@/components/catalog/back-to-cardapio-link";
 import { ProductCard } from "@/components/catalog/product-card";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import { RatingBreakdown } from "@/components/catalog/rating-breakdown";
 import { ShareButton } from "@/components/catalog/share-button";
 import { RecentlyViewed } from "@/components/catalog/recently-viewed";
@@ -257,14 +258,17 @@ export default async function ProdutoPage({
         ) : (
           <div className="space-y-4">
             {reviews.map((review) => (
-              <div key={review.id} className="space-y-1 border-b border-border pb-4 last:border-0">
-                <div className="flex items-center gap-2">
-                  <StarRating value={review.rating} />
-                  <span className="text-sm font-medium">{review.user.name}</span>
+              <div key={review.id} className="flex gap-3 border-b border-border pb-4 last:border-0">
+                <UserAvatar name={review.user.name} avatarUrl={review.user.avatarUrl} size={36} />
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    <span className="text-sm font-medium">{review.user.name}</span>
+                    <StarRating value={review.rating} />
+                  </div>
+                  {review.comment && (
+                    <p className="text-sm text-muted-foreground">{review.comment}</p>
+                  )}
                 </div>
-                {review.comment && (
-                  <p className="text-sm text-muted-foreground">{review.comment}</p>
-                )}
               </div>
             ))}
           </div>

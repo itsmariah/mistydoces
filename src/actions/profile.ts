@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AppError, UnauthorizedError, toActionError } from "@/lib/errors";
 import { changePasswordSchema, updateProfileSchema } from "@/validations/auth";
+import { isOwnAvatarUrl } from "@/lib/avatar";
 
 type ActionResult = { success: true } | { success: false; error: { code: string; message: string } };
 
@@ -32,6 +33,25 @@ export async function updateProfile(input: unknown): Promise<ActionResult> {
 
     // "layout": a saudação com o nome fica no layout da conta, não só na página.
     revalidatePath("/conta", "layout");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: toActionError(error) };
+  }
+}
+
+/** Salva (ou remove, com `null`) a foto de perfil já enviada ao Cloudinary pelo navegador. */
+export async function updateAvatar(avatarUrl: string | null): Promise<ActionResult> {
+  try {
+    const session = await auth();
+    if (!session?.user) throw new UnauthorizedError();
+    if (avatarUrl !== null && !isOwnAvatarUrl(avatarUrl, process.env.CLOUDINARY_CLOUD_NAME)) {
+      throw new AppError("INVALID_AVATAR", "Foto inválida. Envie a imagem de novo.", 400);
+    }
+
+    await prisma.user.update({ where: { id: session.user.id }, data: { avatarUrl } });
+
+    // A foto aparece no cabeçalho, no painel e nas avaliações: atualiza tudo.
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error) {
     return { success: false, error: toActionError(error) };

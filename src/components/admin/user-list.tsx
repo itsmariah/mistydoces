@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { pluralize } from "@/lib/utils";
+import { UserAvatar } from "@/components/shared/user-avatar";
 
 type User = Awaited<ReturnType<typeof listUsers>>["users"][number];
 
@@ -41,16 +42,19 @@ export function UserList({
           key={user.id}
           className="flex items-center justify-between gap-3 rounded-lg surface p-4"
         >
-          <div className="min-w-0 space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-medium">{user.name}</span>
-              {isStaff(user.role) && <Badge>{ROLE_LABELS[user.role]}</Badge>}
-              {user.id === currentUserId && <Badge variant="outline">Você</Badge>}
+          <div className="flex min-w-0 items-center gap-3">
+            <UserAvatar name={user.name} avatarUrl={user.avatarUrl} size={40} />
+            <div className="min-w-0 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-medium">{user.name}</span>
+                {isStaff(user.role) && <Badge>{ROLE_LABELS[user.role]}</Badge>}
+                {user.id === currentUserId && <Badge variant="outline">Você</Badge>}
+              </div>
+              <p className="truncate text-sm text-muted-foreground">
+                {user.email} — {user.phone}
+              </p>
+              <p className="text-xs text-muted-foreground">{pluralize(user._count.orders, "pedido", "pedidos")}</p>
             </div>
-            <p className="truncate text-sm text-muted-foreground">
-              {user.email} — {user.phone}
-            </p>
-            <p className="text-xs text-muted-foreground">{pluralize(user._count.orders, "pedido", "pedidos")}</p>
           </div>
           {canViewOrders && user._count.orders > 0 && (
             <Button

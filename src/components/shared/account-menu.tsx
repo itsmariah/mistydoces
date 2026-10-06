@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { LayoutDashboard, LogOut, MapPin, Package, User } from "lucide-react";
 import { useLogout } from "@/components/shared/logout-button";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,10 +23,12 @@ const ACCOUNT_LINKS = [
 
 export function AccountMenu({
   name,
+  avatarUrl,
   roleLabel,
   adminHref,
 }: {
   name: string;
+  avatarUrl: string | null;
   /** Nível na equipe; ausente para clientes. */
   roleLabel?: string;
   /** Página inicial do painel; ausente para clientes. */
@@ -38,7 +41,11 @@ export function AccountMenu({
       <DropdownMenuTrigger
         render={<Button variant="ghost" size="icon" aria-label="Minha conta" />}
       >
-        <User className="h-5 w-5" />
+        {avatarUrl ? (
+          <UserAvatar name={name} avatarUrl={avatarUrl} size={28} />
+        ) : (
+          <User className="h-5 w-5" />
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuGroup>

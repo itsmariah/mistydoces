@@ -66,6 +66,8 @@ model User {
   email               String              @unique
   phone               String
   passwordHash        String
+  /// Foto de perfil no Cloudinary (pasta mistydoces/avatars); sem foto, mostra a inicial.
+  avatarUrl           String?
   role                Role                @default(CUSTOMER)
   addresses           Address[]
   orders              Order[]

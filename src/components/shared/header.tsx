@@ -54,6 +54,7 @@ export async function Header() {
             {user ? (
               <AccountMenu
                 name={user.name ?? user.email ?? "Minha conta"}
+                avatarUrl={user.avatarUrl}
                 roleLabel={staff ? ROLE_LABELS[user.role] : undefined}
                 adminHref={staff ? adminHomePath(user.role) : undefined}
               />

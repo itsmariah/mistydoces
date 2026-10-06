@@ -31,6 +31,7 @@ export async function listUsers({ search, page }: { search?: string; page: numbe
         name: true,
         email: true,
         phone: true,
+        avatarUrl: true,
         role: true,
         createdAt: true,
         _count: { select: { orders: true } },

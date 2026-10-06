@@ -7,7 +7,7 @@ export function getProductReviews(productId: string) {
   return prisma.review.findMany({
     where: { productId, isVisible: true },
     orderBy: { createdAt: "desc" },
-    include: { user: { select: { name: true } } },
+    include: { user: { select: { name: true, avatarUrl: true } } },
   });
 }
 

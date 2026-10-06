@@ -30,6 +30,7 @@ export const authConfig = {
     session({ session, token }) {
       session.user.id = token.id;
       session.user.role = token.role;
+      session.user.avatarUrl = token.avatarUrl ?? null;
       return session;
     },
   },

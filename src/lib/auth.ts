@@ -48,16 +48,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return token;
       }
 
-      // Rebusca a role a cada verificação de sessão (auth.js roda este
-      // callback em todo `auth()`, não só no login) — mantém a autorização
-      // atualizada mesmo usando estratégia JWT (ver decisão da Fase 1).
+      // Rebusca role, nome e foto a cada verificação de sessão (auth.js roda este
+      // callback em todo `auth()`, não só no login) — mantém a autorização e o
+      // perfil atualizados mesmo usando estratégia JWT (ver decisão da Fase 1).
       const userId: string | undefined = token.id;
       if (userId) {
         const dbUser = await prisma.user.findUnique({
           where: { id: userId },
-          select: { role: true },
+          select: { role: true, name: true, avatarUrl: true },
         });
-        if (dbUser) token.role = dbUser.role;
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.name = dbUser.name;
+          token.avatarUrl = dbUser.avatarUrl;
+        }
       }
 
       return token;

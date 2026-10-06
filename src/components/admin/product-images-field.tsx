@@ -6,44 +6,7 @@ import { ArrowLeft, ArrowRight, Star, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { MAX_PRODUCT_IMAGES } from "@/validations/product";
 import { cn } from "@/lib/utils";
-
-type SignResponse = {
-  signature: string;
-  timestamp: number;
-  folder: string;
-  apiKey: string;
-  cloudName: string;
-};
-
-/** Upload assinado direto para o Cloudinary: o arquivo não passa pelo nosso servidor. */
-async function uploadToCloudinary(file: File): Promise<string> {
-  const signResponse = await fetch("/api/uploads/sign", { method: "POST" });
-  if (!signResponse.ok) {
-    const body = await signResponse.json().catch(() => null);
-    throw new Error(body?.error ?? "Não foi possível preparar o upload.");
-  }
-  const { signature, timestamp, folder, apiKey, cloudName }: SignResponse =
-    await signResponse.json();
-
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("api_key", apiKey);
-  formData.append("timestamp", String(timestamp));
-  formData.append("signature", signature);
-  formData.append("folder", folder);
-
-  const uploadResponse = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-    { method: "POST", body: formData },
-  );
-  if (!uploadResponse.ok) {
-    const body = await uploadResponse.json().catch(() => null);
-    const reason = body?.error?.message ? ` (${body.error.message})` : "";
-    throw new Error(`Falha no upload da imagem. Confira as credenciais do Cloudinary.${reason}`);
-  }
-  const data = await uploadResponse.json();
-  return data.secure_url as string;
-}
+import { uploadToCloudinary } from "@/lib/upload-image";
 
 const ICON_BUTTON =
   "flex size-7 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm transition-colors hover:bg-background disabled:opacity-40";
@@ -81,7 +44,7 @@ export function ProductImagesField({
     const uploaded: string[] = [];
     try {
       for (const file of accepted) {
-        uploaded.push(await uploadToCloudinary(file));
+        uploaded.push(await uploadToCloudinary(file, "product"));
         setUploadingCount((count) => count - 1);
       }
     } catch (err) {
