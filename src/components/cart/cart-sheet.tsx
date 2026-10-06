@@ -35,6 +35,8 @@ export function CartSheet() {
     updateQuantity,
     removeItem,
     restoreItem,
+    clear,
+    restoreAll,
     refresh,
     isOpen,
     setOpen,
@@ -66,6 +68,15 @@ export function CartSheet() {
     toast(`${item.productName} removido do carrinho`, {
       description: item.variantLabel,
       action: { label: "Desfazer", onClick: () => restoreItem(item, index) },
+    });
+  }
+
+  // Sem confirmação: limpa na hora e o toast oferece desfazer, como na remoção de um item.
+  function handleClear() {
+    const snapshot = items;
+    clear();
+    toast("Carrinho limpo", {
+      action: { label: "Desfazer", onClick: () => restoreAll(snapshot) },
     });
   }
 
@@ -170,6 +181,16 @@ export function CartSheet() {
                 </div>
               </div>
             ))}
+            <div className="flex justify-end pb-2">
+              <button
+                type="button"
+                onClick={handleClear}
+                className="flex items-center gap-1.5 rounded-full px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-destructive"
+              >
+                <Trash2 className="size-3.5" aria-hidden="true" />
+                Limpar carrinho
+              </button>
+            </div>
           </div>
         )}
 

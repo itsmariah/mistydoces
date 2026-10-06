@@ -44,6 +44,8 @@ type CartContextValue = {
   /** Recoloca um item removido na mesma posição — usado pelo "Desfazer" do toast. */
   restoreItem: (item: CartItem, index: number) => void;
   clear: () => void;
+  /** Volta o carrinho que foi limpo — usado pelo "Desfazer" do "Limpar carrinho". */
+  restoreAll: (snapshot: CartItem[]) => void;
   /** Confere preço, nome, foto e disponibilidade no servidor e avisa o que mudou. */
   refresh: () => Promise<void>;
   isRefreshing: boolean;
@@ -195,6 +197,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function restoreAll(snapshot: CartItem[]) {
+    setItems((current) => {
+      // O que entrou depois de limpar continua, no fim da lista.
+      const restoredKeys = new Set(snapshot.map(cartLineKey));
+      return [...snapshot, ...current.filter((line) => !restoredKeys.has(cartLineKey(line)))];
+    });
+  }
+
   // Antes da hidratação, o servidor sempre renderizou um carrinho vazio —
   // expor os valores reais só depois de `mounted` evita divergência de hidratação.
   const visibleItems = mounted ? items : [];
@@ -217,6 +227,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeItem,
         restoreItem,
         clear,
+        restoreAll,
         refresh,
         isRefreshing,
         isOpen,
