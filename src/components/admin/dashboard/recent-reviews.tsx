@@ -23,7 +23,7 @@ export function RecentReviews({ reviews }: { reviews: DashboardData["recentRevie
       </div>
 
       {reviews.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nenhuma avaliação ainda.</p>
+        <p className="text-sm text-muted-foreground">Nenhuma avaliação ainda. Elas chegam depois das primeiras entregas.</p>
       ) : (
         <ul className="divide-y divide-border">
           {reviews.map((review) => (

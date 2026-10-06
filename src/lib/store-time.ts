@@ -68,3 +68,11 @@ export function startOfDayInStoreTime(dayKey: string): Date {
 export function storeInstant(dayKey: string, minutes: number): Date {
   return new Date(startOfDayInStoreTime(dayKey).getTime() + minutes * 60 * 1000);
 }
+
+/** "Bom dia" até meio-dia, "Boa tarde" até 18h, "Boa noite" depois — no relógio da loja. */
+export function greetingFor(date: Date): string {
+  const minutes = minutesOfDay(date);
+  if (minutes < 12 * 60) return "Bom dia";
+  if (minutes < 18 * 60) return "Boa tarde";
+  return "Boa noite";
+}

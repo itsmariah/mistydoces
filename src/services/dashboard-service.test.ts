@@ -25,6 +25,7 @@ const {
   summarizeSales,
   groupSalesByDay,
   rankTopProducts,
+  percentChange,
   getDashboardData,
 } = await import("@/services/dashboard-service");
 
@@ -108,6 +109,18 @@ describe("rankTopProducts", () => {
   });
 });
 
+describe("percentChange", () => {
+  it("calcula a variação arredondada, para cima e para baixo", () => {
+    expect(percentChange(112, 100)).toBe(12);
+    expect(percentChange(95, 100)).toBe(-5);
+    expect(percentChange(100, 100)).toBe(0);
+  });
+
+  it("não compara quando o período anterior está zerado", () => {
+    expect(percentChange(50, 0)).toBeNull();
+  });
+});
+
 describe("getDashboardData", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -130,15 +143,35 @@ describe("getDashboardData", () => {
     expect(data.dailySales).toHaveLength(30);
   });
 
-  it("busca os pedidos a partir da meia-noite (São Paulo) do primeiro dia da janela", async () => {
+  it("busca os pedidos desde a meia-noite (São Paulo) do início do período anterior", async () => {
     prismaMock.order.findMany.mockResolvedValue([]);
 
     await getDashboardData(new Date("2026-09-26T20:00:00Z"));
 
     const where = prismaMock.order.findMany.mock.calls[0][0].where;
-    expect(where.createdAt.gte.toISOString()).toBe("2026-08-28T03:00:00.000Z");
+    // 60 dias: 30 do período atual (desde 28/08) + 30 do anterior (desde 29/07).
+    expect(where.createdAt.gte.toISOString()).toBe("2026-07-29T03:00:00.000Z");
     expect(where.status.in).not.toContain("PENDING");
     expect(where.status.in).not.toContain("CANCELLED");
+  });
+
+  it("separa o período anterior do atual e compara hoje com ontem até o mesmo horário", async () => {
+    prismaMock.order.findMany.mockResolvedValue([
+      // Hoje (26/09), 10h em São Paulo.
+      { createdAt: new Date("2026-09-26T13:00:00Z"), total: "40.00" },
+      // Ontem às 10h (conta) e às 20h (depois do horário de agora, 17h — não conta).
+      { createdAt: new Date("2026-09-25T13:00:00Z"), total: "25.00" },
+      { createdAt: new Date("2026-09-25T23:00:00Z"), total: "15.00" },
+      // Período anterior (antes de 28/08).
+      { createdAt: new Date("2026-08-10T13:00:00Z"), total: "70.00" },
+    ]);
+
+    const data = await getDashboardData(new Date("2026-09-26T20:00:00Z"));
+
+    expect(data.yesterdaySoFar).toEqual({ revenue: 25, orders: 1, averageTicket: 25 });
+    expect(data.period.revenue).toBe(80);
+    expect(data.previousPeriod).toEqual({ revenue: 70, orders: 1, averageTicket: 70 });
+    expect(data.dailySales).toHaveLength(30);
   });
 
   it("lista todos os status em aberto, com zero nos que não têm pedido", async () => {

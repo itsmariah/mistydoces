@@ -25,7 +25,7 @@ export function TodayAgenda({ day, now }: { day: AgendaDay; now: Date }) {
       </div>
 
       {count === 0 ? (
-        <p className="text-sm text-muted-foreground">Nenhum pedido agendado para hoje.</p>
+        <p className="text-sm text-muted-foreground">Dia livre: nenhum pedido agendado para hoje.</p>
       ) : (
         <>
           <p className="text-sm">

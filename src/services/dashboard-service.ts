@@ -42,6 +42,15 @@ export function summarizeSales(sales: Array<{ total: number }>): SalesSummary {
   };
 }
 
+/**
+ * Variação percentual de `current` sobre `previous`, arredondada. `null` quando não há
+ * base de comparação (período anterior zerado) — "+∞%" não ajuda ninguém.
+ */
+export function percentChange(current: number, previous: number): number | null {
+  if (previous <= 0) return null;
+  return Math.round(((current - previous) / previous) * 100);
+}
+
 export type DailySales = { day: string; revenue: number; orders: number };
 
 /** Vendas por dia, com zero nos dias sem pedido — o gráfico precisa de todos os dias. */
@@ -143,13 +152,22 @@ async function getOpenOrderCounts(): Promise<Array<{ status: OrderStatus; count:
 }
 
 export async function getDashboardData(now = new Date()) {
-  const dayKeys = recentDayKeys(now, DASHBOARD_WINDOW_DAYS);
+  // Busca o dobro da janela: a primeira metade é o período anterior, usado na comparação.
+  const allKeys = recentDayKeys(now, DASHBOARD_WINDOW_DAYS * 2);
+  const dayKeys = allKeys.slice(DASHBOARD_WINDOW_DAYS);
+  const previousKeys = new Set(allKeys.slice(0, DASHBOARD_WINDOW_DAYS));
   const since = startOfDayInStoreTime(dayKeys[0]);
   const todayKey = dayKeys[dayKeys.length - 1];
+  const yesterdayKey = dayKeys[dayKeys.length - 2];
+  // "Ontem neste horário": comparar o dia parcial de hoje com o dia inteiro de ontem seria injusto.
+  const sameTimeYesterday = now.getTime() - DAY_MS;
 
   const [orders, openOrders, topProducts, recentReviews] = await Promise.all([
     prisma.order.findMany({
-      where: { status: { in: COUNTED_STATUSES }, createdAt: { gte: since } },
+      where: {
+        status: { in: COUNTED_STATUSES },
+        createdAt: { gte: startOfDayInStoreTime(allKeys[0]) },
+      },
       select: { createdAt: true, total: true },
     }),
     getOpenOrderCounts(),
@@ -167,12 +185,20 @@ export async function getDashboardData(now = new Date()) {
   const sales = orders.map((order) => ({
     createdAt: order.createdAt,
     total: Number(order.total.toString()),
+    day: toDayKey(order.createdAt),
   }));
+  const current = sales.filter((sale) => sale.createdAt.getTime() >= since.getTime());
 
   return {
-    today: summarizeSales(sales.filter((sale) => toDayKey(sale.createdAt) === todayKey)),
-    period: summarizeSales(sales),
-    dailySales: groupSalesByDay(sales, dayKeys),
+    today: summarizeSales(current.filter((sale) => sale.day === todayKey)),
+    yesterdaySoFar: summarizeSales(
+      sales.filter(
+        (sale) => sale.day === yesterdayKey && sale.createdAt.getTime() <= sameTimeYesterday,
+      ),
+    ),
+    period: summarizeSales(current),
+    previousPeriod: summarizeSales(sales.filter((sale) => previousKeys.has(sale.day))),
+    dailySales: groupSalesByDay(current, dayKeys),
     openOrders,
     topProducts,
     recentReviews,

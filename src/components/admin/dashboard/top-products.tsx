@@ -11,7 +11,7 @@ export function TopProducts({ products, windowDays }: { products: TopProduct[]; 
       </div>
 
       {products.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nenhuma venda no período.</p>
+        <p className="text-sm text-muted-foreground">Os mais vendidos aparecem aqui depois das primeiras vendas.</p>
       ) : (
         <ol className="divide-y divide-border">
           {products.map((product, index) => (

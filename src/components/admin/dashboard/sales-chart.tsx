@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type { DailySales } from "@/services/dashboard-service";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, pluralize } from "@/lib/utils";
 
 const axisFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -30,22 +31,92 @@ function describe(day: DailySales): string {
   return `${formatDay(day.day)}: ${formatCurrency(day.revenue)}, ${orders}`;
 }
 
+const RANGES = [7, 30] as const;
+type Range = (typeof RANGES)[number];
+
+/**
+ * Faturamento por dia com seletor de período. Recebe os 30 dias do painel; os 7 dias são
+ * o final da mesma série — trocar de período não busca nada no servidor.
+ */
 export function SalesChart({ days }: { days: DailySales[] }) {
+  const [range, setRange] = useState<Range>(7);
+  const visible = days.slice(-range);
+  // Soma em centavos, como no servidor (o serviço importa Prisma, não dá para usar aqui).
+  const revenue = visible.reduce((cents, day) => cents + Math.round(day.revenue * 100), 0) / 100;
+  const ordersCount = visible.reduce((sum, day) => sum + day.orders, 0);
+
+  return (
+    <section className="space-y-4 rounded-lg border border-border bg-card p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-0.5">
+          <h2 className="font-heading text-lg font-semibold">Faturamento por dia</h2>
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground tabular-nums">
+              {formatCurrency(revenue)}
+            </span>{" "}
+            em {pluralize(ordersCount, "pedido", "pedidos")} nos últimos {range} dias
+          </p>
+        </div>
+        <div
+          role="group"
+          aria-label="Período do gráfico"
+          className="flex rounded-full border border-border p-0.5 text-sm"
+        >
+          {RANGES.map((option) => (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={range === option}
+              onClick={() => setRange(option)}
+              className={cn(
+                "rounded-full px-3 py-1 transition-colors",
+                range === option
+                  ? "bg-primary font-medium text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {option} dias
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {revenue === 0 ? (
+        <div className="flex flex-col items-center gap-2 py-6 text-center">
+          <Image
+            src="/branding/02_gatinha_dormindo.png"
+            alt=""
+            width={96}
+            height={96}
+            className="h-auto w-24 dark:brightness-95"
+          />
+          <p className="text-sm text-muted-foreground">
+            Nenhuma venda nos últimos {range} dias. A Misty está esperando o próximo pedido.
+          </p>
+        </div>
+      ) : (
+        <Bars key={range} days={visible} />
+      )}
+    </section>
+  );
+}
+
+function Bars({ days }: { days: DailySales[] }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const max = Math.max(...days.map((day) => day.revenue));
-
-  if (max === 0) {
-    return (
-      <p className="py-10 text-center text-sm text-muted-foreground">
-        Nenhuma venda nos últimos {days.length} dias.
-      </p>
-    );
-  }
+  const few = days.length <= 7;
+  // Nas pontas, o balão ancora para dentro em vez de centralizar e vazar.
+  const edge = few ? 1 : 4;
+  // Com barras largas o rótulo fica sob a barra; com 30, as pontas encostam na borda.
+  const centered = (index: number) => few || (index !== 0 && index !== days.length - 1);
 
   const { top, step } = niceScale(max);
   const ticks = Array.from({ length: Math.round(top / step) + 1 }, (_, index) => index * step);
   const active = activeIndex === null ? null : days[activeIndex];
-  const labeledIndexes = new Set([0, Math.floor(days.length / 2), days.length - 1]);
+  // Com 7 dias cabe o rótulo de todos; com 30, só primeiro, meio e último.
+  const labeledIndexes = new Set(
+    few ? days.map((_, index) => index) : [0, Math.floor(days.length / 2), days.length - 1],
+  );
 
   return (
     <div className="space-y-3">
@@ -92,7 +163,8 @@ export function SalesChart({ days }: { days: DailySales[] }) {
                 >
                   <div
                     className={cn(
-                      "w-full max-w-6 rounded-t-[4px] bg-chart-1 transition-opacity",
+                      "w-full rounded-t-[4px] bg-chart-1 transition-opacity",
+                      few ? "max-w-12" : "max-w-6",
                       activeIndex !== null && activeIndex !== index && "opacity-60",
                     )}
                     style={{ height: `${(day.revenue / top) * 100}%` }}
@@ -107,9 +179,12 @@ export function SalesChart({ days }: { days: DailySales[] }) {
                 className="pointer-events-none absolute -top-2 z-10 rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs whitespace-nowrap shadow-md"
                 style={{
                   left: `${((activeIndex + 0.5) / days.length) * 100}%`,
-                  // Nas pontas, ancora o balão para dentro em vez de centralizar e vazar.
                   transform: `translate(${
-                    activeIndex < 4 ? "-10%" : activeIndex > days.length - 5 ? "-90%" : "-50%"
+                    activeIndex < edge
+                      ? "-10%"
+                      : activeIndex > days.length - 1 - edge
+                        ? "-90%"
+                        : "-50%"
                   }, -100%)`,
                 }}
               >
@@ -122,7 +197,7 @@ export function SalesChart({ days }: { days: DailySales[] }) {
             )}
           </div>
 
-          {/* Eixo X: só primeiro, meio e último dia — rótulo em toda barra vira ruído. */}
+          {/* Eixo X: com 30 dias, rótulo em toda barra vira ruído (ver labeledIndexes). */}
           <div className="relative mt-1 h-4 text-xs text-muted-foreground" aria-hidden="true">
             {days.map((day, index) =>
               labeledIndexes.has(index) ? (
@@ -130,10 +205,10 @@ export function SalesChart({ days }: { days: DailySales[] }) {
                   key={day.day}
                   className={cn(
                     "absolute",
-                    index === 0 ? "left-0" : index === days.length - 1 ? "right-0" : "-translate-x-1/2",
+                    centered(index) ? "-translate-x-1/2" : index === 0 ? "left-0" : "right-0",
                   )}
                   style={
-                    index !== 0 && index !== days.length - 1
+                    centered(index)
                       ? { left: `${((index + 0.5) / days.length) * 100}%` }
                       : undefined
                   }
