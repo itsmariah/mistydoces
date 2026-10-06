@@ -108,7 +108,12 @@ export function ProductForm({
             control={control}
             name="categoryId"
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange} disabled={readOnly}>
+              <Select
+                items={categories.map((category) => ({ value: category.id, label: category.name }))}
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={readOnly}
+              >
                 <SelectTrigger id="categoryId" className="w-full">
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>

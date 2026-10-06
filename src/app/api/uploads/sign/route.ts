@@ -9,6 +9,14 @@ export async function POST() {
   try {
     await requirePermission("products:edit");
 
+    const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
+    if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+      return NextResponse.json(
+        { error: "Upload indisponível: as credenciais do Cloudinary não estão configuradas no .env." },
+        { status: 503 },
+      );
+    }
+
     const timestamp = Math.round(Date.now() / 1000);
     const signature = cloudinary.utils.api_sign_request(
       { timestamp, folder: UPLOAD_FOLDER },

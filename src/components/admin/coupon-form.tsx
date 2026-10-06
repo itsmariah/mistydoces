@@ -18,6 +18,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const COUPON_TYPE_LABELS = {
+  PERCENTAGE: "Percentual (%)",
+  FIXED: "Valor fixo (R$)",
+};
+
 export function CouponForm({
   couponId,
   defaultValues,
@@ -81,13 +86,16 @@ export function CouponForm({
           control={control}
           name="type"
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
+            <Select items={COUPON_TYPE_LABELS} value={field.value} onValueChange={field.onChange}>
               <SelectTrigger id="type" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="PERCENTAGE">Percentual (%)</SelectItem>
-                <SelectItem value="FIXED">Valor fixo (R$)</SelectItem>
+                {Object.entries(COUPON_TYPE_LABELS).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           )}

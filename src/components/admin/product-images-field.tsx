@@ -37,7 +37,9 @@ async function uploadToCloudinary(file: File): Promise<string> {
     { method: "POST", body: formData },
   );
   if (!uploadResponse.ok) {
-    throw new Error("Falha no upload da imagem. Confira as credenciais do Cloudinary.");
+    const body = await uploadResponse.json().catch(() => null);
+    const reason = body?.error?.message ? ` (${body.error.message})` : "";
+    throw new Error(`Falha no upload da imagem. Confira as credenciais do Cloudinary.${reason}`);
   }
   const data = await uploadResponse.json();
   return data.secure_url as string;
