@@ -1,13 +1,13 @@
 import { ViewTransition } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import type { Category, Product, ProductVariant } from "@/generated/prisma/client";
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { QuickAddButton } from "@/components/catalog/quick-add-button";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
-import { productImageTransitionName } from "@/lib/view-transitions";
+import { ProductCardLink } from "@/components/catalog/product-card-link";
+import { PRODUCT_CARD_IMAGE_SIZES, productImageTransitionName } from "@/lib/view-transitions";
 import { formatRating, type RatingSummary } from "@/lib/rating";
 import { formatCurrency, getStartingPrice } from "@/lib/utils";
 import { formatLeadTimeShort } from "@/lib/scheduling";
@@ -63,7 +63,7 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
                 alt={product.name}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                sizes={PRODUCT_CARD_IMAGE_SIZES}
               />
             ) : (
               <ProductPlaceholderImage />
@@ -106,12 +106,13 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
           {product.category.name}
         </span>
         <h3 className="font-heading text-base font-semibold">
-          <Link
-            href={`/cardapio/${product.slug}`}
+          <ProductCardLink
+            slug={product.slug}
+            coverUrl={product.imageUrl}
             className="outline-none after:absolute after:inset-0"
           >
             {product.name}
-          </Link>
+          </ProductCardLink>
         </h3>
         {rating && rating.count > 0 && (
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
