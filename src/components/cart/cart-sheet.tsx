@@ -81,7 +81,11 @@ export function CartSheet() {
           />
         }
       >
-        <span key={bumpKey} className={cn("relative flex", bumpKey > 0 && "animate-pop")}>
+        <span
+          key={bumpKey}
+          data-cart-target
+          className={cn("relative flex", bumpKey > 0 && "animate-pop")}
+        >
           <ShoppingBag className="h-5 w-5" />
           {itemCount > 0 && (
             <span className="absolute -top-2 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">

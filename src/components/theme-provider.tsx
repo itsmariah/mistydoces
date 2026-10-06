@@ -59,6 +59,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   function setTheme(next: Theme) {
     setThemeState(next);
     window.localStorage.setItem(THEME_STORAGE_KEY, next);
+    // Aplica já, sem esperar o efeito: a transição circular do ThemeToggle fotografa a
+    // página logo depois desta chamada e precisa do tema novo pintado.
+    applyTheme(next === "system" ? getSystemTheme() : next);
   }
 
   const resolvedTheme: ResolvedTheme = mounted

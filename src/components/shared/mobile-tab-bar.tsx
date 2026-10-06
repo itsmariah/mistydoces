@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CakeSlice, Heart, Home, ShoppingBag, User, type LucideIcon } from "lucide-react";
 import { useCart } from "@/components/cart/cart-provider";
 import { useFavorites } from "@/components/favorites/favorites-provider";
 import { isActivePath } from "@/components/shared/nav-links";
+import { useMounted } from "@/lib/use-mounted";
 import { cn } from "@/lib/utils";
 
 /**
@@ -35,6 +37,14 @@ export function MobileTabBar({ isLoggedIn }: { isLoggedIn: boolean }) {
   const pathname = usePathname();
   const { itemCount, setOpen } = useCart();
   const { count: favoritesCount } = useFavorites();
+  // Mesmo "pulinho" da sacola do cabeçalho quando um item entra (ver CartSheet).
+  const mounted = useMounted();
+  const [previousCount, setPreviousCount] = useState<number | null>(null);
+  const [bumpKey, setBumpKey] = useState(0);
+  if (mounted && itemCount !== previousCount) {
+    if (previousCount !== null && itemCount > previousCount) setBumpKey((key) => key + 1);
+    setPreviousCount(itemCount);
+  }
 
   if (HIDDEN_ON.some((pattern) => pattern.test(pathname))) return null;
 
@@ -83,7 +93,11 @@ export function MobileTabBar({ isLoggedIn }: { isLoggedIn: boolean }) {
             aria-label={itemCount > 0 ? `Carrinho (${itemCount} itens)` : "Carrinho"}
             className={cn(ITEM_CLASS, "w-full text-muted-foreground")}
           >
-            <span className="relative">
+            <span
+              key={bumpKey}
+              data-cart-target
+              className={cn("relative", bumpKey > 0 && "animate-pop")}
+            >
               <ShoppingBag className="size-5" aria-hidden="true" />
               <Badge count={itemCount} />
             </span>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Check, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/components/cart/cart-provider";
+import { flyToCart } from "@/lib/fly-to-cart";
 import { cn } from "@/lib/utils";
 
 /** Quanto tempo o botão mostra o "check" antes de voltar ao "+". */
@@ -36,6 +37,7 @@ export function QuickAddButton({
   const { addItem, setOpen } = useCart();
   const [justAdded, setJustAdded] = useState(false);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     return () => {
@@ -44,11 +46,16 @@ export function QuickAddButton({
   }, []);
 
   function handleClick() {
-    addItem(
-      { variantId, productSlug, productName, variantLabel, price, imageUrl, leadTimeDays },
-      1,
-      { openCart: false },
-    );
+    const add = () =>
+      addItem(
+        { variantId, productSlug, productName, variantLabel, price, imageUrl, leadTimeDays },
+        1,
+        { openCart: false },
+      );
+    // A sacola só conta o item quando a miniatura chega nela — o "pulinho" do ícone
+    // coincide com a chegada. Sem animação, `flyToCart` resolve na hora.
+    if (buttonRef.current) void flyToCart(buttonRef.current, imageUrl).then(add);
+    else add();
     toast.success(`${productName} adicionado ao carrinho`, {
       action: { label: "Ver carrinho", onClick: () => setOpen(true) },
     });
@@ -59,6 +66,7 @@ export function QuickAddButton({
 
   return (
     <button
+      ref={buttonRef}
       type="button"
       onClick={handleClick}
       aria-label={`Adicionar ${productName} ao carrinho`}

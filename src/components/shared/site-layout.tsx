@@ -5,6 +5,7 @@ import { BackToTop } from "@/components/shared/back-to-top";
 import { FavoritesProvider } from "@/components/favorites/favorites-provider";
 import { getCurrentFavorites } from "@/services/favorite-service";
 import { MobileTabBar } from "@/components/shared/mobile-tab-bar";
+import { PageTransition } from "@/components/shared/page-transition";
 
 export async function SiteLayout({ children }: { children: ReactNode }) {
   const favorites = await getCurrentFavorites();
@@ -20,7 +21,7 @@ export async function SiteLayout({ children }: { children: ReactNode }) {
       </a>
       <Header />
       <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">
-        {children}
+        <PageTransition>{children}</PageTransition>
       </main>
       <Footer />
       {/* Reserva espaço para as barras fixas do celular ("Adicionar" e abas) não cobrirem o rodapé. */}

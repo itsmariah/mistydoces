@@ -1,10 +1,32 @@
 "use client";
 
+import { useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { useFavorites } from "@/components/favorites/favorites-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+/** Direção de cada mini coração (6, espalhados em volta, levemente para cima). */
+const BURST = [0, 60, 120, 180, 240, 300].map((angle) => {
+  const radians = ((angle - 90) * Math.PI) / 180;
+  return { "--burst-x": `${Math.round(Math.cos(radians) * 26)}px`, "--burst-y": `${Math.round(Math.sin(radians) * 26) - 4}px` };
+});
+
+/** Mini corações lilás saindo do botão — só ao favoritar, não ao remover. */
+function HeartBurst() {
+  return (
+    <span aria-hidden="true" className="pointer-events-none absolute inset-0">
+      {BURST.map((style, index) => (
+        <Heart
+          key={index}
+          style={style as CSSProperties}
+          className="absolute top-1/2 left-1/2 size-2.5 animate-heart-burst fill-script text-script"
+        />
+      ))}
+    </span>
+  );
+}
 
 /**
  * Coração de favoritar. `overlay`: redondo, sobre a foto do card; `inline`: botão com
@@ -23,15 +45,25 @@ export function FavoriteButton({
 }) {
   const { isFavorite, toggle } = useFavorites();
   const active = isFavorite(productId);
+  // Muda a cada favoritada: remonta o coração (pop) e os mini corações (burst).
+  const [burstKey, setBurstKey] = useState(0);
+
+  function handleToggle() {
+    if (!active) setBurstKey((key) => key + 1);
+    toggle(productId, productName);
+  }
   const label = active
     ? `Remover ${productName} dos favoritos`
     : `Salvar ${productName} nos favoritos`;
 
   const icon = (
-    <Heart
-      className={cn("size-4 transition-transform", active && "scale-110 fill-current")}
-      aria-hidden="true"
-    />
+    <span key={burstKey} className={cn("relative flex", burstKey > 0 && active && "animate-pop")}>
+      <Heart
+        className={cn("size-4 transition-transform", active && "scale-110 fill-current")}
+        aria-hidden="true"
+      />
+      {burstKey > 0 && active && <HeartBurst />}
+    </span>
   );
 
   if (variant === "inline") {
@@ -41,7 +73,7 @@ export function FavoriteButton({
         variant="outline"
         size="sm"
         aria-pressed={active}
-        onClick={() => toggle(productId, productName)}
+        onClick={handleToggle}
         className={cn(active && "text-secondary-foreground", className)}
       >
         {icon}
@@ -55,7 +87,7 @@ export function FavoriteButton({
       type="button"
       aria-pressed={active}
       aria-label={label}
-      onClick={() => toggle(productId, productName)}
+      onClick={handleToggle}
       className={cn(
         // `relative z-10`: fica acima do link "esticado" que cobre o card inteiro.
         "relative z-10 flex size-9 items-center justify-center rounded-full bg-background/90 shadow-sm transition-colors hover:bg-background active:scale-90",
