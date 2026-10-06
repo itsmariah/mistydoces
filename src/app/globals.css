@@ -62,6 +62,47 @@
   --animate-float: float 6s ease-in-out infinite;
   --animate-pop: pop 450ms ease-out;
   --animate-confetti: confetti var(--confetti-duration, 2.6s) ease-in var(--confetti-delay, 0s) both;
+  --animate-breathe: breathe 5s ease-in-out infinite;
+  --animate-wiggle: wiggle 600ms ease-in-out;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+
+  /* A Misty do destaque "respirando": quase imperceptível, só para não parecer congelada. */
+  @keyframes breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.025);
+    }
+  }
+
+  /* Balançadinha da Misty ao passar o mouse (destaque e logo do cabeçalho). */
+  @keyframes wiggle {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(-7deg);
+    }
+    50% {
+      transform: rotate(5deg);
+    }
+    75% {
+      transform: rotate(-3deg);
+    }
+  }
+
+  /* Brilho lilás passando pelo esqueleto de carregamento. */
+  @keyframes shimmer {
+    from {
+      background-position: 150% 0;
+    }
+    to {
+      background-position: -50% 0;
+    }
+  }
 
   @keyframes float {
     0%,
@@ -211,6 +252,40 @@
   border: 1px solid var(--border);
   background-color: var(--card);
   box-shadow: var(--shadow-card);
+}
+
+/* Esqueleto de carregamento: fundo `muted` com um brilho lilás atravessando. Com movimento
+   reduzido, a animação termina na hora e sobra só o fundo liso. */
+@utility skeleton-shimmer {
+  background-color: var(--muted);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--secondary) 85%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  animation: var(--animate-shimmer);
+}
+
+/* Entrada ao rolar: o elemento sobe e aparece enquanto entra na tela, guiado pela rolagem
+   (sem JavaScript). `--reveal-step` atrasa itens de uma mesma fileira, em cascata.
+   Sem suporte no navegador ou com movimento reduzido, fica simplesmente visível. */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--reveal-step, 0) * 8%) entry calc(70% + var(--reveal-step, 0) * 8%);
+    }
+  }
 }
 
 @layer base {

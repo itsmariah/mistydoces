@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { Bike, CreditCard, ShoppingBag, type LucideIcon } from "lucide-react";
 import { Wave } from "@/components/home/section-dividers";
 
@@ -25,7 +26,7 @@ export function HowItWorks() {
       <Wave className="text-accent/40 dark:text-secondary/35" />
       <div className="bg-accent/40 py-12 sm:py-16 dark:bg-secondary/35">
         <div className="mx-auto max-w-5xl space-y-10 px-4">
-          <div className="text-center">
+          <div className="reveal text-center">
             <p className="font-display text-xl text-script">simples assim</p>
             <h2 id="como-funciona-titulo" className="font-heading text-2xl font-semibold">
               Como funciona
@@ -33,7 +34,11 @@ export function HowItWorks() {
           </div>
           <ol className="grid gap-8 sm:grid-cols-3">
             {STEPS.map(({ icon: Icon, title, description }, index) => (
-              <li key={title} className="flex flex-col items-center gap-3 text-center">
+              <li
+                key={title}
+                style={{ "--reveal-step": index } as CSSProperties}
+                className="reveal flex flex-col items-center gap-3 text-center"
+              >
                 <span className="relative flex size-14 items-center justify-center rounded-full bg-background text-link shadow-sm dark:bg-accent">
                   <Icon className="h-6 w-6" aria-hidden="true" />
                   <span

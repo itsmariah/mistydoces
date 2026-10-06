@@ -25,7 +25,7 @@ export function Logo({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center gap-1.5 font-heading font-semibold text-foreground",
+        "group inline-flex items-center gap-1.5 font-heading font-semibold text-foreground",
         textSize,
         className,
       )}
@@ -35,6 +35,7 @@ export function Logo({
         alt=""
         width={iconWidth}
         height={iconHeight}
+        className="origin-bottom group-hover:animate-wiggle group-focus-visible:animate-wiggle"
       />
       <span>
         Misty<span className="text-link">Doces</span>

@@ -111,7 +111,7 @@ export function Hero() {
             height={550}
             preload
             sizes="(min-width: 1024px) 18rem, (min-width: 640px) 14rem, 11rem"
-            className="absolute top-1/2 left-1/2 h-auto w-44 -translate-x-1/2 -translate-y-1/2 sm:w-56 lg:w-72 dark:brightness-95"
+            className="absolute top-1/2 left-1/2 h-auto w-44 -translate-x-1/2 -translate-y-1/2 animate-breathe hover:animate-wiggle sm:w-56 lg:w-72 dark:brightness-95"
           />
           {STICKERS.map((sticker) => (
             <FloatingSticker key={sticker.src} {...sticker} />

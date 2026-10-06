@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { getCategoriesWithProductCount } from "@/lib/catalog";
@@ -24,7 +25,7 @@ export async function CategoryShortcuts() {
 
   return (
     <section aria-labelledby="categorias-titulo" className="mx-auto max-w-5xl space-y-6 px-4 pb-12 sm:pb-16">
-      <div className="text-center">
+      <div className="reveal text-center">
         <p className="font-display text-xl text-script">escolha por categoria</p>
         <h2 id="categorias-titulo" className="font-heading text-2xl font-semibold">
           O que vai ser hoje?
@@ -33,11 +34,12 @@ export async function CategoryShortcuts() {
 
       {/* No celular, faixa com rolagem lateral; a partir de `sm`, os atalhos quebram linha centralizados. */}
       <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
-        {categories.map((category) => (
+        {categories.map((category, index) => (
           <Link
             key={category.id}
             href={cardapioHref({ categoria: category.slug, ordem: DEFAULT_CATALOG_SORT })}
-            className="group flex w-32 shrink-0 snap-start flex-col items-center gap-2 rounded-2xl surface p-4 text-center transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary-foreground/15"
+            style={{ "--reveal-step": index } as CSSProperties}
+            className="reveal group flex w-32 shrink-0 snap-start flex-col items-center gap-2 rounded-2xl surface p-4 text-center transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary-foreground/15"
           >
             <span className="flex size-16 items-center justify-center rounded-full bg-secondary transition-transform duration-300 group-hover:scale-110 dark:bg-primary/20">
               <Image

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { StarRating } from "@/components/catalog/star-rating";
@@ -12,7 +13,7 @@ export async function Testimonials() {
 
   return (
     <section aria-labelledby="depoimentos-titulo" className="mx-auto max-w-5xl space-y-8 px-4 py-16 sm:py-20">
-      <div className="flex flex-col items-center gap-2 text-center">
+      <div className="reveal flex flex-col items-center gap-2 text-center">
         <Image src="/branding/16_tag_aprovado_pela_chefe.png" alt="" width={120} height={100} />
         <p className="font-display text-xl text-script">de quem já provou</p>
         <h2 id="depoimentos-titulo" className="font-heading text-2xl font-semibold">
@@ -21,8 +22,8 @@ export async function Testimonials() {
       </div>
 
       <ul className="grid gap-4 sm:grid-cols-3">
-        {reviews.map((review) => (
-          <li key={review.id}>
+        {reviews.map((review, index) => (
+          <li key={review.id} className="reveal" style={{ "--reveal-step": index } as CSSProperties}>
             <figure className="flex h-full flex-col gap-3 rounded-2xl surface p-5">
               <StarRating value={review.rating} />
               <span className="sr-only">Nota {review.rating} de 5.</span>

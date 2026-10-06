@@ -22,7 +22,7 @@ export async function FeaturedProducts() {
 
   return (
     <section className="mx-auto max-w-5xl space-y-6 px-4 pb-16 sm:pb-24">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <div className="reveal flex flex-wrap items-end justify-between gap-3">
         <div className="flex items-center gap-3">
           <Image src="/branding/10_coracao_patinha.png" alt="" width={40} height={40} />
           <div>
