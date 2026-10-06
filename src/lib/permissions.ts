@@ -25,7 +25,8 @@ export type Permission =
   | "coupons:edit"
   | "coupons:delete"
   | "settings:manage"
-  | "team:manage";
+  | "team:manage"
+  | "finance:manage";
 
 const STAFF_PERMISSIONS: Permission[] = [
   "orders:view",
@@ -56,6 +57,7 @@ const OWNER_PERMISSIONS: Permission[] = [
   "coupons:delete",
   "settings:manage",
   "team:manage",
+  "finance:manage",
 ];
 
 const ROLE_PERMISSIONS: Record<Role, ReadonlySet<Permission>> = {
@@ -79,7 +81,7 @@ export type StaffRole = (typeof STAFF_ROLES)[number];
 export const STAFF_ROLE_DESCRIPTIONS: Record<StaffRole, string> = {
   STAFF: "Acompanha pedidos e altera o status, marca produtos como esgotados. Vê produtos, categorias, cupons, avaliações e clientes, sem editar.",
   MANAGER: "Tudo do Atendente, mais a visão geral, cancelar pedidos, moderar avaliações e criar/editar produtos, categorias e cupons.",
-  OWNER: "Acesso total: excluir itens, configurações da loja e gestão da equipe.",
+  OWNER: "Acesso total: excluir itens, financeiro, configurações da loja e gestão da equipe.",
 };
 
 export function can(role: Role | undefined, permission: Permission): boolean {

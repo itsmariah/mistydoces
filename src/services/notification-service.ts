@@ -152,3 +152,37 @@ export function sendOrderStatusUpdateEmail(
     cta,
   });
 }
+
+type BreakEvenSummary = {
+  month: string;
+  /** "outubro" — o nome do mês já formatado. */
+  monthName: string;
+  revenue: number;
+  expenses: number;
+  result: number;
+};
+
+/** Aviso para quem é Proprietário: o faturamento do mês alcançou o total de despesas. */
+export async function sendBreakEvenEmail(owners: NotifiableUser[], summary: BreakEvenSummary) {
+  const { monthName } = summary;
+  const href = `${process.env.NEXTAUTH_URL}/admin/financeiro?mes=${summary.month}`;
+
+  await Promise.all(
+    owners.map((owner) =>
+      sendSafely(owner.email, `O faturamento de ${monthName} cobriu as despesas — MistyDoces`, {
+        preheader: `As despesas de ${monthName} estão pagas. Daqui pra frente, é lucro!`,
+        title: "Despesas do mês cobertas! 🎉",
+        paragraphs: [
+          `Olá, ${firstName(owner.name)}!`,
+          `O faturamento de ${monthName} alcançou o total de despesas cadastradas. Daqui pra frente, o que entrar é lucro.`,
+        ],
+        lines: [
+          { label: "Faturamento", value: formatCurrency(summary.revenue) },
+          { label: "Despesas", value: formatCurrency(summary.expenses) },
+          { label: "Sobra até agora", value: formatCurrency(summary.result), strong: true },
+        ],
+        cta: { label: "Ver financeiro", href },
+      }),
+    ),
+  );
+}

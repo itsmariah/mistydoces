@@ -30,11 +30,12 @@ describe("can", () => {
       "coupons:edit",
       "settings:manage",
       "team:manage",
+      "finance:manage",
     ];
     for (const permission of denied) expect(can("STAFF", permission)).toBe(false);
   });
 
-  it("gerente edita e cancela, mas não exclui nem mexe em configurações/equipe", () => {
+  it("gerente edita e cancela, mas não exclui nem mexe em configurações/equipe/financeiro", () => {
     expect(can("MANAGER", "dashboard:view")).toBe(true);
     expect(can("MANAGER", "orders:cancel")).toBe(true);
     expect(can("MANAGER", "reviews:moderate")).toBe(true);
@@ -46,12 +47,14 @@ describe("can", () => {
     expect(can("MANAGER", "coupons:delete")).toBe(false);
     expect(can("MANAGER", "settings:manage")).toBe(false);
     expect(can("MANAGER", "team:manage")).toBe(false);
+    expect(can("MANAGER", "finance:manage")).toBe(false);
   });
 
   it("proprietário pode tudo", () => {
     expect(can("OWNER", "settings:manage")).toBe(true);
     expect(can("OWNER", "team:manage")).toBe(true);
     expect(can("OWNER", "coupons:delete")).toBe(true);
+    expect(can("OWNER", "finance:manage")).toBe(true);
   });
 });
 

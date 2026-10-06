@@ -13,7 +13,9 @@ import { toCents, fromCents } from "@/lib/money";
 import { isSlotAvailable, maxLeadTimeDays } from "@/lib/scheduling";
 import { addDays, startOfDayInStoreTime } from "@/lib/store-time";
 import { getDeliveryFee, getSchedulingRules } from "@/services/store-settings-service";
+import { COUNTED_STATUSES } from "@/services/best-seller-service";
 import * as couponService from "@/services/coupon-service";
+import * as financeService from "@/services/finance-service";
 import * as notificationService from "@/services/notification-service";
 import type { CheckoutInput } from "@/validations/order";
 
@@ -335,6 +337,11 @@ export async function adminUpdateOrderStatus(orderId: string, status: OrderStatu
     await notificationService.sendOrderStatusUpdateEmail(updated, user, status);
   }
 
+  // O pedido acabou de virar venda: o faturamento do mês pode ter coberto as despesas.
+  if (!COUNTED_STATUSES.includes(order.status) && COUNTED_STATUSES.includes(status)) {
+    await financeService.checkBreakEven();
+  }
+
   return updated;
 }
 
@@ -402,6 +409,7 @@ export async function applyGatewayPaymentUpdate(
     if (user) {
       await notificationService.sendOrderStatusUpdateEmail(updated, user, "CONFIRMED");
     }
+    await financeService.checkBreakEven();
   }
 
   return updated;

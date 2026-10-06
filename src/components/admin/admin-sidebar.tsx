@@ -17,6 +17,7 @@ import {
   TicketPercent,
   UserCog,
   Users,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import type { Role } from "@/generated/prisma/client";
@@ -54,6 +55,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Loja",
     items: [
+      { href: "/admin/financeiro", label: "Financeiro", icon: Wallet, permission: "finance:manage" },
       {
         href: "/admin/configuracoes",
         label: "Configurações",

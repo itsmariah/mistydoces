@@ -37,12 +37,13 @@ vi.mock("@/services/notification-service", () => ({
   sendOrderConfirmationEmail: vi.fn(),
   sendOrderStatusUpdateEmail: vi.fn(),
 }));
+vi.mock("@/services/finance-service", () => ({ checkBreakEven: vi.fn() }));
 
-const { createOrder, applyGatewayPaymentUpdate, adminMarkPaymentPaid } = await import(
-  "@/services/order-service"
-);
+const { createOrder, applyGatewayPaymentUpdate, adminMarkPaymentPaid, adminUpdateOrderStatus } =
+  await import("@/services/order-service");
 const { ProductUnavailableError, NotFoundError } = await import("@/lib/errors");
 const notificationService = await import("@/services/notification-service");
+const financeService = await import("@/services/finance-service");
 
 /** Segunda, 05/10/2026, 14h na loja: uma janela livre com o "agora" fixo dos testes. */
 const SLOT = "2026-10-05T17:00:00.000Z";
@@ -378,6 +379,7 @@ describe("applyGatewayPaymentUpdate", () => {
       expect.objectContaining({ email: "maria@example.com" }),
       "CONFIRMED",
     );
+    expect(financeService.checkBreakEven).toHaveBeenCalledTimes(1);
   });
 
   it("é idempotente: notificação repetida com o mesmo status não reaplica o efeito", async () => {
@@ -408,6 +410,7 @@ describe("applyGatewayPaymentUpdate", () => {
 
     expect(prismaMock.payment.update).toHaveBeenCalled();
     expect(prismaMock.order.update).not.toHaveBeenCalled();
+    expect(financeService.checkBreakEven).not.toHaveBeenCalled();
   });
 
   it("registra pagamento recusado sem alterar o status do pedido", async () => {
@@ -423,6 +426,41 @@ describe("applyGatewayPaymentUpdate", () => {
       expect.objectContaining({ data: expect.objectContaining({ status: "FAILED" }) }),
     );
     expect(prismaMock.order.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("adminUpdateOrderStatus", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    prismaMock.user.findUnique.mockResolvedValue({ name: "Maria", email: "maria@example.com" });
+  });
+
+  function mockOrder(status: string) {
+    prismaMock.order.findUnique.mockResolvedValue({
+      id: "order-1",
+      userId: "user-1",
+      status,
+      deliveryType: "PICKUP",
+    });
+    prismaMock.order.update.mockImplementation(({ data }) => ({ id: "order-1", ...data }));
+  }
+
+  it("confere o ponto de equilíbrio quando o pedido passa a contar como venda", async () => {
+    mockOrder("PENDING");
+    await adminUpdateOrderStatus("order-1", "CONFIRMED");
+    expect(financeService.checkBreakEven).toHaveBeenCalledTimes(1);
+  });
+
+  it("não confere de novo quando o pedido já contava como venda", async () => {
+    mockOrder("CONFIRMED");
+    await adminUpdateOrderStatus("order-1", "PREPARING");
+    expect(financeService.checkBreakEven).not.toHaveBeenCalled();
+  });
+
+  it("não confere ao cancelar", async () => {
+    mockOrder("PENDING");
+    await adminUpdateOrderStatus("order-1", "CANCELLED");
+    expect(financeService.checkBreakEven).not.toHaveBeenCalled();
   });
 });
 

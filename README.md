@@ -30,6 +30,7 @@ Todo o planejamento (requisitos, casos de uso, fluxos, arquitetura, modelagem de
 
 **Painel administrativo**
 - Visão geral com vendas, pedidos em aberto e mais vendidos
+- Financeiro: despesas do mês por categoria x faturamento, com aviso por e-mail quando as despesas são cobertas
 - Pedidos com busca, paginação, filtro por status e aviso sonoro de pedido novo
 - Catálogo com fotos, filtros, botão rápido de esgotado e cupons com selo automático de situação
 - Clientes com busca e atalho para os pedidos de cada um; moderação de avaliações
@@ -160,6 +161,7 @@ npm test
 - [x] Extra — Dashboard do painel administrativo (resumo de vendas, pedidos em aberto e mais vendidos)
 - [x] Extra — Níveis de acesso da equipe (Proprietário, Gerente e Atendente)
 - [x] Extra — Melhorias de experiência no painel (barra lateral, avisos, busca, filtros e paginação)
+- [x] Extra — Mini dashboard financeiro (despesas x faturamento e aviso de despesas cobertas)
 - [ ] Revisão das decisões simplificadas no MVP
 - [ ] Fase 9 — Deploy (com domínio próprio)
 

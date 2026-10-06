@@ -72,6 +72,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   reviews             Review[]
   favorites     Favorite[]
+  expenses      Expense[]
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 }
@@ -345,4 +346,38 @@ model StoreSettings {
   deliveryFee  Decimal  @default(0) @db.Decimal(10, 2)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+enum ExpenseCategory {
+  MATERIAL
+  EMBALAGEM
+  ENTREGA
+  EQUIPAMENTO
+  MARKETING
+  OUTROS
+}
+
+/// Despesa da loja (painel financeiro). O mês vem da data, no fuso da loja.
+model Expense {
+  id          String          @id @default(cuid())
+  title       String
+  category    ExpenseCategory
+  amount      Decimal         @db.Decimal(10, 2)
+  /// "YYYY-MM-DD" no fuso da loja (mesmo formato de `blockedDates`).
+  date        String
+  createdById String?
+  createdBy   User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([date])
+}
+
+/// Aviso "o faturamento cobriu as despesas", um por mês. Guarda o total de despesas
+/// avisado: só avisa de novo se as despesas do mês crescerem e forem cobertas outra vez.
+model BreakEvenNotice {
+  /// "YYYY-MM" no fuso da loja.
+  month         String   @id
+  expensesTotal Decimal  @db.Decimal(10, 2)
+  sentAt        DateTime @default(now())
 }
