@@ -35,9 +35,14 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
     product.variants.length > 1
       ? `A partir de ${formatCurrency(startingPrice)}`
       : formatCurrency(startingPrice);
-  // O "+" só aparece quando não há escolha a fazer: uma única opção, e à venda.
-  const quickAddVariant =
-    product.isAvailable && product.variants.length === 1 ? product.variants[0] : null;
+  // O "+" aparece em todo produto à venda; com várias opções, ele abre a escolha.
+  const quickAddVariants = product.isAvailable
+    ? product.variants.map((variant) => ({
+        id: variant.id,
+        label: variant.label,
+        price: Number(variant.price),
+      }))
+    : [];
 
   // O card é um <article>, não um link: o "+" é um botão, e botão dentro de link não é HTML válido.
   // O link do título se estica (`after:inset-0`) e deixa o card inteiro clicável.
@@ -129,11 +134,9 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
         </p>
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           <span className="text-lg font-semibold text-link">{priceLabel}</span>
-          {quickAddVariant && (
+          {quickAddVariants.length > 0 && (
             <QuickAddButton
-              variantId={quickAddVariant.id}
-              variantLabel={quickAddVariant.label}
-              price={Number(quickAddVariant.price)}
+              variants={quickAddVariants}
               productSlug={product.slug}
               productName={product.name}
               imageUrl={product.imageUrl}
