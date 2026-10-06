@@ -3,7 +3,7 @@ import { CalendarRange, Receipt, Sun } from "lucide-react";
 import { can } from "@/lib/permissions";
 import { requirePagePermission } from "@/lib/require-permission";
 import { toMonthKey } from "@/lib/finance";
-import { cn, formatCurrency, pluralize } from "@/lib/utils";
+import { cn, pluralize } from "@/lib/utils";
 import {
   DASHBOARD_WINDOW_DAYS,
   getDashboardData,
@@ -13,6 +13,7 @@ import { getAgenda } from "@/services/agenda-service";
 import { getFinanceMonth } from "@/services/finance-service";
 import { DashboardGreeting } from "@/components/admin/dashboard/greeting";
 import { StatTile } from "@/components/admin/dashboard/stat-tile";
+import { CountUp } from "@/components/admin/count-up";
 import { FinanceTile } from "@/components/admin/dashboard/finance-tile";
 import { OpenOrders } from "@/components/admin/dashboard/open-orders";
 import { SalesChart } from "@/components/admin/dashboard/sales-chart";
@@ -48,7 +49,7 @@ export default async function AdminDashboardPage() {
         <StatTile
           icon={Sun}
           label="Hoje"
-          value={formatCurrency(data.today.revenue)}
+          value={<CountUp value={data.today.revenue} format="currency" />}
           detail={pluralize(data.today.orders, "pedido", "pedidos")}
           trend={{
             percent: percentChange(data.today.revenue, data.yesterdaySoFar.revenue),
@@ -58,7 +59,7 @@ export default async function AdminDashboardPage() {
         <StatTile
           icon={CalendarRange}
           label={`Últimos ${DASHBOARD_WINDOW_DAYS} dias`}
-          value={formatCurrency(data.period.revenue)}
+          value={<CountUp value={data.period.revenue} format="currency" />}
           detail={pluralize(data.period.orders, "pedido", "pedidos")}
           trend={{
             percent: percentChange(data.period.revenue, data.previousPeriod.revenue),
@@ -68,7 +69,7 @@ export default async function AdminDashboardPage() {
         <StatTile
           icon={Receipt}
           label="Ticket médio"
-          value={formatCurrency(data.period.averageTicket)}
+          value={<CountUp value={data.period.averageTicket} format="currency" />}
           detail={`Últimos ${DASHBOARD_WINDOW_DAYS} dias`}
           trend={{
             percent: percentChange(data.period.averageTicket, data.previousPeriod.averageTicket),

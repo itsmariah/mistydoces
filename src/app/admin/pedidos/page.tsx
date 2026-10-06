@@ -12,6 +12,7 @@ import { formatScheduledShort } from "@/lib/scheduling";
 import { addDays, toDayKey } from "@/lib/store-time";
 import { OrderStatusBadge, STATUS_LABELS } from "@/components/orders/order-status-badge";
 import { Pagination } from "@/components/admin/pagination";
+import { NewOrderHighlight } from "@/components/admin/new-order-highlight";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -190,54 +191,55 @@ export default async function AdminOrdersPage({
           />
         ) : (
           orders.map((order) => (
-            <Link
-              key={order.id}
-              href={`/admin/pedidos/${order.id}`}
-              className="flex items-center justify-between gap-3 rounded-lg surface p-4 transition-colors hover:bg-muted"
-            >
-              <div className="min-w-0 space-y-1.5">
-                <p className="truncate text-sm font-medium">
-                  Pedido #{order.orderNumber} — {order.user.name}
-                </p>
-                {order.scheduledFor && (
-                  <p className="flex items-center gap-1 text-xs font-medium">
-                    <CalendarClock className="size-3.5 text-link" aria-hidden="true" />
-                    {formatScheduledShort(order.scheduledFor)}
+            <NewOrderHighlight key={order.id} orderNumber={order.orderNumber}>
+              <Link
+                href={`/admin/pedidos/${order.id}`}
+                className="flex items-center justify-between gap-3 rounded-lg surface p-4 transition-colors hover:bg-muted"
+              >
+                <div className="min-w-0 space-y-1.5">
+                  <p className="truncate text-sm font-medium">
+                    Pedido #{order.orderNumber} — {order.user.name}
                   </p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  {order.scheduledFor ? "Feito em " : ""}
-                  {new Intl.DateTimeFormat("pt-BR", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                    timeZone: "America/Sao_Paulo",
-                  }).format(order.createdAt)}
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  <Badge variant="outline">
-                    {order.deliveryType === "DELIVERY" ? (
-                      <Truck className="h-3 w-3" />
-                    ) : (
-                      <Store className="h-3 w-3" />
-                    )}
-                    {order.deliveryType === "DELIVERY" ? "Entrega" : "Retirada"}
-                  </Badge>
-                  {order.payment && (
-                    <Badge variant={order.payment.status === "PAID" ? "secondary" : "outline"}>
-                      {order.payment.status === "PAID"
-                        ? "Pago"
-                        : `Pagamento: ${PAYMENT_STATUS_LABELS[order.payment.status].toLowerCase()}`}
-                    </Badge>
+                  {order.scheduledFor && (
+                    <p className="flex items-center gap-1 text-xs font-medium">
+                      <CalendarClock className="size-3.5 text-link" aria-hidden="true" />
+                      {formatScheduledShort(order.scheduledFor)}
+                    </p>
                   )}
+                  <p className="text-xs text-muted-foreground">
+                    {order.scheduledFor ? "Feito em " : ""}
+                    {new Intl.DateTimeFormat("pt-BR", {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                      timeZone: "America/Sao_Paulo",
+                    }).format(order.createdAt)}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    <Badge variant="outline">
+                      {order.deliveryType === "DELIVERY" ? (
+                        <Truck className="h-3 w-3" />
+                      ) : (
+                        <Store className="h-3 w-3" />
+                      )}
+                      {order.deliveryType === "DELIVERY" ? "Entrega" : "Retirada"}
+                    </Badge>
+                    {order.payment && (
+                      <Badge variant={order.payment.status === "PAID" ? "secondary" : "outline"}>
+                        {order.payment.status === "PAID"
+                          ? "Pago"
+                          : `Pagamento: ${PAYMENT_STATUS_LABELS[order.payment.status].toLowerCase()}`}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="flex shrink-0 flex-col items-end gap-1">
-                <OrderStatusBadge status={order.status} />
-                <span className="text-sm font-semibold text-link">
-                  {formatCurrency(order.total.toString())}
-                </span>
-              </div>
-            </Link>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <OrderStatusBadge status={order.status} />
+                  <span className="text-sm font-semibold text-link">
+                    {formatCurrency(order.total.toString())}
+                  </span>
+                </div>
+              </Link>
+            </NewOrderHighlight>
           ))
         )}
       </div>

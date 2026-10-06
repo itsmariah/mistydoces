@@ -1,6 +1,8 @@
+import type { CSSProperties, ReactNode } from "react";
 import { CircleCheck } from "lucide-react";
 import { EXPENSE_CATEGORY_LABELS, type FinanceSummary } from "@/lib/finance";
 import { cn, formatCurrency, pluralize } from "@/lib/utils";
+import { CountUp } from "@/components/admin/count-up";
 
 function StatCard({
   title,
@@ -9,7 +11,7 @@ function StatCard({
   valueClassName,
 }: {
   title: string;
-  value: string;
+  value: ReactNode;
   detail: string;
   valueClassName?: string;
 }) {
@@ -39,17 +41,17 @@ export function FinanceCards({
     <div className="grid gap-4 sm:grid-cols-3">
       <StatCard
         title="Faturamento"
-        value={formatCurrency(summary.revenue)}
+        value={<CountUp value={summary.revenue} format="currency" />}
         detail={pluralize(orders, "pedido", "pedidos")}
       />
       <StatCard
         title="Despesas"
-        value={formatCurrency(summary.expenses)}
+        value={<CountUp value={summary.expenses} format="currency" />}
         detail={pluralize(expenseCount, "despesa", "despesas")}
       />
       <StatCard
         title={profit ? "Lucro" : "Prejuízo"}
-        value={formatCurrency(Math.abs(summary.result))}
+        value={<CountUp value={Math.abs(summary.result)} format="currency" />}
         detail="Faturamento − despesas"
         valueClassName={profit ? "text-success-foreground" : "text-destructive"}
       />
@@ -68,7 +70,9 @@ export function BreakEvenProgress({ summary }: { summary: FinanceSummary }) {
     <section className="space-y-3 rounded-lg surface p-4">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="font-heading text-lg font-semibold">Despesas cobertas</h2>
-        <span className="text-sm font-medium tabular-nums">{percent}%</span>
+        <span className="text-sm font-medium tabular-nums">
+          <CountUp value={percent} />%
+        </span>
       </div>
       <div
         role="progressbar"
@@ -79,7 +83,7 @@ export function BreakEvenProgress({ summary }: { summary: FinanceSummary }) {
         className="h-3 overflow-hidden rounded-full bg-muted"
       >
         <div
-          className={cn("h-full rounded-full", covered ? "bg-success-foreground" : "bg-chart-1")}
+          className={cn("h-full animate-bar-fill rounded-full", covered ? "bg-success-foreground" : "bg-chart-1")}
           style={{ width: `${percent}%` }}
         />
       </div>
@@ -105,7 +109,7 @@ export function ExpensesByCategory({ summary }: { summary: FinanceSummary }) {
     <section className="space-y-3 rounded-lg surface p-4">
       <h2 className="font-heading text-lg font-semibold">Por categoria</h2>
       <ul className="space-y-3">
-        {summary.byCategory.map((item) => (
+        {summary.byCategory.map((item, index) => (
           <li key={item.category} className="space-y-1">
             <div className="flex items-baseline justify-between gap-3 text-sm">
               <span className="font-medium">{EXPENSE_CATEGORY_LABELS[item.category]}</span>
@@ -118,8 +122,13 @@ export function ExpensesByCategory({ summary }: { summary: FinanceSummary }) {
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted" aria-hidden="true">
               <div
-                className="h-full rounded-full bg-chart-1"
-                style={{ width: `${Math.max((item.total / max) * 100, 2)}%` }}
+                className="h-full animate-bar-fill rounded-full bg-chart-1"
+                style={
+                  {
+                    width: `${Math.max((item.total / max) * 100, 2)}%`,
+                    "--bar-delay": `${index * 60}ms`,
+                  } as CSSProperties
+                }
               />
             </div>
           </li>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 import type { DailySales } from "@/services/dashboard-service";
 import { cn, formatCurrency, pluralize } from "@/lib/utils";
@@ -163,11 +163,17 @@ function Bars({ days }: { days: DailySales[] }) {
                 >
                   <div
                     className={cn(
-                      "w-full rounded-t-[4px] bg-chart-1 transition-opacity",
+                      "w-full animate-bar-grow rounded-t-[4px] bg-chart-1 transition-opacity",
                       few ? "max-w-12" : "max-w-6",
                       activeIndex !== null && activeIndex !== index && "opacity-60",
                     )}
-                    style={{ height: `${(day.revenue / top) * 100}%` }}
+                    style={
+                      {
+                        height: `${(day.revenue / top) * 100}%`,
+                        // Cascata da esquerda para a direita; com 30 barras, passo menor.
+                        "--bar-delay": `${index * (few ? 50 : 12)}ms`,
+                      } as CSSProperties
+                    }
                   />
                 </div>
               ))}

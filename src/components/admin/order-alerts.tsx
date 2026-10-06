@@ -8,6 +8,8 @@ import { playChime, unlockChime } from "@/lib/chime";
 
 /** Pedido novo precisa aparecer rápido, mas sem martelar o servidor. */
 const POLL_INTERVAL_MS = 20_000;
+/** Por quanto tempo os pedidos recém-chegados contam como "novos" para o destaque na lista. */
+const HIGHLIGHT_MS = 15_000;
 
 type OrderAlertsState = {
   pendingCount: number;
@@ -15,10 +17,16 @@ type OrderAlertsState = {
 };
 
 const PendingCountContext = createContext(0);
+const NewOrdersAfterContext = createContext<number | null>(null);
 
 /** Quantos pedidos aguardam confirmação — usado no contador da barra lateral. */
 export function usePendingOrdersCount() {
   return use(PendingCountContext);
+}
+
+/** Pedidos com número acima deste acabaram de chegar (null quando não há nenhum recente). */
+export function useNewOrdersAfter() {
+  return use(NewOrdersAfterContext);
 }
 
 /**
@@ -37,6 +45,7 @@ export function OrderAlertsProvider({
   const pathname = usePathname();
   const [pendingCount, setPendingCount] = useState(initial.pendingCount);
   const lastSeenNumber = useRef(initial.latestOrder?.orderNumber ?? 0);
+  const [newOrdersAfter, setNewOrdersAfter] = useState<number | null>(null);
 
   // Ações do painel (confirmar, cancelar…) fazem router.refresh(), que re-renderiza o
   // layout com números novos: o contador acompanha na hora, sem esperar a próxima consulta.
@@ -64,6 +73,7 @@ export function OrderAlertsProvider({
 
   useEffect(() => {
     let cancelled = false;
+    let highlightTimer: ReturnType<typeof setTimeout> | undefined;
 
     async function check() {
       if (document.visibilityState !== "visible") return;
@@ -75,6 +85,10 @@ export function OrderAlertsProvider({
 
       if (latestOrder && latestOrder.orderNumber > lastSeenNumber.current) {
         const newCount = latestOrder.orderNumber - lastSeenNumber.current;
+        // Se já havia destaque ativo, mantém o limite antigo: os anteriores seguem "novos".
+        setNewOrdersAfter((current) => current ?? lastSeenNumber.current);
+        clearTimeout(highlightTimer);
+        highlightTimer = setTimeout(() => setNewOrdersAfter(null), HIGHLIGHT_MS);
         lastSeenNumber.current = latestOrder.orderNumber;
 
         toast(newCount === 1 ? `Novo pedido #${latestOrder.orderNumber}!` : `${newCount} novos pedidos!`, {
@@ -96,9 +110,14 @@ export function OrderAlertsProvider({
     return () => {
       cancelled = true;
       clearInterval(interval);
+      clearTimeout(highlightTimer);
       document.removeEventListener("visibilitychange", check);
     };
   }, [router]);
 
-  return <PendingCountContext value={pendingCount}>{children}</PendingCountContext>;
+  return (
+    <PendingCountContext value={pendingCount}>
+      <NewOrdersAfterContext value={newOrdersAfter}>{children}</NewOrdersAfterContext>
+    </PendingCountContext>
+  );
 }

@@ -67,6 +67,37 @@
   --animate-shimmer: shimmer 1.6s ease-in-out infinite;
   --animate-heart-burst: heart-burst 650ms ease-out both;
   --animate-icon-spin-in: icon-spin-in 450ms cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  --animate-bar-grow: bar-grow 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--bar-delay, 0ms) both;
+  --animate-bar-fill: bar-fill 700ms cubic-bezier(0.22, 1, 0.36, 1) var(--bar-delay, 0ms) both;
+  --animate-new-order: new-order 2.4s ease-out;
+
+  /* Barras do painel crescendo do zero até o tamanho real (que vem do style inline).
+     Anima altura/largura em vez de scale para os cantos arredondados não deformarem. */
+  @keyframes bar-grow {
+    from {
+      height: 0;
+    }
+  }
+  @keyframes bar-fill {
+    from {
+      width: 0;
+    }
+  }
+
+  /* Pedido que acabou de chegar pisca um brilho lilás duas vezes e volta ao normal. */
+  @keyframes new-order {
+    0%,
+    50%,
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+    }
+    20%,
+    70% {
+      box-shadow:
+        0 0 0 2px var(--secondary-foreground),
+        0 0 18px 2px color-mix(in oklab, var(--secondary-foreground) 45%, transparent);
+    }
+  }
 
   /* Mini corações saindo do botão de favoritar, cada um na sua direção (--burst-x/y). */
   @keyframes heart-burst {

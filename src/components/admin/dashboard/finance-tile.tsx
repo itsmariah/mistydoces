@@ -2,6 +2,7 @@ import { Wallet } from "lucide-react";
 import { formatMonthName, type FinanceSummary } from "@/lib/finance";
 import { cn, formatCurrency } from "@/lib/utils";
 import { StatTile } from "@/components/admin/dashboard/stat-tile";
+import { CountUp } from "@/components/admin/count-up";
 
 /** Resumo do Financeiro na visão geral (só Proprietário): quanto das despesas do mês já foi pago. */
 export function FinanceTile({ summary, month }: { summary: FinanceSummary; month: string }) {
@@ -26,7 +27,11 @@ export function FinanceTile({ summary, month }: { summary: FinanceSummary; month
     <StatTile
       icon={Wallet}
       label={`Despesas de ${monthName}`}
-      value={`${percent}% cobertas`}
+      value={
+        <>
+          <CountUp value={percent} />% cobertas
+        </>
+      }
       detail={
         covered
           ? `Sobra de ${formatCurrency(summary.result)} até agora`
@@ -43,7 +48,7 @@ export function FinanceTile({ summary, month }: { summary: FinanceSummary; month
         className="h-1.5 overflow-hidden rounded-full bg-muted"
       >
         <div
-          className={cn("h-full rounded-full", covered ? "bg-success-foreground" : "bg-chart-1")}
+          className={cn("h-full animate-bar-fill rounded-full", covered ? "bg-success-foreground" : "bg-chart-1")}
           style={{ width: `${percent}%` }}
         />
       </div>

@@ -42,7 +42,7 @@ export function StatTile({
 }: {
   icon: LucideIcon;
   label: string;
-  value: string;
+  value: ReactNode;
   detail?: ReactNode;
   trend?: Trend;
   /** Quando há página com o detalhe, o card inteiro vira link. */
