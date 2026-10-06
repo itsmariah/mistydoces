@@ -110,7 +110,7 @@ export default async function AdminProductsPage({
               name="categoria"
               defaultValue={categoria ?? ""}
               aria-label="Filtrar por categoria"
-              className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm dark:bg-input/30"
+              className="h-8 rounded-lg border border-input bg-background px-2.5 text-sm"
             >
               <option value="">Todas as categorias</option>
               {categories.map((category) => (
@@ -162,7 +162,7 @@ export default async function AdminProductsPage({
               {products.map((product) => (
                 <li
                   key={product.id}
-                  className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50"
+                  className="flex items-center gap-3 rounded-lg surface p-3 transition-colors hover:bg-muted/50"
                 >
                   <Link
                     href={`/admin/produtos/${product.id}`}

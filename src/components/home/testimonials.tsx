@@ -23,7 +23,7 @@ export async function Testimonials() {
       <ul className="grid gap-4 sm:grid-cols-3">
         {reviews.map((review) => (
           <li key={review.id}>
-            <figure className="flex h-full flex-col gap-3 rounded-2xl border border-border bg-card p-5">
+            <figure className="flex h-full flex-col gap-3 rounded-2xl surface p-5">
               <StarRating value={review.rating} />
               <span className="sr-only">Nota {review.rating} de 5.</span>
               <blockquote className="flex-1 text-sm text-foreground">“{review.comment}”</blockquote>

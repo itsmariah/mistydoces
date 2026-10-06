@@ -109,7 +109,7 @@ export function ExpenseList({
             ) : (
               <li
                 key={expense.id}
-                className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"
+                className="flex items-center gap-3 rounded-lg surface p-3"
               >
                 <div className="min-w-0 flex-1 space-y-1">
                   <p className="truncate font-medium">{expense.title}</p>

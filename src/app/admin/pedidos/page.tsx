@@ -193,7 +193,7 @@ export default async function AdminOrdersPage({
             <Link
               key={order.id}
               href={`/admin/pedidos/${order.id}`}
-              className="flex items-center justify-between gap-3 rounded-lg border border-border p-4 transition-colors hover:bg-muted"
+              className="flex items-center justify-between gap-3 rounded-lg surface p-4 transition-colors hover:bg-muted"
             >
               <div className="min-w-0 space-y-1.5">
                 <p className="truncate text-sm font-medium">

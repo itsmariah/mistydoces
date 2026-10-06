@@ -26,7 +26,7 @@ export function AdminListSkeleton({
         {Array.from({ length: rows }, (_, i) => (
           <div
             key={i}
-            className="flex items-center justify-between rounded-lg border border-border p-4"
+            className="flex items-center justify-between rounded-lg surface p-4"
           >
             <div className="space-y-2">
               <Skeleton className="h-4 w-44" />

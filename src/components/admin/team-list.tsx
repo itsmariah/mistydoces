@@ -58,7 +58,7 @@ export function TeamList({ members, currentUserId }: { members: Member[]; curren
         return (
           <div
             key={member.id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-4"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-lg surface p-4"
           >
             <div className="space-y-1">
               <div className="flex items-center gap-2">

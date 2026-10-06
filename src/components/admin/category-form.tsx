@@ -54,7 +54,7 @@ export function CategoryForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-wrap items-end gap-3 rounded-lg border border-border p-4"
+      className="flex flex-wrap items-end gap-3 rounded-lg surface p-4"
       noValidate
     >
       <div className="min-w-48 flex-1 space-y-1.5">

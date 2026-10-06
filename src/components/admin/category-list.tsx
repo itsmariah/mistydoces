@@ -70,7 +70,7 @@ export function CategoryList({
         ) : (
           <div
             key={category.id}
-            className="flex items-center justify-between rounded-lg border border-border p-4"
+            className="flex items-center justify-between rounded-lg surface p-4"
           >
             <div className="flex items-center gap-2">
               <span className="font-medium">{category.name}</span>

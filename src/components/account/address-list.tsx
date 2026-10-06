@@ -71,7 +71,7 @@ export function AddressList({ addresses }: { addresses: Address[] }) {
             onCancel={() => setEditingId(null)}
           />
         ) : (
-          <div key={address.id} className="space-y-2 rounded-lg border border-border p-4">
+          <div key={address.id} className="space-y-2 rounded-lg surface p-4">
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-2 font-medium">
                 {address.label}

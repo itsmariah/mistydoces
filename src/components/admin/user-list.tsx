@@ -39,7 +39,7 @@ export function UserList({
       {users.map((user) => (
         <div
           key={user.id}
-          className="flex items-center justify-between gap-3 rounded-lg border border-border p-4"
+          className="flex items-center justify-between gap-3 rounded-lg surface p-4"
         >
           <div className="min-w-0 space-y-1">
             <div className="flex flex-wrap items-center gap-2">

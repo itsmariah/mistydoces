@@ -13,7 +13,7 @@ export function TodayAgenda({ day, now }: { day: AgendaDay; now: Date }) {
   const extra = day.production.length - PRODUCTION_PREVIEW;
 
   return (
-    <section className="space-y-3 rounded-lg border border-border bg-card p-4">
+    <section className="space-y-3 rounded-lg surface p-4">
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="flex items-center gap-2 font-heading text-lg font-semibold">
           <CalendarDays className="size-5 text-link" aria-hidden="true" />

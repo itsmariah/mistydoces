@@ -69,7 +69,7 @@ export default async function AccountPage() {
         </h2>
 
         {latest ? (
-          <div className="space-y-4 rounded-2xl border border-border bg-card p-5">
+          <div className="space-y-4 rounded-2xl surface p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-medium">Pedido #{latest.orderNumber}</p>
@@ -128,7 +128,7 @@ export default async function AccountPage() {
                 Ver cardápio
               </Button>
             }
-            className="rounded-2xl border border-border py-8"
+            className="rounded-2xl surface py-8"
           />
         )}
       </section>
@@ -140,7 +140,7 @@ export default async function AccountPage() {
           <li key={href}>
             <Link
               href={href}
-              className="group flex h-full items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary"
+              className="group flex h-full items-center gap-3 rounded-2xl surface p-4 transition-colors hover:border-primary"
             >
               <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
                 <Icon className="size-5" aria-hidden="true" />

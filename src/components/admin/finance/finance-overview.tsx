@@ -14,7 +14,7 @@ function StatCard({
   valueClassName?: string;
 }) {
   return (
-    <section className="space-y-2 rounded-lg border border-border bg-card p-4">
+    <section className="space-y-2 rounded-lg surface p-4">
       <h2 className="text-sm font-medium text-muted-foreground">{title}</h2>
       <p className={cn("font-heading text-2xl font-semibold tabular-nums", valueClassName)}>
         {value}
@@ -65,7 +65,7 @@ export function BreakEvenProgress({ summary }: { summary: FinanceSummary }) {
   const percent = Math.floor(summary.coverage * 100);
 
   return (
-    <section className="space-y-3 rounded-lg border border-border bg-card p-4">
+    <section className="space-y-3 rounded-lg surface p-4">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="font-heading text-lg font-semibold">Despesas cobertas</h2>
         <span className="text-sm font-medium tabular-nums">{percent}%</span>
@@ -102,7 +102,7 @@ export function ExpensesByCategory({ summary }: { summary: FinanceSummary }) {
   const max = summary.byCategory[0].total;
 
   return (
-    <section className="space-y-3 rounded-lg border border-border bg-card p-4">
+    <section className="space-y-3 rounded-lg surface p-4">
       <h2 className="font-heading text-lg font-semibold">Por categoria</h2>
       <ul className="space-y-3">
         {summary.byCategory.map((item) => (

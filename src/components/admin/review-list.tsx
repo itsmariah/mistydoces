@@ -64,7 +64,7 @@ export function ReviewList({
   return (
     <div className="space-y-3">
       {reviews.map((review) => (
-        <div key={review.id} className="space-y-2 rounded-lg border border-border p-4">
+        <div key={review.id} className="space-y-2 rounded-lg surface p-4">
           <div className="flex items-center gap-2">
             <StarRating value={review.rating} />
             <span className="text-sm font-medium">{review.product.name}</span>

@@ -8,6 +8,7 @@ import { getNextStatuses } from "@/lib/order-status";
 import { markPaymentPaid, updateOrderStatus } from "@/actions/admin-orders";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { STATUS_LABELS } from "@/components/orders/order-status-badge";
+import { SectionCard } from "@/components/shared/section-card";
 import { Button } from "@/components/ui/button";
 
 function statusLabel(status: OrderStatus, deliveryType: DeliveryType) {
@@ -67,8 +68,7 @@ export function OrderStatusActions({
   if (nextStatuses.length === 0 && !canMarkPaidManually) return null;
 
   return (
-    <div className="space-y-2 rounded-lg border border-border p-4">
-      <p className="text-sm font-medium">Ações</p>
+    <SectionCard title="Ações" className="space-y-2">
       <div className="flex flex-wrap gap-2">
         {nextStatuses
           .filter((next) => next !== "CANCELLED")
@@ -102,6 +102,6 @@ export function OrderStatusActions({
           </Button>
         )}
       </div>
-    </div>
+    </SectionCard>
   );
 }

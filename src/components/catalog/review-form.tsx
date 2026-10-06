@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 import { createReview } from "@/actions/reviews";
+import { SectionCard } from "@/components/shared/section-card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -49,9 +50,7 @@ export function ReviewForm({
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-border p-4">
-      <p className="text-sm font-medium">Avalie este produto</p>
-
+    <SectionCard title="Avalie este produto" className="space-y-3">
       <div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
         {Array.from({ length: 5 }, (_, index) => {
           const starValue = index + 1;
@@ -90,6 +89,6 @@ export function ReviewForm({
       <Button type="button" size="sm" disabled={isPending} onClick={handleSubmit}>
         {isPending ? "Enviando…" : "Enviar avaliação"}
       </Button>
-    </div>
+    </SectionCard>
   );
 }

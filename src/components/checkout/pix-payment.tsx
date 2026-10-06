@@ -85,7 +85,7 @@ export function PixPayment({
 
   if (!pix?.qrCode) {
     return (
-      <div className="space-y-4 rounded-lg border border-border p-6">
+      <div className="space-y-4 rounded-lg surface p-6">
         <div>
           <p className="text-sm text-muted-foreground">Valor a pagar</p>
           <p className="font-heading text-2xl font-semibold text-link">
@@ -116,7 +116,7 @@ export function PixPayment({
   const isStale = status === "FAILED" || status === "EXPIRED";
 
   return (
-    <div className="space-y-4 rounded-lg border border-border p-6 text-center">
+    <div className="space-y-4 rounded-lg surface p-6 text-center">
       {isStale ? (
         <>
           <p className="text-sm text-destructive">

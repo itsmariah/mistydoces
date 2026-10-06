@@ -94,7 +94,7 @@ export default async function AdminOrderDetailPage({
 
       <section className="space-y-3">
         <h2 className="font-heading text-lg font-medium">Itens</h2>
-        <div className="space-y-2 rounded-lg border border-border p-4">
+        <div className="space-y-2 rounded-lg surface p-4">
           {order.items.map((item) => (
             <div key={item.id} className="flex justify-between gap-3 text-sm">
               <span className="min-w-0 space-y-0.5">
@@ -146,7 +146,7 @@ export default async function AdminOrderDetailPage({
         </section>
       )}
 
-      <section className="space-y-2 rounded-lg border border-border p-4">
+      <section className="space-y-2 rounded-lg surface p-4">
         <div className="flex justify-between text-sm">
           <span>Subtotal</span>
           <span>{formatCurrency(order.subtotal.toString())}</span>

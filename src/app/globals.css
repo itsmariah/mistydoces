@@ -40,6 +40,8 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-link: var(--link);
   --color-script: var(--script);
+  --color-section: var(--section);
+  --color-section-foreground: var(--section-foreground);
   --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
@@ -118,6 +120,11 @@
   /* Frases em letra cursiva (font-display). No claro é o próprio azul do link;
      no escuro vira lilás, que traz de volta o lado "doce" da dupla azul + lilás. */
   --script: #3f6ba8;
+  /* Faixa do título das seções (SectionCard): lilás bem clarinho. */
+  --section: #f7f1fa;
+  --section-foreground: #5f4a78;
+  /* Sombra das caixas (.surface): quente e curta, só para destacar do fundo. */
+  --shadow-card: 0 1px 2px rgb(91 66 40 / 0.06), 0 4px 14px -6px rgb(91 66 40 / 0.12);
   --secondary: #efe6f5;
   --secondary-foreground: #5f4a78;
   --muted: #f3e9dc;
@@ -129,8 +136,10 @@
   --success-foreground: #457035;
   --warning: #fbedd6;
   --warning-foreground: #8f5a16;
-  --border: #e8dcc8;
-  --input: #e8dcc8;
+  /* Um tom acima do creme do fundo: a borda das caixas precisa aparecer (a antiga #e8dcc8
+     quase sumia sobre o #fbf3ea quando a caixa não tinha fundo próprio). */
+  --border: #dfcdb2;
+  --input: #d9c7ad;
   --ring: #a3c0e8;
   --chart-1: #3f6ba8;
   --chart-2: oklch(0.556 0 0);
@@ -144,7 +153,7 @@
   --sidebar-primary-foreground: #3d3242;
   --sidebar-accent: #e7edf7;
   --sidebar-accent-foreground: #3d3242;
-  --sidebar-border: #e8dcc8;
+  --sidebar-border: #dfcdb2;
   --sidebar-ring: #a3c0e8;
 }
 
@@ -164,6 +173,9 @@
   /* No escuro o --primary claro já lê bem como texto sobre o fundo marinho. */
   --link: #a9cdee;
   --script: #cdb8f0;
+  --section: #211f3b;
+  --section-foreground: #dcc9ef;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.25), 0 6px 18px -8px rgb(0 0 0 / 0.45);
   --secondary: #2d2a4a;
   --secondary-foreground: #dcc9ef;
   --muted: #1d2a42;
@@ -175,7 +187,7 @@
   --success-foreground: #8fc17b;
   --warning: #352b1c;
   --warning-foreground: #e0a857;
-  --border: #2c3452;
+  --border: #343e60;
   --input: #48547a;
   --ring: #a9cdee;
   --chart-1: #6394dc;
@@ -189,8 +201,16 @@
   --sidebar-primary-foreground: #16223a;
   --sidebar-accent: #223050;
   --sidebar-accent-foreground: #e8eef8;
-  --sidebar-border: #2c3452;
+  --sidebar-border: #343e60;
   --sidebar-ring: #a9cdee;
+}
+
+/* Caixa padrão do site (cards, linhas de lista, seções): fundo de card, borda e sombra leve.
+   O arredondamento e o espaçamento ficam com quem usa. Seção com título: SectionCard. */
+@utility surface {
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  box-shadow: var(--shadow-card);
 }
 
 @layer base {

@@ -30,7 +30,7 @@ export default async function AdminTeamPage() {
         <TeamList members={members} currentUserId={user.id} />
       </section>
 
-      <section className="space-y-3 rounded-lg border border-border bg-card p-4">
+      <section className="space-y-3 rounded-lg surface p-4">
         <h2 className="font-heading text-lg font-medium">Níveis de acesso</h2>
         <dl className="space-y-2 text-sm">
           {STAFF_ROLES.map((role) => (

@@ -13,7 +13,7 @@ export function OpenOrders({ counts }: { counts: Array<{ status: OrderStatus; co
   const total = counts.reduce((sum, { count }) => sum + count, 0);
 
   return (
-    <section className="space-y-3 rounded-lg border border-border bg-card p-4">
+    <section className="space-y-3 rounded-lg surface p-4">
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="font-heading text-lg font-semibold">Pedidos em aberto</h2>
         <span className="text-sm text-muted-foreground">

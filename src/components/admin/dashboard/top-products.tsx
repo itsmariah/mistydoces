@@ -4,7 +4,7 @@ import { formatCurrency } from "@/lib/utils";
 
 export function TopProducts({ products, windowDays }: { products: TopProduct[]; windowDays: number }) {
   return (
-    <section className="space-y-3 rounded-lg border border-border bg-card p-4">
+    <section className="space-y-3 rounded-lg surface p-4">
       <div className="space-y-0.5">
         <h2 className="font-heading text-lg font-semibold">Mais vendidos</h2>
         <p className="text-sm text-muted-foreground">Unidades nos últimos {windowDays} dias</p>

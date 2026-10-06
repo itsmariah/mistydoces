@@ -44,7 +44,7 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
   return (
     <article
       data-enter-animation
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card animate-in fade-in slide-in-from-bottom-4 fill-mode-both animation-duration-500 transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary-foreground/15 has-[a:focus-visible]:-translate-y-1 has-[a:focus-visible]:ring-3 has-[a:focus-visible]:ring-ring/50"
+      className="group relative flex flex-col overflow-hidden rounded-2xl surface animate-in fade-in slide-in-from-bottom-4 fill-mode-both animation-duration-500 transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary-foreground/15 has-[a:focus-visible]:-translate-y-1 has-[a:focus-visible]:ring-3 has-[a:focus-visible]:ring-ring/50"
       style={{ animationDelay: `${Math.min(index, MAX_STAGGERED_CARDS) * STAGGER_STEP_MS}ms` }}
     >
       <div className="relative aspect-square w-full overflow-hidden bg-muted">

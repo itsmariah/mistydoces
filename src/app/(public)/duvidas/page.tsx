@@ -21,7 +21,7 @@ const LINK_CLASS = "text-link underline-offset-4 hover:underline";
 /** Pergunta em acordeão nativo (`<details>`): acessível por teclado e funciona sem JS. */
 function FaqItem({ question, answer }: Question) {
   return (
-    <details className="group rounded-xl border border-border bg-card open:border-primary/40">
+    <details className="group rounded-xl surface open:border-primary/40">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl p-4 font-medium [&::-webkit-details-marker]:hidden">
         {question}
         <ChevronDown

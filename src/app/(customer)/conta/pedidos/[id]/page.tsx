@@ -86,7 +86,7 @@ export default async function OrderDetailPage({
         <ScheduledFor scheduledFor={order.scheduledFor} deliveryType={order.deliveryType} />
       )}
 
-      <section className="space-y-3 rounded-lg border border-border p-4 sm:p-6">
+      <section className="space-y-3 rounded-lg surface p-4 sm:p-6">
         <OrderTimeline status={order.status} deliveryType={order.deliveryType} />
         {!isFinal && (
           <p className="text-xs text-muted-foreground">
@@ -102,7 +102,7 @@ export default async function OrderDetailPage({
 
       <section className="space-y-3">
         <h2 className="font-heading text-lg font-medium">Itens</h2>
-        <ul className="divide-y divide-border rounded-2xl border border-border bg-card px-4">
+        <ul className="divide-y divide-border rounded-2xl surface px-4">
           {order.items.map((item) => (
             <li key={item.id} className="flex items-center gap-3 py-3 text-sm">
               <span className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-muted">
@@ -177,7 +177,7 @@ export default async function OrderDetailPage({
         </section>
       )}
 
-      <section className="space-y-2 rounded-lg border border-border p-4">
+      <section className="space-y-2 rounded-lg surface p-4">
         <div className="flex justify-between text-sm">
           <span>Subtotal</span>
           <span>{formatCurrency(order.subtotal.toString())}</span>

@@ -11,6 +11,7 @@ import {
   type StoreSettingsFormValues,
   type StoreSettingsInput,
 } from "@/validations/store-settings";
+import { SectionCard } from "@/components/shared/section-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,11 +46,9 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <fieldset className="space-y-4 rounded-lg border border-border p-4">
-      <legend className="px-1 font-heading text-lg font-medium">{title}</legend>
-      <p className="-mt-2 text-sm text-muted-foreground">{description}</p>
+    <SectionCard as="fieldset" title={title} description={description}>
       {children}
-    </fieldset>
+    </SectionCard>
   );
 }
 

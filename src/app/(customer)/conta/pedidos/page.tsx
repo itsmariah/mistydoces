@@ -36,7 +36,7 @@ export default async function OrdersPage() {
             <Link
               key={order.id}
               href={`/conta/pedidos/${order.id}`}
-              className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary"
+              className="flex items-center gap-3 rounded-2xl surface p-4 transition-colors hover:border-primary"
             >
               <OrderItemThumbnails
                 images={order.items.map((item) => item.variant.product.imageUrl)}

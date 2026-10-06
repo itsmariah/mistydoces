@@ -347,7 +347,7 @@ export function CheckoutForm({
             Ver cardápio
           </Button>
         }
-        className="mx-auto max-w-2xl rounded-lg border border-border"
+        className="mx-auto max-w-2xl rounded-lg surface"
       />
     );
   }
@@ -378,7 +378,7 @@ export function CheckoutForm({
         {/* `scroll-mt-36` nos inícios de etapa compensa o header + a barra de etapas fixos. */}
         <section id="etapa-itens" className="scroll-mt-36 space-y-3">
           <h2 className="font-heading text-lg font-medium">Itens do pedido</h2>
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card px-4">
+          <ul className="divide-y divide-border rounded-xl surface px-4">
             {items.map((item) => (
               <li key={cartLineKey(item)} className="flex items-center gap-3 py-3 text-sm">
                 <div
@@ -455,7 +455,7 @@ export function CheckoutForm({
             )}
           />
           {deliveryType === "PICKUP" && pickup && (
-            <PickupDetails pickup={pickup} className="rounded-xl border border-border p-4" />
+            <PickupDetails pickup={pickup} className="rounded-xl surface p-4" />
           )}
         </section>
 
@@ -495,7 +495,7 @@ export function CheckoutForm({
             )}
 
             {showNewAddressFields && (
-              <div className="grid grid-cols-2 gap-4 rounded-xl border border-border bg-card p-4">
+              <div className="grid grid-cols-2 gap-4 rounded-xl surface p-4">
                 <AddressInputField
                   id="newAddress.label"
                   label="Nome do endereço"
@@ -652,7 +652,7 @@ export function CheckoutForm({
       <aside
         id="resumo"
         aria-labelledby="resumo-titulo"
-        className="mt-8 scroll-mt-36 space-y-5 rounded-2xl border border-border bg-card p-5 lg:sticky lg:top-24 lg:mt-0"
+        className="mt-8 scroll-mt-36 space-y-5 rounded-2xl surface p-5 lg:sticky lg:top-24 lg:mt-0"
       >
         <h2 id="resumo-titulo" className="font-heading text-lg font-medium">
           Resumo do pedido

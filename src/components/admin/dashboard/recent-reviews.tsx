@@ -14,7 +14,7 @@ const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
 
 export function RecentReviews({ reviews }: { reviews: DashboardData["recentReviews"] }) {
   return (
-    <section className="space-y-3 rounded-lg border border-border bg-card p-4">
+    <section className="space-y-3 rounded-lg surface p-4">
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="font-heading text-lg font-semibold">Últimas avaliações</h2>
         <Link href="/admin/avaliacoes" className="text-sm font-medium text-link hover:underline">

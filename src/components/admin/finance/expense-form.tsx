@@ -61,7 +61,7 @@ export function ExpenseForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="grid gap-4 rounded-lg border border-border bg-card p-4 sm:grid-cols-2"
+      className="grid gap-4 rounded-lg surface p-4 sm:grid-cols-2"
       noValidate
     >
       <div className="space-y-1.5 sm:col-span-2">

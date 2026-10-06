@@ -14,7 +14,7 @@ export default function Loading() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         {Array.from({ length: 3 }, (_, i) => (
-          <div key={i} className="space-y-3 rounded-lg border border-border p-4">
+          <div key={i} className="space-y-3 rounded-lg surface p-4">
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-7 w-28" />
             <Skeleton className="h-4 w-16" />

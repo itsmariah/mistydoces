@@ -46,7 +46,7 @@ export function SalesChart({ days }: { days: DailySales[] }) {
   const ordersCount = visible.reduce((sum, day) => sum + day.orders, 0);
 
   return (
-    <section className="space-y-4 rounded-lg border border-border bg-card p-4">
+    <section className="space-y-4 rounded-lg surface p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-0.5">
           <h2 className="font-heading text-lg font-semibold">Faturamento por dia</h2>

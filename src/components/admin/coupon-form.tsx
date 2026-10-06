@@ -66,7 +66,7 @@ export function CouponForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="grid grid-cols-2 gap-4 rounded-lg border border-border p-4"
+      className="grid grid-cols-2 gap-4 rounded-lg surface p-4"
       noValidate
     >
       <div className="space-y-1.5">

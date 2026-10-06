@@ -81,7 +81,7 @@ export function CardPayment({
 
   if (status === "PROCESSING") {
     return (
-      <div className="space-y-2 rounded-lg border border-border p-6 text-center">
+      <div className="space-y-2 rounded-lg surface p-6 text-center">
         <p className="text-sm text-muted-foreground">
           Confirmando seu pagamento — esta página atualiza sozinha.
         </p>
@@ -91,7 +91,7 @@ export function CardPayment({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border p-4">
+      <div className="rounded-lg surface p-4">
         <p className="text-sm text-muted-foreground">Valor a pagar</p>
         <p className="font-heading text-2xl font-semibold text-link">
           {formatCurrency(total)}

@@ -10,6 +10,7 @@ import { createProduct, updateProduct } from "@/actions/products";
 import { productSchema, type ProductInput } from "@/validations/product";
 import { ALLERGENS, ALLERGEN_LABELS } from "@/lib/allergens";
 import { ProductImagesField } from "@/components/admin/product-images-field";
+import { SectionCard } from "@/components/shared/section-card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -184,8 +185,7 @@ export function ProductForm({
           )}
         </div>
 
-        <fieldset className="space-y-3 rounded-lg border border-border p-4" disabled={readOnly}>
-          <legend className="px-1 text-sm font-medium">Ingredientes e alérgenos</legend>
+        <SectionCard as="fieldset" title="Ingredientes e alérgenos" disabled={readOnly} className="space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="ingredients">Ingredientes</Label>
             <Textarea
@@ -243,10 +243,9 @@ export function ProductForm({
               </Label>
             )}
           />
-        </fieldset>
+        </SectionCard>
 
-        <fieldset className="space-y-3 rounded-lg border border-border p-4" disabled={readOnly}>
-          <legend className="px-1 text-sm font-medium">Personalização</legend>
+        <SectionCard as="fieldset" title="Personalização" disabled={readOnly} className="space-y-3">
           <Controller
             control={control}
             name="allowsNote"
@@ -275,7 +274,7 @@ export function ProductForm({
               )}
             </div>
           )}
-        </fieldset>
+        </SectionCard>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">

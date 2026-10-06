@@ -10,7 +10,7 @@ export default function OrdersLoading() {
         {Array.from({ length: 4 }, (_, i) => (
           <div
             key={i}
-            className="flex items-center gap-3 rounded-2xl border border-border p-4"
+            className="flex items-center gap-3 rounded-2xl surface p-4"
           >
             <Skeleton className="size-10 rounded-full" />
             <div className="flex-1 space-y-2">

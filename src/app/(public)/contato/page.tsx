@@ -31,7 +31,7 @@ function ChannelLink({
     <a
       href={href}
       {...(external && { target: "_blank", rel: "noopener noreferrer" })}
-      className="flex items-center gap-3 rounded-lg border border-border p-3 text-left transition-colors hover:bg-muted"
+      className="flex items-center gap-3 rounded-lg surface p-3 text-left transition-colors hover:bg-muted"
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
         {icon}
@@ -131,7 +131,7 @@ export default async function ContatoPage() {
       {contact.pickup && (
         <section className="space-y-3">
           <h2 className="font-heading text-lg font-medium">Retirada no local</h2>
-          <PickupDetails pickup={contact.pickup} className="rounded-lg border border-border p-4" />
+          <PickupDetails pickup={contact.pickup} className="rounded-lg surface p-4" />
         </section>
       )}
 

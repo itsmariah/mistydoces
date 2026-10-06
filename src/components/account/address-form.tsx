@@ -75,7 +75,7 @@ export function AddressForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="grid grid-cols-2 gap-4 rounded-lg border border-border p-4"
+      className="grid grid-cols-2 gap-4 rounded-lg surface p-4"
       noValidate
     >
       <div className="col-span-2 space-y-1.5">

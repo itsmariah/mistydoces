@@ -37,7 +37,7 @@ export async function CategoryShortcuts() {
           <Link
             key={category.id}
             href={cardapioHref({ categoria: category.slug, ordem: DEFAULT_CATALOG_SORT })}
-            className="group flex w-32 shrink-0 snap-start flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 text-center transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary-foreground/15"
+            className="group flex w-32 shrink-0 snap-start flex-col items-center gap-2 rounded-2xl surface p-4 text-center transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-secondary-foreground/15"
           >
             <span className="flex size-16 items-center justify-center rounded-full bg-secondary transition-transform duration-300 group-hover:scale-110 dark:bg-primary/20">
               <Image

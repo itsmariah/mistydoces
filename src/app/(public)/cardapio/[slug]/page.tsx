@@ -198,7 +198,7 @@ export default async function ProdutoPage({
           />
 
           {/* Responde as dúvidas de entrega e pagamento antes do checkout. */}
-          <ul className="space-y-2 rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">
+          <ul className="space-y-2 rounded-xl surface p-4 text-sm text-muted-foreground">
             {product.leadTimeDays > 0 && (
               <li className="flex items-center gap-2 font-medium text-foreground">
                 <CalendarClock className="size-4 shrink-0 text-link" aria-hidden="true" />

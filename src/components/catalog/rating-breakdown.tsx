@@ -5,7 +5,7 @@ import { RATING_VALUES, formatRating, type RatingBreakdown as Breakdown } from "
 /** Média em destaque + uma barra por nota, como nas lojas grandes. */
 export function RatingBreakdown({ summary }: { summary: Breakdown }) {
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:gap-8">
+    <div className="flex flex-col gap-5 rounded-2xl surface p-5 sm:flex-row sm:items-center sm:gap-8">
       <div className="flex shrink-0 flex-col items-center gap-1 text-center">
         <span className="font-heading text-4xl font-semibold">
           {formatRating(summary.average)}

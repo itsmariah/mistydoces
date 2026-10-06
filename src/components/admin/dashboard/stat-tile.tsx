@@ -64,7 +64,7 @@ export function StatTile({
     </>
   );
 
-  const className = "flex min-w-0 flex-col gap-1.5 rounded-lg border border-border bg-card p-3 sm:p-4";
+  const className = "flex min-w-0 flex-col gap-1.5 rounded-lg surface p-3 sm:p-4";
   return href ? (
     <Link href={href} className={cn(className, "transition-colors hover:border-link/40 hover:bg-accent/40")}>
       {body}
