@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Caveat, Inter, Quicksand } from "next/font/google";
 import Script from "next/script";
 import { THEME_STORAGE_KEY, ThemeProvider } from "@/components/theme-provider";
@@ -46,6 +46,16 @@ export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   openGraph: { ...BASE_OPEN_GRAPH, title: SITE_NAME, description: SITE_DESCRIPTION },
+  // Aberto pela tela inicial do iPhone: abre como app, com o nome curto embaixo do ícone.
+  appleWebApp: { capable: true, title: SITE_NAME, statusBarStyle: "default" },
+};
+
+// Cor da barra do navegador/sistema = fundo da página em cada tema (globals.css).
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fbf3ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0e17" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
