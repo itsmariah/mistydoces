@@ -1,17 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Search } from "lucide-react";
 import { can } from "@/lib/permissions";
 import { requirePagePermission } from "@/lib/require-permission";
 import { listProductsAdmin } from "@/services/product-service";
 import { listCategoriesAdmin } from "@/services/category-service";
 import { filterProductsBySearch } from "@/lib/catalog-search";
+import { adminProductsHref } from "@/lib/admin-products";
+import { ProductFilters } from "@/components/admin/product-filters";
 import { ProductAvailabilityToggle } from "@/components/admin/product-availability-toggle";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { cn, formatCurrency, getStartingPrice, pluralize } from "@/lib/utils";
 
 type Product = Awaited<ReturnType<typeof listProductsAdmin>>[number];
@@ -26,16 +26,6 @@ const STATUS_FILTERS = {
 } as const;
 type StatusFilter = keyof typeof STATUS_FILTERS;
 
-type ProductsQuery = { busca?: string; categoria?: string; status?: StatusFilter };
-
-function productsHref({ busca, categoria, status }: ProductsQuery) {
-  const params = new URLSearchParams();
-  if (busca) params.set("busca", busca);
-  if (categoria) params.set("categoria", categoria);
-  if (status) params.set("status", status);
-  const query = params.toString();
-  return query ? `/admin/produtos?${query}` : "/admin/produtos";
-}
 
 const chipClass = (active: boolean) =>
   cn(
@@ -96,42 +86,21 @@ export default async function AdminProductsPage({
         />
       ) : (
         <>
-          <form action="/admin/produtos" className="flex flex-wrap gap-2" role="search">
-            {status && <input type="hidden" name="status" value={status} />}
-            <Input
-              name="busca"
-              type="search"
-              defaultValue={busca}
-              placeholder="Buscar produto"
-              aria-label="Buscar produtos"
-              className="min-w-48 flex-1"
-            />
-            <select
-              name="categoria"
-              defaultValue={categoria ?? ""}
-              aria-label="Filtrar por categoria"
-              className="h-8 rounded-lg border border-input bg-background px-2.5 text-sm"
-            >
-              <option value="">Todas as categorias</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <Button type="submit" variant="outline">
-              <Search /> Filtrar
-            </Button>
-          </form>
+          <ProductFilters
+            busca={busca}
+            categoria={categoria}
+            status={status}
+            categories={categories.map(({ id, name }) => ({ id, name }))}
+          />
 
           <div className="flex flex-wrap gap-2">
-            <Link href={productsHref({ busca, categoria })} className={chipClass(!status)}>
+            <Link href={adminProductsHref({ busca, categoria })} className={chipClass(!status)}>
               Todos <span className="text-xs text-muted-foreground">{searched.length}</span>
             </Link>
             {(Object.keys(STATUS_FILTERS) as StatusFilter[]).map((key) => (
               <Link
                 key={key}
-                href={productsHref({ busca, categoria, status: key })}
+                href={adminProductsHref({ busca, categoria, status: key })}
                 className={chipClass(status === key)}
               >
                 {STATUS_FILTERS[key].label}
