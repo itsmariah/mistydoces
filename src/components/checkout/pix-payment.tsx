@@ -107,7 +107,7 @@ export function PixPayment({
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
         <Button onClick={handleGenerate} disabled={isPending} className="w-full">
-          {isPending ? "Gerando QR code..." : "Gerar QR code Pix"}
+          {isPending ? "Gerando QR code…" : "Gerar QR code Pix"}
         </Button>
       </div>
     );
@@ -123,7 +123,7 @@ export function PixPayment({
             Este QR code {status === "EXPIRED" ? "expirou" : "não foi aprovado"}.
           </p>
           <Button onClick={handleGenerate} disabled={isPending}>
-            {isPending ? "Gerando novo QR code..." : "Gerar novo QR code"}
+            {isPending ? "Gerando novo QR code…" : "Gerar novo QR code"}
           </Button>
         </>
       ) : (

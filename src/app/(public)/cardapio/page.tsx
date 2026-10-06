@@ -94,6 +94,8 @@ export default async function CardapioPage({
         </p>
       )}
 
+      {/* Os cards usam h3: este h2 (só para leitor de tela) mantém a hierarquia h1 → h2 → h3. */}
+      <h2 className="sr-only">Produtos</h2>
       <ProductGrid
         products={visibleProducts}
         bestSellerIds={bestSellerIds}

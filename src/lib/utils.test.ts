@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCurrency, getStartingPrice, slugify } from "@/lib/utils";
+import { formatCurrency, getStartingPrice, slugify, pluralize } from "@/lib/utils";
 
 describe("slugify", () => {
   it("remove acentos e converte para minúsculas", () => {
@@ -25,5 +25,13 @@ describe("getStartingPrice", () => {
   it("retorna o menor preço entre as variantes", () => {
     const variants = [{ price: "15.00" }, { price: "4.00" }, { price: "21.00" }];
     expect(getStartingPrice(variants)).toBe(4);
+  });
+});
+
+describe("pluralize", () => {
+  it("usa o singular só para 1", () => {
+    expect(pluralize(1, "pedido", "pedidos")).toBe("1 pedido");
+    expect(pluralize(0, "pedido", "pedidos")).toBe("0 pedidos");
+    expect(pluralize(3, "avaliação", "avaliações")).toBe("3 avaliações");
   });
 });

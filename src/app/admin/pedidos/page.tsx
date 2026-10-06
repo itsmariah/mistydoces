@@ -16,7 +16,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, pluralize } from "@/lib/utils";
 
 const STATUS_FILTERS: OrderStatus[] = [
   "PENDING",
@@ -166,7 +166,7 @@ export default async function AdminOrdersPage({
 
       {busca && (
         <p className="text-sm text-muted-foreground">
-          {total} resultado(s) para &ldquo;{busca}&rdquo; ·{" "}
+          {pluralize(total, "resultado", "resultados")} para &ldquo;{busca}&rdquo; ·{" "}
           <Link href={ordersHref({ status: activeStatus, cliente, quando })} className="text-link hover:underline">
             Limpar busca
           </Link>

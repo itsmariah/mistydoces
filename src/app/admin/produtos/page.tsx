@@ -12,7 +12,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn, formatCurrency, getStartingPrice } from "@/lib/utils";
+import { cn, formatCurrency, getStartingPrice, pluralize } from "@/lib/utils";
 
 type Product = Awaited<ReturnType<typeof listProductsAdmin>>[number];
 
@@ -144,7 +144,7 @@ export default async function AdminProductsPage({
 
           {hasFilters && (
             <p className="text-sm text-muted-foreground">
-              {products.length} produto(s) ·{" "}
+              {pluralize(products.length, "produto", "produtos")} ·{" "}
               <Link href="/admin/produtos" className="text-link hover:underline">
                 Limpar filtros
               </Link>

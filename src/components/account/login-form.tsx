@@ -82,7 +82,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
       {formError && <p className="text-sm text-destructive">{formError}</p>}
 
       <Button type="submit" className="w-full" disabled={isPending}>
-        {isPending ? "Entrando..." : "Entrar"}
+        {isPending ? "Entrando…" : "Entrar"}
       </Button>
     </form>
   );

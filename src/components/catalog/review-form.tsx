@@ -7,7 +7,7 @@ import { createReview } from "@/actions/reviews";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn, pluralize } from "@/lib/utils";
 
 export function ReviewForm({
   productId,
@@ -44,7 +44,7 @@ export function ReviewForm({
 
   if (submitted) {
     return (
-      <p className="text-sm text-muted-foreground">Obrigado! Sua avaliação foi publicada.</p>
+      <p className="text-sm text-muted-foreground">Obrigada! Sua avaliação foi publicada.</p>
     );
   }
 
@@ -60,7 +60,7 @@ export function ReviewForm({
             <button
               key={starValue}
               type="button"
-              aria-label={`${starValue} estrela(s)`}
+              aria-label={pluralize(starValue, "estrela", "estrelas")}
               onMouseEnter={() => setHoverRating(starValue)}
               onClick={() => setRating(starValue)}
             >
@@ -88,7 +88,7 @@ export function ReviewForm({
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <Button type="button" size="sm" disabled={isPending} onClick={handleSubmit}>
-        {isPending ? "Enviando..." : "Enviar avaliação"}
+        {isPending ? "Enviando…" : "Enviar avaliação"}
       </Button>
     </div>
   );

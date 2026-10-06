@@ -65,7 +65,7 @@ export function ProfileForm({ defaultValues }: { defaultValues: UpdateProfileInp
       )}
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Salvando..." : "Salvar alterações"}
+        {isPending ? "Salvando…" : "Salvar alterações"}
       </Button>
     </form>
   );

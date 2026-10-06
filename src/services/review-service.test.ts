@@ -119,7 +119,29 @@ describe("adminListReviews", () => {
     expect(prismaMock.review.groupBy).toHaveBeenCalledWith(
       expect.objectContaining({ by: ["isVisible"], where: { rating: 5 } }),
     );
-    expect(result).toMatchObject({ ratingCounts: { 5: 3 }, visibleCount: 2, hiddenCount: 1 });
+    expect(result).toMatchObject({
+      ratingCounts: { 5: 3 },
+      visibleCount: 2,
+      hiddenCount: 1,
+      total: 3,
+      totalPages: 1,
+    });
+  });
+
+  it("pagina de 20 em 20, com o total tirado das contagens por nota", async () => {
+    prismaMock.review.groupBy
+      .mockResolvedValueOnce([
+        { rating: 5, _count: { _all: 30 } },
+        { rating: 4, _count: { _all: 15 } },
+      ])
+      .mockResolvedValueOnce([]);
+
+    const result = await adminListReviews({ page: 3 });
+
+    expect(prismaMock.review.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 40, take: 20 }),
+    );
+    expect(result).toMatchObject({ total: 45, totalPages: 3 });
   });
 
   it("sem filtros, não restringe nada", async () => {

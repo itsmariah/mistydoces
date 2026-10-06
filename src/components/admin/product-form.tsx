@@ -342,7 +342,7 @@ export function ProductForm({
 
         {!readOnly && (
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Salvando..." : "Salvar produto"}
+            {isPending ? "Salvando…" : "Salvar produto"}
           </Button>
         )}
       </fieldset>

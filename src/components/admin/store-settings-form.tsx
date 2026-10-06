@@ -352,7 +352,7 @@ export function StoreSettingsForm({
       {formError && <p className="text-sm text-destructive">{formError}</p>}
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Salvando..." : "Salvar alterações"}
+        {isPending ? "Salvando…" : "Salvar alterações"}
       </Button>
     </form>
   );

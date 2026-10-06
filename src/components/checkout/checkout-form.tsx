@@ -421,7 +421,7 @@ export function CheckoutForm({
             ))}
           </ul>
           {isRefreshing && (
-            <p className="text-xs text-muted-foreground">Conferindo preços e disponibilidade...</p>
+            <p className="text-xs text-muted-foreground">Conferindo preços e disponibilidade…</p>
           )}
         </section>
 
@@ -499,7 +499,7 @@ export function CheckoutForm({
                 <AddressInputField
                   id="newAddress.label"
                   label="Nome do endereço"
-                  placeholder="Casa, trabalho..."
+                  placeholder="Casa, trabalho…"
                   autoComplete="off"
                   error={addressError("label")}
                   className="col-span-2"
@@ -514,7 +514,7 @@ export function CheckoutForm({
                   error={addressError("zipCode")}
                   hint={
                     cepStatus === "loading" ? (
-                      <p className="text-sm text-muted-foreground">Buscando endereço...</p>
+                      <p className="text-sm text-muted-foreground">Buscando endereço…</p>
                     ) : cepStatus === "not-found" ? (
                       <p className="text-sm text-muted-foreground">
                         CEP não encontrado — preencha o endereço manualmente.
@@ -545,7 +545,7 @@ export function CheckoutForm({
                 <AddressInputField
                   id="newAddress.complement"
                   label="Complemento"
-                  placeholder="Apto, bloco, quadra..."
+                  placeholder="Apto, bloco, quadra…"
                   autoComplete="address-line2"
                   error={addressError("complement")}
                   className="col-span-2"
@@ -576,7 +576,7 @@ export function CheckoutForm({
                 <AddressInputField
                   id="newAddress.reference"
                   label="Ponto de referência"
-                  placeholder="Nome do prédio, condomínio, estabelecimento próximo..."
+                  placeholder="Nome do prédio, condomínio, estabelecimento próximo…"
                   autoComplete="off"
                   error={addressError("reference")}
                   className="col-span-2"
@@ -691,7 +691,7 @@ export function CheckoutForm({
                 disabled={isApplyingCoupon}
                 onClick={handleApplyCoupon}
               >
-                {isApplyingCoupon ? "Aplicando..." : "Aplicar"}
+                {isApplyingCoupon ? "Aplicando…" : "Aplicar"}
               </Button>
             </div>
           )}
@@ -748,7 +748,7 @@ export function CheckoutForm({
           className="w-full"
           disabled={isPending || isRefreshing || hasUnavailable}
         >
-          {isPending ? "Enviando pedido..." : "Confirmar pedido"}
+          {isPending ? "Enviando pedido…" : "Confirmar pedido"}
         </Button>
 
         {ONLINE_PAYMENT_METHODS.includes(paymentMethod) && (

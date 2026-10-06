@@ -44,7 +44,7 @@ export function CancelOrderButton({ orderId }: { orderId: string }) {
           onClick={handleCancel}
           disabled={isPending}
         >
-          {isPending ? "Cancelando..." : "Sim, cancelar"}
+          {isPending ? "Cancelando…" : "Sim, cancelar"}
         </Button>
         <Button
           variant="outline"

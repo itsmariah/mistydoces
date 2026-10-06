@@ -52,7 +52,7 @@ export function ProductGallery({
     return (
       <ViewTransition name={productImageTransitionName(productSlug)} share="product-image" default="none">
         <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-muted">
-          <ProductPlaceholderImage className="object-contain p-10" />
+          <ProductPlaceholderImage className="object-contain p-10" preload />
         </div>
       </ViewTransition>
     );

@@ -84,7 +84,7 @@ export function ChangePasswordForm() {
       )}
 
       <Button type="submit" variant="outline" disabled={isPending}>
-        {isPending ? "Alterando..." : "Alterar senha"}
+        {isPending ? "Alterando…" : "Alterar senha"}
       </Button>
     </form>
   );

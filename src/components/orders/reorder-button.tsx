@@ -61,7 +61,7 @@ export function ReorderButton({
   return (
     <Button type="button" variant="outline" className={className} disabled={isPending} onClick={handleClick}>
       <RotateCcw />
-      {isPending ? "Montando carrinho..." : "Pedir de novo"}
+      {isPending ? "Montando carrinho…" : "Pedir de novo"}
     </Button>
   );
 }

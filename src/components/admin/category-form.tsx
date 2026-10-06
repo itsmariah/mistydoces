@@ -78,7 +78,7 @@ export function CategoryForm({
 
       <div className="flex gap-2">
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Salvando..." : "Salvar"}
+          {isPending ? "Salvando…" : "Salvar"}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
           Cancelar

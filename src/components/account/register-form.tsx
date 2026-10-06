@@ -90,7 +90,7 @@ export function RegisterForm() {
       {formError && <p className="text-sm text-destructive">{formError}</p>}
 
       <Button type="submit" className="w-full" disabled={isPending}>
-        {isPending ? "Criando conta..." : "Criar conta"}
+        {isPending ? "Criando conta…" : "Criar conta"}
       </Button>
     </form>
   );

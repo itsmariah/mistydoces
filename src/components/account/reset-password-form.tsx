@@ -67,7 +67,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       {formError && <p className="text-sm text-destructive">{formError}</p>}
 
       <Button type="submit" className="w-full" disabled={isPending}>
-        {isPending ? "Salvando..." : "Redefinir senha"}
+        {isPending ? "Salvando…" : "Redefinir senha"}
       </Button>
     </form>
   );

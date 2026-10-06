@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { pluralize } from "@/lib/utils";
 
 type Category = Awaited<ReturnType<typeof listCategoriesAdmin>>[number];
 
@@ -75,7 +76,7 @@ export function CategoryList({
               <span className="font-medium">{category.name}</span>
               {!category.isActive && <Badge variant="outline">Inativa</Badge>}
               <span className="text-sm text-muted-foreground">
-                {category._count.products} produto(s)
+                {pluralize(category._count.products, "produto", "produtos")}
               </span>
             </div>
 

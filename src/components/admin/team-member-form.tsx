@@ -86,7 +86,7 @@ export function TeamMemberForm() {
       </div>
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Adicionando..." : "Adicionar à equipe"}
+        {isPending ? "Adicionando…" : "Adicionar à equipe"}
       </Button>
 
       {formError && <p className="w-full text-sm text-destructive">{formError}</p>}

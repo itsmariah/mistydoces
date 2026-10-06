@@ -4,6 +4,7 @@ import { ROLE_LABELS, isStaff } from "@/lib/permissions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { pluralize } from "@/lib/utils";
 
 type User = Awaited<ReturnType<typeof listUsers>>["users"][number];
 
@@ -49,7 +50,7 @@ export function UserList({
             <p className="truncate text-sm text-muted-foreground">
               {user.email} — {user.phone}
             </p>
-            <p className="text-xs text-muted-foreground">{user._count.orders} pedido(s)</p>
+            <p className="text-xs text-muted-foreground">{pluralize(user._count.orders, "pedido", "pedidos")}</p>
           </div>
           {canViewOrders && user._count.orders > 0 && (
             <Button

@@ -1,22 +1,27 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Star } from "lucide-react";
+import { parsePage } from "@/lib/pagination";
+import { Pagination } from "@/components/admin/pagination";
 import { can } from "@/lib/permissions";
 import { requirePagePermission } from "@/lib/require-permission";
 import { adminListReviews } from "@/services/review-service";
 import { ReviewList } from "@/components/admin/review-list";
-import { cn } from "@/lib/utils";
+import { cn, pluralize } from "@/lib/utils";
 
 const RATINGS = [5, 4, 3, 2, 1] as const;
 
 const VISIBILITY_FILTERS = { visiveis: true, ocultas: false } as const;
 type VisibilityFilter = keyof typeof VISIBILITY_FILTERS;
 
-type ReviewsQuery = { nota?: number; visibilidade?: VisibilityFilter };
+type ReviewsQuery = { nota?: number; visibilidade?: VisibilityFilter; pagina?: number };
 
-function reviewsHref({ nota, visibilidade }: ReviewsQuery) {
+/** Trocar de filtro sempre volta para a página 1 (a `pagina` só entra quando é passada). */
+function reviewsHref({ nota, visibilidade, pagina }: ReviewsQuery) {
   const params = new URLSearchParams();
   if (nota) params.set("nota", String(nota));
   if (visibilidade) params.set("visibilidade", visibilidade);
+  if (pagina && pagina > 1) params.set("pagina", String(pagina));
   const query = params.toString();
   return query ? `/admin/avaliacoes?${query}` : "/admin/avaliacoes";
 }
@@ -30,7 +35,7 @@ const chipClass = (active: boolean) =>
 export default async function AdminReviewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ nota?: string; visibilidade?: string }>;
+  searchParams: Promise<{ nota?: string; visibilidade?: string; pagina?: string }>;
 }) {
   const user = await requirePagePermission("reviews:view");
   const params = await searchParams;
@@ -41,10 +46,17 @@ export default async function AdminReviewsPage({
       ? (params.visibilidade as VisibilityFilter)
       : undefined;
 
-  const { reviews, ratingCounts, visibleCount, hiddenCount } = await adminListReviews({
-    rating: nota,
-    isVisible: visibilidade ? VISIBILITY_FILTERS[visibilidade] : undefined,
-  });
+  const page = parsePage(params.pagina);
+
+  const { reviews, total, totalPages, ratingCounts, visibleCount, hiddenCount } =
+    await adminListReviews({
+      rating: nota,
+      isVisible: visibilidade ? VISIBILITY_FILTERS[visibilidade] : undefined,
+      page,
+    });
+
+  // Página além do fim (ex.: link antigo depois de ocultar avaliações) volta para a última.
+  if (page > totalPages) redirect(reviewsHref({ nota, visibilidade, pagina: totalPages }));
   const ratingTotal = RATINGS.reduce((sum, rating) => sum + (ratingCounts[rating] ?? 0), 0);
   const hasFilters = Boolean(nota || visibilidade);
 
@@ -62,7 +74,7 @@ export default async function AdminReviewsPage({
               key={rating}
               href={reviewsHref({ nota: rating, visibilidade })}
               className={chipClass(nota === rating)}
-              aria-label={`${rating} estrela(s)`}
+              aria-label={pluralize(rating, "estrela", "estrelas")}
             >
               {rating}
               <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
@@ -92,7 +104,7 @@ export default async function AdminReviewsPage({
 
       {hasFilters && (
         <p className="text-sm text-muted-foreground">
-          {reviews.length} avaliação(ões) ·{" "}
+          {total} {total === 1 ? "avaliação" : "avaliações"} ·{" "}
           <Link href="/admin/avaliacoes" className="text-link hover:underline">
             Limpar filtros
           </Link>
@@ -103,6 +115,12 @@ export default async function AdminReviewsPage({
         reviews={reviews}
         canModerate={can(user.role, "reviews:moderate")}
         isFiltered={hasFilters}
+      />
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        hrefFor={(pagina) => reviewsHref({ nota, visibilidade, pagina })}
       />
     </div>
   );

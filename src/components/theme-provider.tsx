@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useMounted } from "@/lib/use-mounted";
+import { THEME_STORAGE_KEY } from "@/lib/theme";
 
 type Theme = "light" | "dark" | "system";
 type ResolvedTheme = "light" | "dark";
@@ -17,8 +18,6 @@ type ThemeContextValue = {
   resolvedTheme: ResolvedTheme;
   setTheme: (theme: Theme) => void;
 };
-
-export const THEME_STORAGE_KEY = "mistydoces-theme";
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 

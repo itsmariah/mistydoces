@@ -68,7 +68,7 @@ export function ConfirmDialog({
             disabled={isPending}
             onClick={handleConfirm}
           >
-            {isPending ? "Aguarde..." : confirmLabel}
+            {isPending ? "Aguarde…" : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

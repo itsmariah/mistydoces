@@ -133,12 +133,16 @@ export async function createReview(userId: string, productId: string, input: Rev
   });
 }
 
+export const ADMIN_REVIEWS_PAGE_SIZE = 20;
+
 export async function adminListReviews({
   rating,
   isVisible,
+  page = 1,
 }: {
   rating?: number;
   isVisible?: boolean;
+  page?: number;
 } = {}) {
   const ratingWhere = rating === undefined ? {} : { rating };
   const visibilityWhere = isVisible === undefined ? {} : { isVisible };
@@ -147,6 +151,8 @@ export async function adminListReviews({
     prisma.review.findMany({
       where: { ...ratingWhere, ...visibilityWhere },
       orderBy: { createdAt: "desc" },
+      skip: (page - 1) * ADMIN_REVIEWS_PAGE_SIZE,
+      take: ADMIN_REVIEWS_PAGE_SIZE,
       include: {
         user: { select: { name: true } },
         product: { select: { name: true, slug: true } },
@@ -157,11 +163,21 @@ export async function adminListReviews({
     prisma.review.groupBy({ by: ["isVisible"], where: ratingWhere, _count: { _all: true } }),
   ]);
 
+  const ratingCounts = Object.fromEntries(
+    byRating.map((row) => [row.rating, row._count._all]),
+  ) as Partial<Record<number, number>>;
+  // O total da lista sai das contagens por nota (que já respeitam a visibilidade):
+  // sem nota escolhida, é a soma de todas; com nota, é a contagem dela.
+  const total =
+    rating === undefined
+      ? byRating.reduce((sum, row) => sum + row._count._all, 0)
+      : (ratingCounts[rating] ?? 0);
+
   return {
     reviews,
-    ratingCounts: Object.fromEntries(
-      byRating.map((row) => [row.rating, row._count._all]),
-    ) as Partial<Record<number, number>>,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / ADMIN_REVIEWS_PAGE_SIZE)),
+    ratingCounts,
     visibleCount: byVisibility.find((row) => row.isVisible)?._count._all ?? 0,
     hiddenCount: byVisibility.find((row) => !row.isVisible)?._count._all ?? 0,
   };

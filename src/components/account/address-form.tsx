@@ -80,7 +80,7 @@ export function AddressForm({
     >
       <div className="col-span-2 space-y-1.5">
         <Label htmlFor="label">Nome do endereço</Label>
-        <Input id="label" placeholder="Casa, trabalho..." autoComplete="off" {...register("label")} />
+        <Input id="label" placeholder="Casa, trabalho…" autoComplete="off" {...register("label")} />
         {errors.label && <p className="text-sm text-destructive">{errors.label.message}</p>}
       </div>
       <div className="space-y-1.5">
@@ -98,7 +98,7 @@ export function AddressForm({
         />
         {errors.zipCode && <p className="text-sm text-destructive">{errors.zipCode.message}</p>}
         {cepStatus === "loading" && (
-          <p className="text-sm text-muted-foreground">Buscando endereço...</p>
+          <p className="text-sm text-muted-foreground">Buscando endereço…</p>
         )}
         {cepStatus === "not-found" && (
           <p className="text-sm text-muted-foreground">
@@ -120,7 +120,7 @@ export function AddressForm({
         <Label htmlFor="complement">Complemento</Label>
         <Input
           id="complement"
-          placeholder="Apto, bloco, quadra..."
+          placeholder="Apto, bloco, quadra…"
           autoComplete="address-line2"
           {...register("complement")}
         />
@@ -149,7 +149,7 @@ export function AddressForm({
         <Label htmlFor="reference">Ponto de referência</Label>
         <Input
           id="reference"
-          placeholder="Nome do prédio, condomínio, estabelecimento próximo..."
+          placeholder="Nome do prédio, condomínio, estabelecimento próximo…"
           autoComplete="off"
           {...register("reference")}
         />
@@ -162,7 +162,7 @@ export function AddressForm({
 
       <div className="col-span-2 flex gap-2">
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Salvando..." : "Salvar endereço"}
+          {isPending ? "Salvando…" : "Salvar endereço"}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
           Cancelar

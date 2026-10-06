@@ -9,6 +9,7 @@ import { Pagination } from "@/components/admin/pagination";
 import { UserList } from "@/components/admin/user-list";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { pluralize } from "@/lib/utils";
 
 function customersHref({ busca, pagina }: { busca?: string; pagina?: number }) {
   const params = new URLSearchParams();
@@ -63,7 +64,7 @@ export default async function AdminCustomersPage({
 
       {busca && (
         <p className="text-sm text-muted-foreground">
-          {total} resultado(s) para &ldquo;{busca}&rdquo; ·{" "}
+          {pluralize(total, "resultado", "resultados")} para &ldquo;{busca}&rdquo; ·{" "}
           <Link href="/admin/clientes" className="text-link hover:underline">
             Limpar busca
           </Link>

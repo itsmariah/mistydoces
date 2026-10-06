@@ -152,7 +152,7 @@ export function CouponForm({
 
       <div className="col-span-2 flex gap-2">
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Salvando..." : "Salvar cupom"}
+          {isPending ? "Salvando…" : "Salvar cupom"}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
           Cancelar

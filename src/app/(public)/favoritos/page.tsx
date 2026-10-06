@@ -35,6 +35,7 @@ export default async function FavoritosPage() {
         )}
       </div>
 
+      <h2 className="sr-only">Produtos favoritos</h2>
       <ProductGrid
         products={products}
         bestSellerIds={bestSellerIds}

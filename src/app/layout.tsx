@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Caveat, Inter, Quicksand } from "next/font/google";
 import Script from "next/script";
-import { THEME_STORAGE_KEY, ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/theme-provider";
+import { THEME_STORAGE_KEY } from "@/lib/theme";
 import { CartProvider } from "@/components/cart/cart-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { NavigationTracker } from "@/components/shared/navigation-tracker";
