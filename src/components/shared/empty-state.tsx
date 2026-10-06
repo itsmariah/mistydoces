@@ -22,7 +22,7 @@ export function EmptyState({ image, title, description, action, className }: Emp
         height={image.height}
         className="h-auto max-w-full"
       />
-      <p className="font-display text-2xl text-link">{title}</p>
+      <p className="font-display text-2xl text-script">{title}</p>
       {description && (
         <p className="max-w-sm text-sm text-muted-foreground">{description}</p>
       )}

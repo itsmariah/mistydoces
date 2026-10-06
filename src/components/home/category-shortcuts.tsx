@@ -25,7 +25,7 @@ export async function CategoryShortcuts() {
   return (
     <section aria-labelledby="categorias-titulo" className="mx-auto max-w-5xl space-y-6 px-4 pb-12 sm:pb-16">
       <div className="text-center">
-        <p className="font-display text-xl text-link">escolha por categoria</p>
+        <p className="font-display text-xl text-script">escolha por categoria</p>
         <h2 id="categorias-titulo" className="font-heading text-2xl font-semibold">
           O que vai ser hoje?
         </h2>
@@ -45,7 +45,7 @@ export async function CategoryShortcuts() {
                 alt=""
                 width={44}
                 height={44}
-                className="h-11 w-11 object-contain"
+                className="h-11 w-11 object-contain dark:brightness-95"
               />
             </span>
             <span className="text-sm leading-tight font-medium">{category.name}</span>

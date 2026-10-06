@@ -23,7 +23,7 @@ export function FloatingSticker({ src, width, height, className, rotate, delay }
       aria-hidden="true"
       width={width}
       height={height}
-      className={cn("pointer-events-none absolute h-auto animate-float select-none", className)}
+      className={cn("pointer-events-none absolute h-auto animate-float select-none dark:brightness-95", className)}
       style={{ "--float-rotate": rotate, animationDelay: delay } as CSSProperties}
     />
   );

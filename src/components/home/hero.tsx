@@ -64,10 +64,10 @@ const HIGHLIGHTS: { icon: LucideIcon; label: string }[] = [
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-linear-to-b from-accent/70 to-transparent">
+    <section className="relative overflow-hidden bg-linear-to-b from-accent/70 to-transparent dark:from-secondary/60">
       <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 sm:py-16 lg:grid-cols-2 lg:gap-12 lg:py-20">
         <div className="flex flex-col items-center gap-5 text-center lg:items-start lg:text-left">
-          <p className="font-display text-2xl text-link sm:text-3xl">um doce para alegrar seu dia</p>
+          <p className="font-display text-2xl text-script sm:text-3xl">um doce para alegrar seu dia</p>
           <h1 className="text-balance font-heading text-4xl font-semibold sm:text-5xl">
             Boas-vindas à <span className="text-link">MistyDoces</span>
           </h1>
@@ -102,7 +102,7 @@ export function Hero() {
         <div className="relative order-first mx-auto size-64 sm:size-80 lg:order-last lg:size-104">
           <div
             aria-hidden="true"
-            className="absolute inset-6 rounded-full bg-linear-to-br from-primary/50 to-secondary blur-2xl"
+            className="absolute inset-6 rounded-full bg-linear-to-br from-primary/50 to-secondary blur-2xl dark:from-script/30 dark:to-primary/20"
           />
           <Image
             src="/branding/01_logo_misty_doces.png"
@@ -111,7 +111,7 @@ export function Hero() {
             height={550}
             preload
             sizes="(min-width: 1024px) 18rem, (min-width: 640px) 14rem, 11rem"
-            className="absolute top-1/2 left-1/2 h-auto w-44 -translate-x-1/2 -translate-y-1/2 sm:w-56 lg:w-72"
+            className="absolute top-1/2 left-1/2 h-auto w-44 -translate-x-1/2 -translate-y-1/2 sm:w-56 lg:w-72 dark:brightness-95"
           />
           {STICKERS.map((sticker) => (
             <FloatingSticker key={sticker.src} {...sticker} />

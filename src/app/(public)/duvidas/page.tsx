@@ -228,7 +228,7 @@ export default async function DuvidasPage() {
       <div className="flex flex-col items-center gap-4 text-center">
         <Image src="/branding/03_gatinha_chefe_com_flor.png" alt="" width={90} height={132} />
         <div className="space-y-1">
-          <p className="font-display text-2xl text-link">Ficou com alguma dúvida?</p>
+          <p className="font-display text-2xl text-script">Ficou com alguma dúvida?</p>
           <h1 className="font-heading text-3xl font-semibold">Dúvidas frequentes</h1>
         </div>
       </div>

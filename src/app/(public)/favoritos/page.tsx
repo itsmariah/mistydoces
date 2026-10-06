@@ -22,7 +22,7 @@ export default async function FavoritosPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-12">
       <div className="space-y-2 text-center">
-        <p className="font-display text-2xl text-link">os doces que você mais gostou</p>
+        <p className="font-display text-2xl text-script">os doces que você mais gostou</p>
         <h1 className="font-heading text-3xl font-semibold sm:text-4xl">Favoritos</h1>
         {!favorites.isLoggedIn && products.length > 0 && (
           <p className="text-sm text-muted-foreground">

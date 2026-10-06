@@ -39,6 +39,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-link: var(--link);
+  --color-script: var(--script);
   --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
@@ -114,6 +115,9 @@
   /* Tom mais fechado do mesmo azul, só pra texto/link direto sobre o fundo —
      o --primary claro não passa contraste de texto (ver troca com a Mariah). */
   --link: #3f6ba8;
+  /* Frases em letra cursiva (font-display). No claro é o próprio azul do link;
+     no escuro vira lilás, que traz de volta o lado "doce" da dupla azul + lilás. */
+  --script: #3f6ba8;
   --secondary: #efe6f5;
   --secondary-foreground: #5f4a78;
   --muted: #f3e9dc;
@@ -146,43 +150,46 @@
 
 .dark {
   /* MistyDoces — tema escuro (fundo azul-marinho de verdade, não roxo-ardósia;
-     lilás segue como cor de apoio, com traço de matiz azul pra combinar com o fundo) */
-  --background: #0a0e17;
-  --foreground: #eaf1fb;
-  --card: #1f304d;
-  --card-foreground: #eaf1fb;
-  --popover: #1f304d;
-  --popover-foreground: #eaf1fb;
+     lilás nos detalhes — letra cursiva, círculos dos ícones, selos e brilho — para
+     repetir a dupla azul bebê + lilás do tema claro). As camadas ficam próximas
+     (fundo → card → destaque, um degrau por vez) em vez de blocos de azul saturado. */
+  --background: #111a2b;
+  --foreground: #e8eef8;
+  --card: #18233a;
+  --card-foreground: #e8eef8;
+  --popover: #18233a;
+  --popover-foreground: #e8eef8;
   --primary: #a9cdee;
   --primary-foreground: #16223a;
   /* No escuro o --primary claro já lê bem como texto sobre o fundo marinho. */
   --link: #a9cdee;
-  --secondary: #2b2e4a;
+  --script: #cdb8f0;
+  --secondary: #2d2a4a;
   --secondary-foreground: #dcc9ef;
-  --muted: #22304d;
-  --muted-foreground: #a9b9d2;
-  --accent: #26385a;
-  --accent-foreground: #eaf1fb;
+  --muted: #1d2a42;
+  --muted-foreground: #aeb3cd;
+  --accent: #223050;
+  --accent-foreground: #e8eef8;
   --destructive: #e38292;
-  --success: #2a3624;
+  --success: #233226;
   --success-foreground: #8fc17b;
-  --warning: #3a2e1a;
+  --warning: #352b1c;
   --warning-foreground: #e0a857;
-  --border: #33456b;
-  --input: #33456b;
+  --border: #2c3452;
+  --input: #48547a;
   --ring: #a9cdee;
   --chart-1: #6394dc;
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: #1f304d;
-  --sidebar-foreground: #eaf1fb;
+  --sidebar: #18233a;
+  --sidebar-foreground: #e8eef8;
   --sidebar-primary: #a9cdee;
   --sidebar-primary-foreground: #16223a;
-  --sidebar-accent: #26385a;
-  --sidebar-accent-foreground: #eaf1fb;
-  --sidebar-border: #33456b;
+  --sidebar-accent: #223050;
+  --sidebar-accent-foreground: #e8eef8;
+  --sidebar-border: #2c3452;
   --sidebar-ring: #a9cdee;
 }
 

@@ -19,7 +19,7 @@ export function OrderThanks({ title, description }: OrderThanksProps) {
         className="shrink-0"
       />
       <div className="space-y-1">
-        <p className="font-display text-3xl text-link">{title}</p>
+        <p className="font-display text-3xl text-script">{title}</p>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
     </div>

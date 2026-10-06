@@ -203,7 +203,7 @@ export default async function PrintOrderPage({
           )}
         >
           <Image src="/branding/19_tag_obrigada.png" alt="" width={120} height={160} />
-          <p className="font-display text-3xl text-link print:text-black">
+          <p className="font-display text-3xl text-script print:text-black">
             Obrigada, {firstName}!
           </p>
           <p className="text-sm leading-relaxed">

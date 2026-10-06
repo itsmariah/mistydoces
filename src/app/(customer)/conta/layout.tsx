@@ -27,7 +27,7 @@ export default async function AccountLayout({ children }: { children: ReactNode 
             className="h-14 w-auto shrink-0"
           />
           <div className="min-w-0">
-            <p className="font-display text-2xl text-link">olá, {firstName}!</p>
+            <p className="font-display text-2xl text-script">olá, {firstName}!</p>
             <p className="truncate text-sm text-muted-foreground">{user.email}</p>
           </div>
         </div>
