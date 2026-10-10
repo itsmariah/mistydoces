@@ -14,6 +14,14 @@ export function getStartingPrice(
   return Math.min(...variants.map((variant) => Number(variant.price.toString())));
 }
 
+/** "R$ 15,00", ou "A partir de R$ 4,00" quando o produto tem mais de uma opção. */
+export function formatPriceLabel(
+  variants: Array<{ price: number | string | { toString(): string } }>,
+): string {
+  const startingPrice = formatCurrency(getStartingPrice(variants));
+  return variants.length > 1 ? `A partir de ${startingPrice}` : startingPrice;
+}
+
 export function slugify(text: string): string {
   return text
     .normalize("NFD")

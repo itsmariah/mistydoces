@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarClock, ShoppingBag, Trash2 } from "lucide-react";
+import { CalendarClock, LogIn, ShoppingBag, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,8 @@ import { formatLeadTimeLong, maxLeadTimeDays } from "@/lib/scheduling";
 import { cn, formatCurrency } from "@/lib/utils";
 import { MAX_ITEM_QUANTITY } from "@/validations/order";
 
-export function CartSheet() {
+/** `isLoggedIn` vem do header (que já lê a sessão): o checkout pede conta, e sem ela a sacola avisa antes. */
+export function CartSheet({ isLoggedIn }: { isLoggedIn: boolean }) {
   const {
     items,
     itemCount,
@@ -208,6 +209,13 @@ export function CartSheet() {
                 {formatCurrency(subtotal)}
               </span>
             </div>
+            {!isLoggedIn && !hasUnavailable && (
+              <p className="flex items-start gap-2 rounded-lg bg-muted/60 p-2.5 text-xs text-muted-foreground">
+                <LogIn className="mt-px size-4 shrink-0" aria-hidden="true" />
+                Para finalizar, você entra ou cria sua conta. Leva um minutinho, e o carrinho
+                fica guardado.
+              </p>
+            )}
             {hasUnavailable ? (
               <>
                 <p className="text-sm text-muted-foreground">

@@ -8,6 +8,7 @@ import { updateProfileSchema, type UpdateProfileInput } from "@/validations/auth
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PhoneInput } from "@/components/shared/phone-input";
 
 export function ProfileForm({ defaultValues }: { defaultValues: UpdateProfileInput }) {
   const [isPending, startTransition] = useTransition();
@@ -48,7 +49,7 @@ export function ProfileForm({ defaultValues }: { defaultValues: UpdateProfileInp
 
       <div className="space-y-1.5">
         <Label htmlFor="phone">Telefone</Label>
-        <Input id="phone" {...register("phone")} />
+        <PhoneInput id="phone" {...register("phone")} />
         {errors.phone && (
           <p className="text-sm text-destructive">{errors.phone.message}</p>
         )}

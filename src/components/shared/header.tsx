@@ -50,7 +50,7 @@ export async function Header() {
             <span className="hidden sm:inline-flex">
               <FavoritesLink />
             </span>
-            <CartSheet />
+            <CartSheet isLoggedIn={!!user} />
             {user ? (
               <AccountMenu
                 name={user.name ?? user.email ?? "Minha conta"}

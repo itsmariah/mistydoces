@@ -10,20 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
+import { safeCallbackPath } from "@/lib/callback-url";
 import { adminHomePath, isStaff } from "@/lib/permissions";
-
-// O proxy manda o callbackUrl como URL absoluta; só aceita destinos do próprio site
-// (evita open redirect) e ignora o próprio /login.
-function safeCallbackPath(callbackUrl: string | undefined): string | null {
-  if (!callbackUrl) return null;
-  try {
-    const url = new URL(callbackUrl, window.location.origin);
-    if (url.origin !== window.location.origin || url.pathname === "/login") return null;
-    return `${url.pathname}${url.search}`;
-  } catch {
-    return null;
-  }
-}
 
 export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
   const router = useRouter();
@@ -52,7 +40,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
       const session = await getSession();
       const role = session?.user?.role;
       const fallback = isStaff(role) ? adminHomePath(role) : "/conta";
-      router.push(safeCallbackPath(callbackUrl) ?? fallback);
+      router.push(safeCallbackPath(callbackUrl, window.location.origin) ?? fallback);
       router.refresh();
     });
   }

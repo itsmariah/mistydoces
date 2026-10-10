@@ -14,5 +14,6 @@ export const BASE_OPEN_GRAPH = {
   siteName: SITE_NAME,
   locale: "pt_BR",
   type: "website",
-  images: [{ url: "/branding/01_logo_misty_doces.png", width: 210, height: 235, alt: SITE_NAME }],
+  // Sem `images`: a prévia vem dos arquivos `opengraph-image.tsx` (o do app inteiro e o do
+  // produto), que o Next coloca nas tags sozinho e têm prioridade sobre o que for definido aqui.
 } satisfies Metadata["openGraph"];

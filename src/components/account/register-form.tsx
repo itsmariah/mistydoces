@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerUser } from "@/actions/auth";
+import { safeCallbackPath } from "@/lib/callback-url";
 import { registerSchema, type RegisterInput } from "@/validations/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
+import { PhoneInput } from "@/components/shared/phone-input";
 
-export function RegisterForm() {
+export function RegisterForm({ callbackUrl }: { callbackUrl?: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
@@ -30,7 +32,8 @@ export function RegisterForm() {
         setFormError(result.error.message);
         return;
       }
-      router.push("/conta");
+      // Vindo do checkout, volta direto para ele: o carrinho continua no navegador.
+      router.push(safeCallbackPath(callbackUrl, window.location.origin) ?? "/conta");
       router.refresh();
     });
   }
@@ -55,7 +58,7 @@ export function RegisterForm() {
 
       <div className="space-y-1.5">
         <Label htmlFor="phone">Telefone</Label>
-        <Input id="phone" autoComplete="tel" {...register("phone")} />
+        <PhoneInput id="phone" {...register("phone")} />
         {errors.phone && (
           <p className="text-sm text-destructive">{errors.phone.message}</p>
         )}

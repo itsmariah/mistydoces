@@ -1,10 +1,18 @@
 import { z } from "zod";
+import { formatPhoneInput, isValidPhone } from "@/lib/phone";
+
+// Salva sempre no mesmo formato "(83) 99999-9999", venha como vier (colado, com +55…).
+const phoneSchema = z
+  .string()
+  .trim()
+  .refine(isValidPhone, "Informe o telefone com DDD.")
+  .transform(formatPhoneInput);
 
 export const registerSchema = z
   .object({
     name: z.string().trim().min(2, "Informe seu nome completo."),
     email: z.email("E-mail inválido."),
-    phone: z.string().trim().min(8, "Informe um telefone válido."),
+    phone: phoneSchema,
     password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres."),
     confirmPassword: z.string(),
   })
@@ -24,7 +32,7 @@ export type LoginInput = z.infer<typeof loginSchema>;
 
 export const updateProfileSchema = z.object({
   name: z.string().trim().min(2, "Informe seu nome completo."),
-  phone: z.string().trim().min(8, "Informe um telefone válido."),
+  phone: phoneSchema,
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

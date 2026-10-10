@@ -20,7 +20,7 @@ import type { Metadata } from "next";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
 import { formatRating } from "@/lib/rating";
 import { BASE_OPEN_GRAPH } from "@/lib/site-metadata";
-import { formatCurrency, getStartingPrice } from "@/lib/utils";
+import { formatCurrency, formatPriceLabel } from "@/lib/utils";
 import { auth } from "@/lib/auth";
 import { getBestSellerProductIds } from "@/services/best-seller-service";
 import { getDeliveryFee, getStoreContact } from "@/services/store-settings-service";
@@ -34,11 +34,6 @@ import {
 
 const RELATED_PRODUCTS_LIMIT = 4;
 
-function getPriceLabel(variants: { price: { toString(): string } }[]) {
-  const startingPrice = formatCurrency(getStartingPrice(variants));
-  return variants.length > 1 ? `A partir de ${startingPrice}` : startingPrice;
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -49,11 +44,7 @@ export async function generateMetadata({
   if (!product) return {};
 
   // O preço vai na frente da descrição: é o que aparece na prévia do link no WhatsApp.
-  const description = `${getPriceLabel(product.variants)} · ${product.description}`;
-  const image = product.imageUrl
-    ? { url: product.imageUrl, alt: product.name }
-    : { url: "/branding/17_gatinha_chefe_de_pe.png", alt: product.name };
-
+  const description = `${formatPriceLabel(product.variants)} · ${product.description}`;
   return {
     title: product.name,
     description,
@@ -62,7 +53,7 @@ export async function generateMetadata({
       title: product.name,
       description,
       url: `/cardapio/${product.slug}`,
-      images: [image],
+      // A imagem vem do `opengraph-image.tsx` desta rota (foto, nome e preço num cartão só).
     },
   };
 }
@@ -231,7 +222,7 @@ export default async function ProdutoPage({
             <FavoriteButton productId={product.id} productName={product.name} variant="inline" />
             <ShareButton
               title={product.name}
-              text={`${product.name} · ${getPriceLabel(product.variants)} na MistyDoces`}
+              text={`${product.name} · ${formatPriceLabel(product.variants)} na MistyDoces`}
             />
           </div>
         </div>

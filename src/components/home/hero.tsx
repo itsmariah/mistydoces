@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Bike, ChefHat, CreditCard, type LucideIcon } from "lucide-react";
+import { ArrowRight, Bike, ChefHat, CreditCard, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FloatingSticker, type Sticker } from "@/components/shared/floating-sticker";
 
@@ -57,7 +57,7 @@ const STICKERS: Sticker[] = [
 ];
 
 const HIGHLIGHTS: { icon: LucideIcon; label: string }[] = [
-  { icon: ChefHat, label: "Feito sob encomenda" },
+  { icon: ChefHat, label: "Pronta-entrega" },
   { icon: CreditCard, label: "Pix ou cartão online" },
   { icon: Bike, label: "Entrega ou retirada" },
 ];
@@ -72,16 +72,24 @@ export function Hero() {
             Boas-vindas à <span className="text-link">MistyDoces</span>
           </h1>
           <p className="max-w-xl text-balance text-muted-foreground">
-            Bolos, brigadeiros, cookies e muito mais — feitos sob encomenda,
-            prontos para adoçar o seu dia.
+            Bolos, brigadeiros, cookies e muito mais, feitos com carinho para pronta-entrega
+            ou sob encomenda.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Button size="lg" nativeButton={false} render={<Link href="/cardapio" />}>
+            {/* Maiores que o `lg` padrão (h-9): são a ação principal da página inteira. */}
+            <Button
+              size="lg"
+              className="h-11 px-6 text-base has-data-[icon=inline-end]:pr-5"
+              nativeButton={false}
+              render={<Link href="/cardapio" />}
+            >
               Ver cardápio
+              <ArrowRight data-icon="inline-end" aria-hidden="true" />
             </Button>
             <Button
               variant="outline"
               size="lg"
+              className="h-11 px-6 text-base"
               nativeButton={false}
               render={<Link href="/contato" />}
             >

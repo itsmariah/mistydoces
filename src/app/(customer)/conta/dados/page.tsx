@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { formatPhoneInput } from "@/lib/phone";
 import { ProfileForm } from "@/components/account/profile-form";
 import { AvatarField } from "@/components/account/avatar-field";
 import { ChangePasswordForm } from "@/components/account/change-password-form";
@@ -25,7 +26,8 @@ export default async function AccountDataPage() {
 
       <section className="space-y-4">
         <h2 className="font-heading text-lg font-medium">Dados pessoais</h2>
-        <ProfileForm defaultValues={{ name: user.name, phone: user.phone }} />
+        {/* Cadastros antigos podem ter o telefone sem máscara: já mostra formatado. */}
+        <ProfileForm defaultValues={{ name: user.name, phone: formatPhoneInput(user.phone) }} />
       </section>
 
       <section className="space-y-4">

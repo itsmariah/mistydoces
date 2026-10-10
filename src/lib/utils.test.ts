@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCurrency, getStartingPrice, slugify, pluralize } from "@/lib/utils";
+import { formatCurrency, formatPriceLabel, getStartingPrice, slugify, pluralize } from "@/lib/utils";
 
 describe("slugify", () => {
   it("remove acentos e converte para minúsculas", () => {
@@ -25,6 +25,16 @@ describe("getStartingPrice", () => {
   it("retorna o menor preço entre as variantes", () => {
     const variants = [{ price: "15.00" }, { price: "4.00" }, { price: "21.00" }];
     expect(getStartingPrice(variants)).toBe(4);
+  });
+});
+
+describe("formatPriceLabel", () => {
+  it("mostra o preço direto quando há uma opção só", () => {
+    expect(formatPriceLabel([{ price: "15" }])).toBe(formatCurrency(15));
+  });
+
+  it("mostra 'A partir de' com o menor preço quando há várias opções", () => {
+    expect(formatPriceLabel([{ price: 8 }, { price: "4" }])).toBe(`A partir de ${formatCurrency(4)}`);
   });
 });
 
