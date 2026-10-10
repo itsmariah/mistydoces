@@ -47,11 +47,12 @@ function ChannelLink({
 export default async function ContatoPage() {
   const contact = await getStoreContact();
 
-  // Nada preenchido no painel ainda: mantém o aviso de "em breve" em vez de uma página vazia.
+  // Nada preenchido no painel ainda: avisa que os canais vêm em breve, mas já mostra o que
+  // existe (horário e dúvidas frequentes) em vez de uma página que não leva a lugar nenhum.
   if (!contact.hasChannels && !contact.pickup) {
     return (
-      <div className="mx-auto flex max-w-xl flex-col items-center gap-6 px-4 py-16 text-center">
-        <Image src="/branding/14_pote_de_biscoitos.png" alt="" width={160} height={168} />
+      <div className="mx-auto flex max-w-xl flex-col items-center gap-8 px-4 py-16 text-center">
+        <Image src="/branding/14_pote_de_biscoitos.png" alt="" width={140} height={147} />
         <div className="space-y-2">
           <h1 className="font-heading text-3xl font-semibold">Contato</h1>
           <p className="text-muted-foreground">
@@ -59,9 +60,33 @@ export default async function ContatoPage() {
             gente direto por aqui.
           </p>
         </div>
-        <Button size="lg" nativeButton={false} render={<Link href="/cardapio" />}>
-          Ver cardápio enquanto isso
-        </Button>
+
+        <section className="w-full space-y-3 rounded-2xl surface p-5 text-left">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-heading text-lg font-medium">Horário de funcionamento</h2>
+            <OpenStatus schedule={contact.schedule} className="text-sm" />
+          </div>
+          <HoursList hours={contact.hours} className="text-sm" />
+        </section>
+
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Enquanto isso, a resposta para a sua dúvida pode já estar por aqui:
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Button size="lg" nativeButton={false} render={<Link href="/duvidas" />}>
+              Dúvidas frequentes
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              nativeButton={false}
+              render={<Link href="/cardapio" />}
+            >
+              Ver cardápio
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
