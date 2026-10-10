@@ -305,6 +305,38 @@
   --sidebar-ring: #a9cdee;
 }
 
+/* Tamanho dos controles (botões, campos, selects). O padrão é o compacto do shadcn, que o
+   painel admin usa; as telas da loja marcam a página com `data-store` (StoreMarker) e ganham
+   alvos de toque de 40–44px. Variável em vez de variante: um `className="h-7"` pontual
+   continua vencendo, porque o `cn` troca a classe de altura inteira. */
+:root {
+  --control-h-sm: 1.75rem;
+  --control-px-sm: 0.625rem;
+  --control-h: 2rem;
+  --control-px: 0.625rem;
+  --control-h-lg: 2.25rem;
+  --control-px-lg: 0.625rem;
+  --control-text-lg: 0.875rem;
+  --icon-btn: 2rem;
+  --icon-btn-sm: 1.75rem;
+  --icon-btn-lg: 2.25rem;
+  --input-px: 0.625rem;
+}
+
+:root:has([data-store]) {
+  --control-h-sm: 2.25rem;
+  --control-px-sm: 0.875rem;
+  --control-h: 2.5rem;
+  --control-px: 1rem;
+  --control-h-lg: 2.75rem;
+  --control-px-lg: 1.375rem;
+  --control-text-lg: 1rem;
+  --icon-btn: 2.5rem;
+  --icon-btn-sm: 2rem;
+  --icon-btn-lg: 2.75rem;
+  --input-px: 0.875rem;
+}
+
 /* Fundo ambiente da loja no tema escuro (camada fixa do SiteLayout): brilho lilás no topo,
    como o do hero, um azul no canto de baixo e confeitos bem apagados — no lugar do marinho
    chapado. O tema claro não usa: o creme já é quente o bastante. */

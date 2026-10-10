@@ -43,6 +43,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <AmbientBackground />
+      {/* Marca a página como da loja: botões e campos usam os tamanhos maiores (globals.css). */}
+      <span hidden data-store />
       {/* Painel da marca: só no desktop, onde sobra espaço. No celular o formulário vem direto. */}
       <aside
         aria-hidden="true"

@@ -14,7 +14,7 @@ type CategoryFilterProps = {
 };
 
 const CHIP_CLASS =
-  "flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-medium transition-colors";
+  "flex h-(--control-h) shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-4 text-sm font-medium transition-colors";
 
 export function CategoryFilter({
   categories,

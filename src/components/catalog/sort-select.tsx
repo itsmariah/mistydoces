@@ -30,7 +30,7 @@ export function SortSelect({ sort, activeCategorySlug, search, freeFrom }: SortS
 
   return (
     <Select items={CATALOG_SORTS} value={sort} onValueChange={handleChange}>
-      <SelectTrigger aria-label="Ordenar produtos" className="shrink-0 bg-background">
+      <SelectTrigger aria-label="Ordenar produtos" className="shrink-0 rounded-full bg-background pl-3.5">
         <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
         <SelectValue />
       </SelectTrigger>

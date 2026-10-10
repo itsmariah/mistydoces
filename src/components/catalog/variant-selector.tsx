@@ -163,7 +163,7 @@ export function VariantSelector({
         <Button
           size="lg"
           disabled={disabled}
-          className="h-11 flex-1 text-base"
+          className="flex-1"
           onClick={handleAdd}
         >
           {justAdded ? (

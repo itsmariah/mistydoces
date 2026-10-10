@@ -130,7 +130,6 @@ export default function SobrePage() {
         <Image src="/branding/06_tag_feito_com_carinho.png" alt="" width={100} height={100} />
         <Button
           size="lg"
-          className="h-11 px-6 text-base has-data-[icon=inline-end]:pr-5"
           nativeButton={false}
           render={<Link href="/cardapio" />}
         >

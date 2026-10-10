@@ -21,6 +21,8 @@ export async function SiteLayout({ children }: { children: ReactNode }) {
         Pular para o conteúdo
       </a>
       <AmbientBackground />
+      {/* Marca a página como da loja: botões e campos usam os tamanhos maiores (globals.css). */}
+      <span hidden data-store />
       <Header />
       <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">
         <PageTransition>{children}</PageTransition>

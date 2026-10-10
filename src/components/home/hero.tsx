@@ -76,10 +76,8 @@ export function Hero() {
             ou sob encomenda.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            {/* Maiores que o `lg` padrão (h-9): são a ação principal da página inteira. */}
             <Button
               size="lg"
-              className="h-11 px-6 text-base has-data-[icon=inline-end]:pr-5"
               nativeButton={false}
               render={<Link href="/cardapio" />}
             >
@@ -89,7 +87,6 @@ export function Hero() {
             <Button
               variant="outline"
               size="lg"
-              className="h-11 px-6 text-base"
               nativeButton={false}
               render={<Link href="/contato" />}
             >
