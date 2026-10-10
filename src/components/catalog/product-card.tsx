@@ -15,7 +15,7 @@ import { CalendarClock } from "lucide-react";
 
 type ProductCardProps = {
   product: Product & {
-    category: Pick<Category, "name">;
+    category: Pick<Category, "name" | "slug">;
     variants: ProductVariant[];
   };
   isBestSeller?: boolean;
@@ -71,7 +71,7 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
                 sizes={PRODUCT_CARD_IMAGE_SIZES}
               />
             ) : (
-              <ProductPlaceholderImage />
+              <ProductPlaceholderImage categorySlug={product.category.slug} />
             )}
           </div>
         </ViewTransition>
@@ -114,6 +114,7 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
           <ProductCardLink
             slug={product.slug}
             coverUrl={product.imageUrl}
+            categorySlug={product.category.slug}
             className="outline-none after:absolute after:inset-0"
           >
             {product.name}

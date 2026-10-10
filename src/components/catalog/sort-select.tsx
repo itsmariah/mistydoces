@@ -32,10 +32,7 @@ export function SortSelect({ sort, activeCategorySlug, search, freeFrom }: SortS
     <Select items={CATALOG_SORTS} value={sort} onValueChange={handleChange}>
       <SelectTrigger aria-label="Ordenar produtos" className="shrink-0 bg-background">
         <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-        {/* No celular só o ícone, para sobrar espaço para as categorias. */}
-        <span className="hidden sm:inline">
-          <SelectValue />
-        </span>
+        <SelectValue />
       </SelectTrigger>
       <SelectContent align="end" alignItemWithTrigger={false}>
         {(Object.keys(CATALOG_SORTS) as CatalogSort[]).map((key) => (

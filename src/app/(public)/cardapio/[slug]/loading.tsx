@@ -20,10 +20,10 @@ function CoverPhoto({ slug }: { slug: string }) {
   return (
     <ViewTransition name={productImageTransitionName(slug)} share="product-image" default="none">
       <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-muted">
-        {cover ? (
-          <Image src={cover} alt="" fill className="object-cover" sizes={PRODUCT_CARD_IMAGE_SIZES} />
+        {cover.coverUrl ? (
+          <Image src={cover.coverUrl} alt="" fill className="object-cover" sizes={PRODUCT_CARD_IMAGE_SIZES} />
         ) : (
-          <ProductPlaceholderImage className="object-contain p-10" />
+          <ProductPlaceholderImage categorySlug={cover.categorySlug} />
         )}
       </div>
     </ViewTransition>

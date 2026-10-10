@@ -19,10 +19,13 @@ export function ProductGallery({
   images,
   productName,
   productSlug,
+  categorySlug,
 }: {
   images: string[];
   productName: string;
   productSlug: string;
+  /** Sem fotos, a galeria mostra a ilustração da categoria (a mesma do card). */
+  categorySlug: string;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -52,7 +55,7 @@ export function ProductGallery({
     return (
       <ViewTransition name={productImageTransitionName(productSlug)} share="product-image" default="none">
         <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-muted">
-          <ProductPlaceholderImage className="object-contain p-10" preload />
+          <ProductPlaceholderImage categorySlug={categorySlug} preload />
         </div>
       </ViewTransition>
     );

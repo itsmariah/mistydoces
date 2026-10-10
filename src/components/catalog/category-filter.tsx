@@ -52,16 +52,28 @@ export function CategoryFilter({
           </Link>
         );
       })}
+    </nav>
+  );
+}
 
-      {/* Restrições ligam e desligam (e somam), ao contrário da categoria, que é uma só. */}
-      <span aria-hidden="true" className="my-1 w-px shrink-0 bg-border" />
+type FreeFromFilterProps = {
+  activeCategorySlug?: string;
+  sort: CatalogSort;
+  search?: string;
+  freeFrom: FreeFromSlug[];
+};
+
+/** Restrições ligam e desligam (e somam), ao contrário da categoria, que é uma só. */
+export function FreeFromFilter({ activeCategorySlug, sort, search, freeFrom }: FreeFromFilterProps) {
+  return (
+    <nav aria-label="Restrições alimentares" className="flex flex-wrap gap-2">
       {FREE_FROM_FILTERS.map((filter) => {
         const isOn = freeFrom.includes(filter.slug);
         const next = isOn ? freeFrom.filter((slug) => slug !== filter.slug) : [...freeFrom, filter.slug];
         return (
           <Link
             key={filter.slug}
-            href={cardapioHref({ categoria: activeSlug, ordem: sort, busca: search, sem: next })}
+            href={cardapioHref({ categoria: activeCategorySlug, ordem: sort, busca: search, sem: next })}
             aria-current={isOn ? "true" : undefined}
             className={cn(
               CHIP_CLASS,

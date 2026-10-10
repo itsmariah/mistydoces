@@ -89,7 +89,7 @@ export function RecentlyViewed({
                     )}
                   />
                 ) : (
-                  <ProductPlaceholderImage className="object-contain p-4" />
+                  <ProductPlaceholderImage categorySlug={product.categorySlug} />
                 )}
               </span>
               <span className="block truncate text-sm font-medium group-hover:underline">

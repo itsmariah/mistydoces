@@ -14,6 +14,7 @@ export type RecentlyViewedProduct = {
   slug: string;
   name: string;
   imageUrl: string | null;
+  categorySlug: string;
   startingPrice: number;
   hasOptions: boolean;
   isAvailable: boolean;
@@ -38,6 +39,7 @@ export async function getRecentlyViewedProducts(
         slug: product.slug,
         name: product.name,
         imageUrl: product.imageUrl,
+        categorySlug: product.category.slug,
         startingPrice: getStartingPrice(product.variants),
         hasOptions: product.variants.length > 1,
         isAvailable: product.isAvailable,

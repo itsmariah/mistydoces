@@ -106,6 +106,7 @@ export default async function ProdutoPage({
           ]}
           productName={product.name}
           productSlug={product.slug}
+          categorySlug={product.category.slug}
         />
 
         <div className="flex flex-col gap-4">
