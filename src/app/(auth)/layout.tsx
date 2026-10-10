@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/shared/logo";
+import { AmbientBackground } from "@/components/shared/ambient-background";
 import { FloatingSticker, type Sticker } from "@/components/shared/floating-sticker";
 
 const STICKERS: Sticker[] = [
@@ -41,6 +42,7 @@ const STICKERS: Sticker[] = [
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
+      <AmbientBackground />
       {/* Painel da marca: só no desktop, onde sobra espaço. No celular o formulário vem direto. */}
       <aside
         aria-hidden="true"

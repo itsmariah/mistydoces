@@ -84,7 +84,7 @@ export function ProductGrid({
           className="space-y-4"
         >
           <div className="flex items-center gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary dark:bg-primary/20">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary dark:bg-script/15">
               <Image
                 src={categoryIllustration(category.slug)}
                 alt=""

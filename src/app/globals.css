@@ -272,7 +272,10 @@
   --script: #cdb8f0;
   --section: #211f3b;
   --section-foreground: #dcc9ef;
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.25), 0 6px 18px -8px rgb(0 0 0 / 0.45);
+  /* O filete claro no topo (inset) separa o card do fundo marinho — no escuro a sombra
+     sozinha quase não aparece. */
+  --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 2px rgb(0 0 0 / 0.25),
+    0 6px 18px -8px rgb(0 0 0 / 0.45);
   --secondary: #2d2a4a;
   --secondary-foreground: #dcc9ef;
   --muted: #1d2a42;
@@ -300,6 +303,17 @@
   --sidebar-accent-foreground: #e8eef8;
   --sidebar-border: #343e60;
   --sidebar-ring: #a9cdee;
+}
+
+/* Fundo ambiente da loja no tema escuro (camada fixa do SiteLayout): brilho lilás no topo,
+   como o do hero, um azul no canto de baixo e confeitos bem apagados — no lugar do marinho
+   chapado. O tema claro não usa: o creme já é quente o bastante. */
+@utility ambient-dark {
+  background-image:
+    radial-gradient(ellipse 70% 45% at 50% -8%, color-mix(in oklab, var(--script) 22%, transparent), transparent 70%),
+    radial-gradient(ellipse 50% 45% at 102% 104%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 70%),
+    radial-gradient(ellipse 40% 40% at -6% 55%, color-mix(in oklab, var(--script) 7%, transparent), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg opacity='0.045'%3E%3Crect x='20' y='26' width='12' height='4' rx='2' fill='%23cdb8f0' transform='rotate(-30 26 28)'/%3E%3Crect x='112' y='18' width='12' height='4' rx='2' fill='%23a9cdee' transform='rotate(40 118 20)'/%3E%3Crect x='70' y='84' width='12' height='4' rx='2' fill='%23cdb8f0' transform='rotate(15 76 86)'/%3E%3Crect x='150' y='110' width='12' height='4' rx='2' fill='%23a9cdee' transform='rotate(-55 156 112)'/%3E%3Crect x='30' y='140' width='12' height='4' rx='2' fill='%23a9cdee' transform='rotate(70 36 142)'/%3E%3Crect x='104' y='156' width='12' height='4' rx='2' fill='%23cdb8f0' transform='rotate(-10 110 158)'/%3E%3Ccircle cx='150' cy='60' r='2.5' fill='%23cdb8f0'/%3E%3Ccircle cx='54' cy='96' r='2' fill='%23a9cdee'/%3E%3Ccircle cx='160' cy='164' r='2' fill='%23cdb8f0'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* Caixa padrão do site (cards, linhas de lista, seções): fundo de card, borda e sombra leve.

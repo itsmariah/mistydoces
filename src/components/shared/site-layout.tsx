@@ -6,6 +6,7 @@ import { FavoritesProvider } from "@/components/favorites/favorites-provider";
 import { getCurrentFavorites } from "@/services/favorite-service";
 import { MobileTabBar } from "@/components/shared/mobile-tab-bar";
 import { PageTransition } from "@/components/shared/page-transition";
+import { AmbientBackground } from "@/components/shared/ambient-background";
 
 export async function SiteLayout({ children }: { children: ReactNode }) {
   const favorites = await getCurrentFavorites();
@@ -19,6 +20,7 @@ export async function SiteLayout({ children }: { children: ReactNode }) {
       >
         Pular para o conteúdo
       </a>
+      <AmbientBackground />
       <Header />
       <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">
         <PageTransition>{children}</PageTransition>

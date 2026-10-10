@@ -24,7 +24,7 @@ export function ProductPlaceholderImage({
       <>
         <span
           aria-hidden="true"
-          className="absolute top-1/2 left-1/2 size-3/5 -translate-1/2 rounded-full bg-secondary/70 dark:bg-primary/15"
+          className="absolute top-1/2 left-1/2 size-3/5 -translate-1/2 rounded-full bg-secondary/70 dark:bg-script/15"
         />
         <Image
           src={categoryIllustration(categorySlug)}
