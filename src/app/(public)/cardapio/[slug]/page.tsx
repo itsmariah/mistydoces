@@ -15,7 +15,6 @@ import { RatingBreakdown } from "@/components/catalog/rating-breakdown";
 import { ShareButton } from "@/components/catalog/share-button";
 import { RecentlyViewed } from "@/components/catalog/recently-viewed";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
-import { EmptyState } from "@/components/shared/empty-state";
 import type { Metadata } from "next";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
 import { formatRating } from "@/lib/rating";
@@ -90,15 +89,19 @@ export default async function ProdutoPage({
       <BackToCardapioLink />
 
       <div className="grid gap-8 sm:grid-cols-2">
-        <ProductGallery
-          images={[
-            ...(product.imageUrl ? [product.imageUrl] : []),
-            ...product.images.map((image) => image.url),
-          ]}
-          productName={product.name}
-          productSlug={product.slug}
-          categorySlug={product.category.slug}
-        />
+        {/* A partir de `sm`, a foto acompanha a rolagem quando a coluna da direita é mais longa
+            (várias opções, personalização, ingredientes). */}
+        <div className="sm:sticky sm:top-24 sm:self-start">
+          <ProductGallery
+            images={[
+              ...(product.imageUrl ? [product.imageUrl] : []),
+              ...product.images.map((image) => image.url),
+            ]}
+            productName={product.name}
+            productSlug={product.slug}
+            categorySlug={product.category.slug}
+          />
+        </div>
 
         <div className="flex flex-col gap-4">
           <div className="space-y-1">
@@ -241,12 +244,22 @@ export default async function ProdutoPage({
         )}
 
         {reviews.length === 0 ? (
-          <EmptyState
-            image={{ src: "/branding/16_tag_aprovado_pela_chefe.png", width: 120, height: 100 }}
-            title="Ainda sem avaliações"
-            description="Já provou? Depois que seu pedido for entregue, conta pra gente o que achou."
-            className="py-6"
-          />
+          // Faixa compacta: sem avaliações, a seção não deve ocupar meia tela antes dos relacionados.
+          <div className="flex items-center gap-4 rounded-2xl surface p-4">
+            <Image
+              src="/branding/16_tag_aprovado_pela_chefe.png"
+              alt=""
+              width={64}
+              height={53}
+              className="shrink-0 -rotate-6"
+            />
+            <div className="space-y-0.5">
+              <p className="font-display text-xl text-script">Ainda sem avaliações</p>
+              <p className="text-sm text-muted-foreground">
+                Já provou? Depois que seu pedido for entregue, conta pra gente o que achou.
+              </p>
+            </div>
+          </div>
         ) : (
           <div className="space-y-4">
             {reviews.map((review) => (

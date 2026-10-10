@@ -151,7 +151,7 @@ export function VariantSelector({
         {selected ? formatCurrency(selected.price) : ""}
       </span>
 
-      <div ref={mainActionsRef} className="flex flex-wrap items-center gap-4">
+      <div ref={mainActionsRef} className="flex items-center gap-4">
         <QuantityStepper
           value={quantity}
           onChange={setQuantity}
@@ -159,14 +159,24 @@ export function VariantSelector({
           size="lg"
           disabled={disabled}
         />
-        <Button size="lg" disabled={disabled} className="flex-1 sm:flex-none" onClick={handleAdd}>
+        {/* A ação principal da página: ocupa o resto da linha e já mostra quanto vai custar. */}
+        <Button
+          size="lg"
+          disabled={disabled}
+          className="h-11 flex-1 text-base"
+          onClick={handleAdd}
+        >
           {justAdded ? (
             <>
               <Check className="h-4 w-4" />
               Adicionado!
             </>
-          ) : quantity > 1 && selected ? (
-            `Adicionar ${quantity} · ${formatCurrency(selected.price * quantity)}`
+          ) : selected ? (
+            <>
+              {quantity > 1 ? `Adicionar ${quantity}` : "Adicionar"}
+              <span aria-hidden="true" className="opacity-50">·</span>
+              {formatCurrency(selected.price * quantity)}
+            </>
           ) : (
             "Adicionar ao carrinho"
           )}
