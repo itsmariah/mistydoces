@@ -23,6 +23,8 @@ type ProductGridProps = {
    * mantendo a ordem dos produtos dentro de cada uma.
    */
   groupByCategory?: boolean;
+  /** Esconde o rótulo de categoria dos cards quando a lista já é de uma categoria só. */
+  hideCategory?: boolean;
 };
 
 const GRID_CLASS = "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4";
@@ -46,6 +48,7 @@ export function ProductGrid({
   ratings,
   emptyState,
   groupByCategory = false,
+  hideCategory = false,
 }: ProductGridProps) {
   if (products.length === 0) {
     if (emptyState) return emptyState;
@@ -66,6 +69,8 @@ export function ProductGrid({
       product={product}
       isBestSeller={bestSellerIds?.has(product.id)}
       rating={ratings?.get(product.id)}
+      // Nas seções, o título acima já diz a categoria de todos os cards.
+      showCategory={!groupByCategory && !hideCategory}
     />
   );
 

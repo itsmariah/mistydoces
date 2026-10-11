@@ -23,13 +23,21 @@ type ProductCardProps = {
   rating?: RatingSummary;
   /** Posição na grade — define o atraso da animação de entrada em cascata. */
   index?: number;
+  /** Desligado onde a categoria já está à vista (seção ou filtro do cardápio). */
+  showCategory?: boolean;
 };
 
 // Acima disso os cards já estão fora da tela inicial; atrasar mais só faria a página parecer lenta.
 const MAX_STAGGERED_CARDS = 12;
 const STAGGER_STEP_MS = 60;
 
-export function ProductCard({ product, isBestSeller = false, rating, index = 0 }: ProductCardProps) {
+export function ProductCard({
+  product,
+  isBestSeller = false,
+  rating,
+  index = 0,
+  showCategory = true,
+}: ProductCardProps) {
   const startingPrice = getStartingPrice(product.variants);
   const priceLabel =
     product.variants.length > 1
@@ -107,9 +115,11 @@ export function ProductCard({ product, isBestSeller = false, rating, index = 0 }
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1 p-4">
-        <span className="text-xs font-medium text-muted-foreground">
-          {product.category.name}
-        </span>
+        {showCategory && (
+          <span className="text-xs font-medium text-muted-foreground">
+            {product.category.name}
+          </span>
+        )}
         <h3 className="font-heading text-base font-semibold">
           <ProductCardLink
             slug={product.slug}

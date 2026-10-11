@@ -117,6 +117,7 @@ export default async function CardapioPage({
       {!groupByCategory && <h2 className="sr-only">Produtos</h2>}
       <ProductGrid
         groupByCategory={groupByCategory}
+        hideCategory={!!activeCategory}
         products={visibleProducts}
         bestSellerIds={bestSellerIds}
         ratings={ratings}
