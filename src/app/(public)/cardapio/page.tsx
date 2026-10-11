@@ -72,9 +72,9 @@ export default async function CardapioPage({
         </div>
       </PageHeader>
 
-      {/* Fica logo abaixo do header fixo (h-16) enquanto a grade rola. Só as categorias grudam
+      {/* Fica logo abaixo do header fixo (--header-h) enquanto a grade rola. Só as categorias grudam
           (ganham a largura toda, numa linha só); restrições e ordenação ficam na linha de baixo. */}
-      <div className="sticky top-16 z-30 -mx-4 bg-background/85 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/70">
+      <div className="sticky top-(--header-h) z-30 -mx-4 bg-background/85 transition-[top] duration-300 motion-reduce:transition-none px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/70">
         <CategoryFilter
           categories={categories}
           activeSlug={categoria}

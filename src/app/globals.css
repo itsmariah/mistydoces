@@ -222,6 +222,8 @@
   --section-foreground: #5f4a78;
   /* Sombra das caixas (.surface): quente e curta, só para destacar do fundo. */
   --shadow-card: 0 1px 2px rgb(91 66 40 / 0.06), 0 4px 14px -6px rgb(91 66 40 / 0.12);
+  /* Sombra do cabeçalho da loja depois de rolar a página (HeaderScrollState). */
+  --shadow-header: 0 6px 18px -10px rgb(91 66 40 / 0.22);
   --secondary: #efe6f5;
   --secondary-foreground: #5f4a78;
   --muted: #f3e9dc;
@@ -276,6 +278,7 @@
      sozinha quase não aparece. */
   --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 2px rgb(0 0 0 / 0.25),
     0 6px 18px -8px rgb(0 0 0 / 0.45);
+  --shadow-header: 0 8px 24px -8px rgb(0 0 0 / 0.6);
   --secondary: #2d2a4a;
   --secondary-foreground: #dcc9ef;
   --muted: #1d2a42;
@@ -335,6 +338,17 @@
   --icon-btn-sm: 2rem;
   --icon-btn-lg: 2.75rem;
   --input-px: 0.875rem;
+}
+
+/* Altura do cabeçalho da loja: encolhe ao rolar (HeaderScrollState marca `data-scrolled`).
+   As barras que grudam logo abaixo dele (filtros do cardápio, etapas do checkout) usam
+   `top-(--header-h)` para acompanhar. */
+:root {
+  --header-h: 4rem;
+}
+
+:root[data-scrolled] {
+  --header-h: 3.5rem;
 }
 
 /* Fundo ambiente da loja no tema escuro (camada fixa do SiteLayout): brilho lilás no topo,

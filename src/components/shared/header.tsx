@@ -7,6 +7,7 @@ import { FavoritesLink } from "@/components/favorites/favorite-button";
 import { AccountMenu } from "@/components/shared/account-menu";
 import { Logo } from "@/components/shared/logo";
 import { MobileNav } from "@/components/shared/mobile-nav";
+import { HeaderScrollState } from "@/components/shared/header-scroll-state";
 import { DesktopNavLinks } from "@/components/shared/nav-links";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -34,8 +35,9 @@ export async function Header() {
           </div>
         </div>
       )}
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
+      <HeaderScrollState />
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur transition-shadow duration-300 supports-backdrop-filter:bg-background/60 in-data-scrolled:shadow-(--shadow-header) motion-reduce:transition-none">
+        <div className="mx-auto flex h-(--header-h) max-w-6xl items-center justify-between gap-4 px-4 transition-[height] duration-300 motion-reduce:transition-none">
           <div className="flex items-center gap-2">
             <div className="md:hidden">
               <MobileNav />

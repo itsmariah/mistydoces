@@ -49,7 +49,7 @@ export function CheckoutSteps({ steps, trailing }: { steps: CheckoutStep[]; trai
   return (
     <nav
       aria-label="Etapas do pedido"
-      className="sticky top-16 z-30 -mx-4 flex items-center gap-3 bg-background/85 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/70"
+      className="sticky top-(--header-h) z-30 transition-[top] duration-300 motion-reduce:transition-none -mx-4 flex items-center gap-3 bg-background/85 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/70"
     >
       <ol className="flex min-w-0 flex-1 items-center">
         {steps.map((step, index) => {
