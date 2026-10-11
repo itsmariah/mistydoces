@@ -12,7 +12,7 @@ export async function Testimonials() {
   if (reviews.length === 0) return null;
 
   return (
-    <section aria-labelledby="depoimentos-titulo" className="mx-auto max-w-5xl space-y-8 px-4 py-16 sm:py-20">
+    <section aria-labelledby="depoimentos-titulo" className="mx-auto max-w-5xl space-y-8 px-4 pt-16 sm:pt-20">
       <SectionHeader
         id="depoimentos-titulo"
         className="reveal"

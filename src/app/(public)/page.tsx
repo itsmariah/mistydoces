@@ -1,5 +1,6 @@
 import { FeaturedProducts } from "@/components/home/featured-products";
 import { CategoryShortcuts } from "@/components/home/category-shortcuts";
+import { FinalCta } from "@/components/home/final-cta";
 import { Hero } from "@/components/home/hero";
 import { HeartsDivider } from "@/components/home/section-dividers";
 import { HowItWorks } from "@/components/home/how-it-works";
@@ -14,6 +15,7 @@ export default function HomePage() {
       <FeaturedProducts />
       <HowItWorks />
       <Testimonials />
+      <FinalCta />
     </>
   );
 }
