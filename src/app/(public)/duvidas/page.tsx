@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, MessageCircle } from "lucide-react";
+import { PageHeader } from "@/components/shared/page-header";
 import { PickupDetails } from "@/components/shared/pickup-details";
 import { HoursList } from "@/components/shared/hours-list";
 import { Button } from "@/components/ui/button";
@@ -225,13 +225,11 @@ export default async function DuvidasPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-10 px-4 py-16">
-      <div className="flex flex-col items-center gap-4 text-center">
-        <Image src="/branding/03_gatinha_chefe_com_flor.png" alt="" width={90} height={132} />
-        <div className="space-y-1">
-          <p className="font-display text-2xl text-script">Ficou com alguma dúvida?</p>
-          <h1 className="font-heading text-3xl font-semibold">Dúvidas frequentes</h1>
-        </div>
-      </div>
+      <PageHeader
+        image={{ src: "/branding/03_gatinha_chefe_com_flor.png", width: 90, height: 132 }}
+        kicker="ficou com alguma dúvida?"
+        title="Dúvidas frequentes"
+      />
 
       {sections.map((section) => (
         <section key={section.title} className="space-y-3">

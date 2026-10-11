@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getCategoriesWithProductCount } from "@/lib/catalog";
 import { categoryIllustration } from "@/lib/category-illustrations";
 import { cardapioHref, DEFAULT_CATALOG_SORT } from "@/lib/catalog-sort";
+import { SectionHeader } from "@/components/shared/section-header";
 
 export async function CategoryShortcuts() {
   const categories = await getCategoriesWithProductCount();
@@ -11,12 +12,12 @@ export async function CategoryShortcuts() {
 
   return (
     <section aria-labelledby="categorias-titulo" className="mx-auto max-w-5xl space-y-6 px-4 pb-12 sm:pb-16">
-      <div className="reveal text-center">
-        <p className="font-display text-xl text-script">escolha por categoria</p>
-        <h2 id="categorias-titulo" className="font-heading text-2xl font-semibold">
-          O que vai ser hoje?
-        </h2>
-      </div>
+      <SectionHeader
+        id="categorias-titulo"
+        className="reveal"
+        kicker="escolha por categoria"
+        title="O que vai ser hoje?"
+      />
 
       {/* No celular, faixa com rolagem lateral; a partir de `sm`, os atalhos quebram linha centralizados. */}
       <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">

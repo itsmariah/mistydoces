@@ -1,7 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/catalog/product-card";
+import { SectionHeader } from "@/components/shared/section-header";
 import { getLatestProducts, getProductsByIds } from "@/lib/catalog";
 import { BEST_SELLER_LIMIT, getBestSellerProductIds } from "@/services/best-seller-service";
 import { getRatingSummaries } from "@/services/review-service";
@@ -21,32 +19,20 @@ export async function FeaturedProducts() {
   const ratings = await getRatingSummaries(products.map((product) => product.id));
 
   return (
-    <section className="mx-auto max-w-5xl space-y-6 px-4 pb-16 sm:pb-24">
-      <div className="reveal flex flex-wrap items-end justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Image src="/branding/10_coracao_patinha.png" alt="" width={40} height={40} />
-          <div>
-            <p className="font-display text-xl text-script">
-              {hasBestSellers ? "aprovados pela chef" : "saindo do forno"}
-            </p>
-            <h2 className="font-heading text-2xl font-semibold">
-              {hasBestSellers ? "Os favoritos da Misty" : "Novidades da cozinha"}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {hasBestSellers
-                ? "Os doces que mais saíram nas últimas semanas."
-                : "Acabaram de chegar ao cardápio."}
-            </p>
-          </div>
-        </div>
-        <Link
-          href="/cardapio"
-          className="inline-flex items-center gap-1 text-sm font-medium text-link hover:underline"
-        >
-          Ver cardápio completo
-          <ChevronRight className="h-4 w-4" />
-        </Link>
-      </div>
+    <section aria-labelledby="destaques-titulo" className="mx-auto max-w-5xl space-y-6 px-4 pb-16 sm:pb-24">
+      <SectionHeader
+        id="destaques-titulo"
+        className="reveal"
+        image={{ src: "/branding/10_coracao_patinha.png", width: 40, height: 40 }}
+        kicker={hasBestSellers ? "aprovados pela chef" : "saindo do forno"}
+        title={hasBestSellers ? "Os favoritos da Misty" : "Novidades da cozinha"}
+        description={
+          hasBestSellers
+            ? "Os doces que mais saíram nas últimas semanas."
+            : "Acabaram de chegar ao cardápio."
+        }
+        link={{ href: "/cardapio", label: "Ver cardápio completo" }}
+      />
 
       {/* No celular vira uma faixa com rolagem lateral; a partir de `sm`, grade de 3.
           O padding vertical evita cortar a animação de entrada e o hover dos cards. */}

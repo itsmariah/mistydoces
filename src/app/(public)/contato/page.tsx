@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 import { getStoreContact } from "@/services/store-settings-service";
 import { InstagramIcon } from "@/components/shared/instagram-icon";
+import { PageHeader } from "@/components/shared/page-header";
 import { PickupDetails } from "@/components/shared/pickup-details";
 import { HoursList } from "@/components/shared/hours-list";
 import { OpenStatus } from "@/components/shared/open-status";
@@ -52,14 +52,12 @@ export default async function ContatoPage() {
   if (!contact.hasChannels && !contact.pickup) {
     return (
       <div className="mx-auto flex max-w-xl flex-col items-center gap-8 px-4 py-16 text-center">
-        <Image src="/branding/14_pote_de_biscoitos.png" alt="" width={140} height={147} />
-        <div className="space-y-2">
-          <h1 className="font-heading text-3xl font-semibold">Contato</h1>
-          <p className="text-muted-foreground">
-            Estamos organizando nossos canais de atendimento — em breve você vai poder falar com a
-            gente direto por aqui.
-          </p>
-        </div>
+        <PageHeader
+          image={{ src: "/branding/14_pote_de_biscoitos.png", width: 140, height: 147 }}
+          kicker="vamos conversar?"
+          title="Contato"
+          description="Estamos organizando nossos canais de atendimento — em breve você vai poder falar com a gente direto por aqui."
+        />
 
         <section className="w-full space-y-3 rounded-2xl surface p-5 text-left">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -93,21 +91,19 @@ export default async function ContatoPage() {
 
   return (
     <div className="mx-auto max-w-xl space-y-10 px-4 py-16">
-      <div className="flex flex-col items-center gap-4 text-center">
-        <Image src="/branding/14_pote_de_biscoitos.png" alt="" width={120} height={126} />
-        <div className="space-y-2">
-          <h1 className="font-heading text-3xl font-semibold">Contato</h1>
-          <p className="text-muted-foreground">
-            Dúvidas, encomendas especiais ou só um oi — fale com a gente pelo canal que preferir.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Talvez a resposta já esteja nas{" "}
-            <Link href="/duvidas" className="text-link underline-offset-4 hover:underline">
-              dúvidas frequentes
-            </Link>
-            .
-          </p>
-        </div>
+      <PageHeader
+        image={{ src: "/branding/14_pote_de_biscoitos.png", width: 120, height: 126 }}
+        kicker="vamos conversar?"
+        title="Contato"
+        description="Dúvidas, encomendas especiais ou só um oi — fale com a gente pelo canal que preferir."
+      >
+        <p className="text-sm text-muted-foreground">
+          Talvez a resposta já esteja nas{" "}
+          <Link href="/duvidas" className="text-link underline-offset-4 hover:underline">
+            dúvidas frequentes
+          </Link>
+          .
+        </p>
         <OpenStatus schedule={contact.schedule} className="rounded-full bg-muted px-3 py-1" />
         {contact.whatsappHref && (
           <Button
@@ -118,7 +114,7 @@ export default async function ContatoPage() {
             <MessageCircle /> Chamar no WhatsApp
           </Button>
         )}
-      </div>
+      </PageHeader>
 
       {(contact.phone || contact.email || contact.instagram) && (
         <section className="space-y-3">

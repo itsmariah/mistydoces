@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
@@ -12,9 +13,11 @@ export const metadata: Metadata = {
 export default function SobrePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-14 px-4 py-16">
-      <header className="flex flex-col items-center gap-4 text-center">
-        <Image src="/branding/30_faixa_misty_doces.png" alt="" width={200} height={91} />
-        <h1 className="font-heading text-3xl font-semibold sm:text-4xl">Nossa história</h1>
+      <PageHeader
+        image={{ src: "/branding/30_faixa_misty_doces.png", width: 200, height: 91 }}
+        kicker="prazer, somos a MistyDoces"
+        title="Nossa história"
+      >
         <div className="max-w-xl space-y-3 text-lg leading-relaxed text-muted-foreground">
           <p>Olá, seja bem-vindo à MistyDoces! 💜</p>
           <p>
@@ -22,7 +25,7 @@ export default function SobrePage() {
             sobre a nossa história. E, bem... será um grande prazer contá-la!
           </p>
         </div>
-      </header>
+      </PageHeader>
 
       <section
         aria-labelledby="sobre-misty"

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { SortSelect } from "@/components/catalog/sort-select";
 import { SearchInput } from "@/components/catalog/search-input";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { filterProductsBySearch } from "@/lib/catalog-search";
 import { FREE_FROM_FILTERS, filterFreeFrom, parseFreeFrom } from "@/lib/allergens";
@@ -61,18 +62,15 @@ export default async function CardapioPage({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-12">
-      <div className="space-y-2 text-center">
-        <p className="font-display text-2xl text-script">feito na hora, com carinho</p>
-        <h1 className="font-heading text-3xl font-semibold sm:text-4xl">
-          Cardápio
-        </h1>
-        <p className="text-muted-foreground">
-          Escolha entre bolos, brigadeiros, cookies e kits feitos na hora.
-        </p>
-        <div className="flex justify-center pt-4">
+      <PageHeader
+        kicker="feito na hora, com carinho"
+        title="Cardápio"
+        description="Escolha entre bolos, brigadeiros, cookies e kits feitos na hora."
+      >
+        <div className="flex w-full justify-center pt-2">
           <SearchInput query={busca} categoria={categoria} ordem={sort} freeFrom={freeFrom} />
         </div>
-      </div>
+      </PageHeader>
 
       {/* Fica logo abaixo do header fixo (h-16) enquanto a grade rola. Só as categorias grudam
           (ganham a largura toda, numa linha só); restrições e ordenação ficam na linha de baixo. */}

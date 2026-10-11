@@ -6,6 +6,7 @@ import {
   getStoreContact,
 } from "@/services/store-settings-service";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
+import { PageHeader } from "@/components/shared/page-header";
 
 export default async function CheckoutPage() {
   // A rota já é protegida pelo proxy (RN02); aqui buscamos os dados do usuário.
@@ -19,7 +20,7 @@ export default async function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 lg:max-w-5xl">
-      <h1 className="mb-8 font-heading text-2xl font-semibold">Finalizar pedido</h1>
+      <PageHeader kicker="falta pouquinho!" title="Finalizar pedido" className="mb-8" />
       <CheckoutForm
         addresses={addresses}
         deliveryFee={deliveryFee}

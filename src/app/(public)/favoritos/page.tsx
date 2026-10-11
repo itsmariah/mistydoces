@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ProductGrid } from "@/components/catalog/product-grid";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { getProductsByIds } from "@/lib/catalog";
 import { getBestSellerProductIds } from "@/services/best-seller-service";
@@ -21,9 +22,7 @@ export default async function FavoritosPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-12">
-      <div className="space-y-2 text-center">
-        <p className="font-display text-2xl text-script">os doces que você mais gostou</p>
-        <h1 className="font-heading text-3xl font-semibold sm:text-4xl">Favoritos</h1>
+      <PageHeader kicker="os doces que você mais gostou" title="Favoritos">
         {!favorites.isLoggedIn && products.length > 0 && (
           <p className="text-sm text-muted-foreground">
             Seus favoritos ficam salvos neste navegador.{" "}
@@ -33,7 +32,7 @@ export default async function FavoritosPage() {
             para levá-los para qualquer aparelho.
           </p>
         )}
-      </div>
+      </PageHeader>
 
       <h2 className="sr-only">Produtos favoritos</h2>
       <ProductGrid

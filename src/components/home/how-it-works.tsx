@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { Bike, CreditCard, ShoppingBag, type LucideIcon } from "lucide-react";
 import { Wave } from "@/components/home/section-dividers";
+import { SectionHeader } from "@/components/shared/section-header";
 
 const STEPS: Array<{ icon: LucideIcon; title: string; description: string }> = [
   {
@@ -26,12 +27,12 @@ export function HowItWorks() {
       <Wave className="text-accent/40 dark:text-secondary/35" />
       <div className="bg-accent/40 py-12 sm:py-16 dark:bg-secondary/35">
         <div className="mx-auto max-w-5xl space-y-10 px-4">
-          <div className="reveal text-center">
-            <p className="font-display text-xl text-script">simples assim</p>
-            <h2 id="como-funciona-titulo" className="font-heading text-2xl font-semibold">
-              Como funciona
-            </h2>
-          </div>
+          <SectionHeader
+            id="como-funciona-titulo"
+            className="reveal"
+            kicker="simples assim"
+            title="Como funciona"
+          />
           <ol className="grid gap-8 sm:grid-cols-3">
             {STEPS.map(({ icon: Icon, title, description }, index) => (
               <li

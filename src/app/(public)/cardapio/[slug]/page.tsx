@@ -24,6 +24,7 @@ import { auth } from "@/lib/auth";
 import { getBestSellerProductIds } from "@/services/best-seller-service";
 import { getDeliveryFee, getStoreContact } from "@/services/store-settings-service";
 import { OpenStatus } from "@/components/shared/open-status";
+import { SectionHeader } from "@/components/shared/section-header";
 import {
   getProductRatingSummary,
   getProductReviews,
@@ -231,8 +232,17 @@ export default async function ProdutoPage({
         </div>
       </div>
 
-      <section id="avaliacoes" className="scroll-mt-20 space-y-4 border-t border-border pt-8">
-        <h2 className="font-heading text-lg font-medium">Avaliações</h2>
+      <section
+        id="avaliacoes"
+        aria-labelledby="avaliacoes-titulo"
+        className="scroll-mt-20 space-y-4 border-t border-border pt-8"
+      >
+        <SectionHeader
+          id="avaliacoes-titulo"
+          align="start"
+          kicker="o que acharam"
+          title="Avaliações"
+        />
 
         {ratingSummary.count > 0 && <RatingBreakdown summary={ratingSummary} />}
 
@@ -282,9 +292,13 @@ export default async function ProdutoPage({
 
       {related.length > 0 && (
         <section aria-labelledby="relacionados-titulo" className="space-y-4 border-t border-border pt-8">
-          <h2 id="relacionados-titulo" className="font-heading text-lg font-medium">
-            Você também vai gostar
-          </h2>
+          <SectionHeader
+            id="relacionados-titulo"
+            align="start"
+            kicker="pra fazer companhia"
+            title="Você também vai gostar"
+            link={{ href: "/cardapio", label: "Ver cardápio" }}
+          />
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {related.map((item, index) => (
               <ProductCard

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getRecentlyViewedProducts, type RecentlyViewedProduct } from "@/actions/catalog";
 import { ProductPlaceholderImage } from "@/components/catalog/product-placeholder-image";
+import { SectionHeader } from "@/components/shared/section-header";
 import {
   RECENTLY_VIEWED_STORAGE_KEY,
   parseRecentlyViewed,
@@ -65,9 +66,12 @@ export function RecentlyViewed({
       aria-labelledby="vistos-titulo"
       className={cn("space-y-4 border-t border-border pt-8", className)}
     >
-      <h2 id="vistos-titulo" className="font-heading text-lg font-medium">
-        Vistos recentemente
-      </h2>
+      <SectionHeader
+        id="vistos-titulo"
+        align="start"
+        kicker="você passou por aqui"
+        title="Vistos recentemente"
+      />
       {/* Rola de lado no celular; o -mx/px deixa o último card encostar na borda da tela. */}
       <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2">
         {products.map((product) => (

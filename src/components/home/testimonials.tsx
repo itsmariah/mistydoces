@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { StarRating } from "@/components/catalog/star-rating";
+import { SectionHeader } from "@/components/shared/section-header";
 import { getFeaturedReviews } from "@/services/review-service";
 
 const TESTIMONIALS_LIMIT = 3;
@@ -13,13 +13,13 @@ export async function Testimonials() {
 
   return (
     <section aria-labelledby="depoimentos-titulo" className="mx-auto max-w-5xl space-y-8 px-4 py-16 sm:py-20">
-      <div className="reveal flex flex-col items-center gap-2 text-center">
-        <Image src="/branding/16_tag_aprovado_pela_chefe.png" alt="" width={120} height={100} />
-        <p className="font-display text-xl text-script">de quem já provou</p>
-        <h2 id="depoimentos-titulo" className="font-heading text-2xl font-semibold">
-          Quem provou, aprovou
-        </h2>
-      </div>
+      <SectionHeader
+        id="depoimentos-titulo"
+        className="reveal"
+        image={{ src: "/branding/16_tag_aprovado_pela_chefe.png", width: 120, height: 100 }}
+        kicker="de quem já provou"
+        title="Quem provou, aprovou"
+      />
 
       <ul className="grid gap-4 sm:grid-cols-3">
         {reviews.map((review, index) => (
