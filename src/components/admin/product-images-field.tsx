@@ -76,6 +76,10 @@ export function ProductImagesField({
       <p className="text-xs text-muted-foreground">
         Até {MAX_PRODUCT_IMAGES} fotos. A primeira é a capa, usada no cardápio e no carrinho.
       </p>
+      <p className="text-xs text-muted-foreground">
+        💡 Dica: as fotos aparecem quadradas na loja. Deixe o doce no centro, com luz natural e um
+        fundo limpo, para nada importante ficar cortado.
+      </p>
 
       {value.length > 0 && (
         <ul className="grid grid-cols-3 gap-2 sm:grid-cols-6">
